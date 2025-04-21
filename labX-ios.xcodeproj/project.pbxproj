@@ -11,6 +11,8 @@
 		CFF9D1F62DACC92800A06688 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D1F52DACC92800A06688 /* FirebaseAuth */; };
 		CFF9D1F82DACC92800A06688 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D1F72DACC92800A06688 /* FirebaseCore */; };
 		CFF9D2072DACD21D00A06688 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D2062DACD21D00A06688 /* FirebaseFirestore */; };
+		CFF9D2132DAE1E7500A06688 /* Discovery in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D2122DAE1E7500A06688 /* Discovery */; };
+		CFF9D2152DAE1E7500A06688 /* GoogleAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D2142DAE1E7500A06688 /* GoogleAPIRuntime */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,7 +33,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				CFF9D1F12DACB51700A06688 /* Forever in Frameworks */,
+				CFF9D2132DAE1E7500A06688 /* Discovery in Frameworks */,
 				CFF9D2072DACD21D00A06688 /* FirebaseFirestore in Frameworks */,
+				CFF9D2152DAE1E7500A06688 /* GoogleAPIRuntime in Frameworks */,
 				CFF9D1F82DACC92800A06688 /* FirebaseCore in Frameworks */,
 				CFF9D1F62DACC92800A06688 /* FirebaseAuth in Frameworks */,
 			);
@@ -80,6 +84,8 @@
 				CFF9D1F52DACC92800A06688 /* FirebaseAuth */,
 				CFF9D1F72DACC92800A06688 /* FirebaseCore */,
 				CFF9D2062DACD21D00A06688 /* FirebaseFirestore */,
+				CFF9D2122DAE1E7500A06688 /* Discovery */,
+				CFF9D2142DAE1E7500A06688 /* GoogleAPIRuntime */,
 			);
 			productName = "labX-ios";
 			productReference = CF288DD82D87C7210012B4B1 /* labX-ios.app */;
@@ -112,6 +118,7 @@
 			packageReferences = (
 				CFF9D1EF2DACB51700A06688 /* XCRemoteSwiftPackageReference "Forever" */,
 				CFF9D1F42DACC92800A06688 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				CFF9D2112DAE1E7500A06688 /* XCRemoteSwiftPackageReference "google-api-swift-client" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CF288DD92D87C7210012B4B1 /* Products */;
@@ -284,7 +291,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "teamX.labX-ios";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.teamX.labX-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -313,7 +320,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "teamX.labX-ios";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.teamX.labX-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -361,6 +368,14 @@
 				minimumVersion = 11.11.0;
 			};
 		};
+		CFF9D2112DAE1E7500A06688 /* XCRemoteSwiftPackageReference "google-api-swift-client" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleapis/google-api-swift-client";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -383,6 +398,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CFF9D1F42DACC92800A06688 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		CFF9D2122DAE1E7500A06688 /* Discovery */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFF9D2112DAE1E7500A06688 /* XCRemoteSwiftPackageReference "google-api-swift-client" */;
+			productName = Discovery;
+		};
+		CFF9D2142DAE1E7500A06688 /* GoogleAPIRuntime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFF9D2112DAE1E7500A06688 /* XCRemoteSwiftPackageReference "google-api-swift-client" */;
+			productName = GoogleAPIRuntime;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

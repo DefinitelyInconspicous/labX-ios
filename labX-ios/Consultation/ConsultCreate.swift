@@ -6,18 +6,22 @@
 //
 
 import SwiftUI
+import Forever
 struct staff: Identifiable, Equatable, Hashable, Encodable, Decodable {
     var id = UUID()
     var name: String
     var email: String
 }
+
+var teachers: [staff] = [
+    staff(name: "Mr Mehra", email: "amspy2468@gmail.com"),
+    staff(name: "labX Admin", email: "labX.serve@gmail.com"),
+    staff(name: "Mr CHAYYYY", email: "chay_yu_hung@s2023.ssts.edu.sg"),
+    staff(name: "Mr Suresh", email: "sairam_suresh@s2023.ssts.edu.sg")]
+
 struct ConsultCreate: View {
     @Binding var consultations: [consultation]
-    @State var teachers: [staff] = [
-        staff(name: "Mr Mehra", email: "amspy2468@gmail.com"),
-        staff(name: "labX Admin", email: "labX.serve@gmail.com"),
-        staff(name: "Mr CHAYYYY", email: "chay_yu_hung@s2023.ssts.edu.sg"),
-        staff(name: "Mr Suresh", email: "sairam_suresh@s2023.ssts.edu.sg")]
+    
     @State var selectedTeacher: staff = staff(name: "", email: "")
     @State var selectedDate: Date = Date()
     @State var showAlert = false
