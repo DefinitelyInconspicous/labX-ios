@@ -6,11 +6,19 @@
 //
 
 import SwiftUI
-
+struct staff: Identifiable, Equatable, Hashable, Encodable, Decodable {
+    var id = UUID()
+    var name: String
+    var email: String
+}
 struct ConsultCreate: View {
     @Binding var consultations: [consultation]
-    @State var teachers: [String] = ["Mr Dhanwin", "Mr Suresh", "Mr Dhanvin", "Mr CHAYYYY"]
-    @State var selectedTeacher: String = ""
+    @State var teachers: [staff] = [
+        staff(name: "Mr Mehra", email: "amspy2468@gmail.com"),
+        staff(name: "labX Admin", email: "labX.serve@gmail.com"),
+        staff(name: "Mr CHAYYYY", email: "chay_yu_hung@s2023.ssts.edu.sg"),
+        staff(name: "Mr Suresh", email: "sairam_suresh@s2023.ssts.edu.sg")]
+    @State var selectedTeacher: staff = staff(name: "", email: "")
     @State var selectedDate: Date = Date()
     @State var showAlert = false
     @State var comments: String = ""
@@ -23,7 +31,7 @@ struct ConsultCreate: View {
                 Section(header: Text("Select Teacher")) {
                     Picker("Teacher", selection: $selectedTeacher) {
                         ForEach(teachers, id: \.self) { teacher in
-                            Text(teacher).tag(teacher)
+                            Text(teacher.name).tag(teacher)
                         }
                     }
                     .pickerStyle(.menu)
@@ -37,7 +45,7 @@ struct ConsultCreate: View {
                 }
                 
                 Button {
-                    if selectedTeacher.isEmpty || comments.isEmpty || selectedDate < .now {
+                    if selectedTeacher == staff(name: "", email: "") || comments.isEmpty || selectedDate < .now {
                         showAlert = true
                         
                     } else {
@@ -63,6 +71,11 @@ struct ConsultCreate: View {
     }
 }
 
+func sendNoti(teacher: staff, date: Date, comment: String, user : User) {
+    let message = "\(user.firstName) from \(user.className) requested a new consultation with \(teacher.name) on \(date)"
+    
+}
+
 #Preview {
-    ConsultCreate(consultations: .constant([consultation(teacher: "Dr Dhanwin", date: .now, comment: "")]))
+    ConsultCreate(consultations: .constant([consultation(teacher: staff(name: "", email: ""), date: .now, comment: "")]))
 }

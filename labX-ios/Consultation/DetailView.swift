@@ -5,7 +5,7 @@ struct DetailView: View {
     @Environment(\.dismiss) var dismiss
     
     var consultation: consultation
-    @Binding var consultations: [consultation] // Full list so we can modify it
+    @Binding var consultations: [consultation]
 
     var body: some View {
         VStack(spacing: 24) {
@@ -15,7 +15,7 @@ struct DetailView: View {
                 .foregroundColor(.blue)
                 .padding(.top, 40)
 
-            Text(consultation.teacher)
+            Text(consultation.teacher.name)
                 .font(.largeTitle)
                 .fontWeight(.bold)
 
@@ -65,5 +65,5 @@ struct DetailView: View {
 
 
 #Preview {
-    DetailView(consultation: consultation(teacher: "", date: .now, comment: ""), consultations: .constant([]))
+    DetailView(consultation: consultation(teacher: staff(name: "", email: ""), date: .now, comment: ""), consultations: .constant([]))
 }

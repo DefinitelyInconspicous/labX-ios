@@ -10,7 +10,7 @@ import Forever
 
 struct consultation: Identifiable, Decodable, Encodable {
     var id = UUID()
-    var teacher: String
+    var teacher: staff
     var date: Date
     var comment: String
 }
@@ -19,7 +19,7 @@ struct ContentView: View {
     @Forever("consultations") var consultations: [consultation] = []
     @State private var createConsult: Bool = false
     @StateObject private var userManager = UserManager()
-
+    @State public var key = "AIzaSyBEu_-xF1kGjRyPVAWIGo7sGTlWakPbYuo"
     
     var body: some View {
         NavigationStack {
@@ -43,7 +43,7 @@ struct ContentView: View {
                                 DetailView(consultation: consultation, consultations: $consultations)
                             } label: {
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Text(consultation.teacher)
+                                    Text(consultation.teacher.name)
                                         .font(.headline)
                                         .foregroundColor(.primary)
                                     Text(consultation.date.formatted(date: .abbreviated, time: .shortened))

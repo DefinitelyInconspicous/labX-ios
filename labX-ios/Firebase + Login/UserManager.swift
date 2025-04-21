@@ -16,14 +16,13 @@ class UserManager: ObservableObject {
         guard let currentUser = Auth.auth().currentUser else { return }
 
         let email = currentUser.email ?? ""
-        let level = user
         
         self.user = User(
-            firstName: "Avyan",
-            lastName: "Mehra",
+            firstName: "",
+            lastName: "",
             email: email,
-            className: "S3-01",
-            registerNumber: "05"
+            className: "",
+            registerNumber: ""
         )
 
     }

@@ -7,6 +7,10 @@
 
 
 import SwiftUI
+import Forever
+import FirebaseAuth
+import FirebaseCore
+import FirebaseFirestore
 
 struct User: Identifiable, Codable {
     var id: String = UUID().uuidString
@@ -24,14 +28,14 @@ struct TypingText: View {
     @State private var displayText = ""
     @State private var cursorVisible = true
     @State private var isTypingFinished = false
-
+    
     var body: some View {
         HStack {
             Text(displayText)
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
-
+            
             if !isTypingFinished {
                 Text(cursorVisible ? "|" : "")
                     .font(.largeTitle)
@@ -44,7 +48,7 @@ struct TypingText: View {
             startBlinkingCursor()
         }
     }
-
+    
     private func typeText() {
         displayText = ""
         var charIndex = 0
@@ -59,7 +63,7 @@ struct TypingText: View {
             }
         }
     }
-
+    
     private func startBlinkingCursor() {
         // Only start the cursor after typing is done
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
@@ -82,17 +86,18 @@ struct LoginView: View {
     @State private var selectedClass = "S1-01"
     @State private var registerNumber = "01"
     @State private var showAlert = false
-
-
-    let classes = (1...4).flatMap { level in (1...10).map { "S\(level)-\($0 < 10 ? "0\($0)" : "\($0)")" } }
-    let registerNumbers = (1...30).map { $0 < 10 ? "0\($0)" : "\($0)" }
-
+    
+    
+    var classes = (1...4).flatMap { level in (1...10).map { "S\(level)-\($0 < 10 ? "0\($0)" : "\($0)")" } } + ["Staff"]
+    var registerNumbers = (1...30).map { $0 < 10 ? "0\($0)" : "\($0)" } + ["Staff"]
+    
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
                 TypingText(fullText: "Welcome to labX")
                     .padding(.top, 40)
-
+                
                 VStack(spacing: 16) {
                     Group {
                         VStack(alignment: .leading, spacing: 6) {
@@ -106,20 +111,20 @@ struct LoginView: View {
                                     errorMessage = ""
                                     isEmailValid = true
                                 }
-
+                            
                             if !isEmailValid && !errorMessage.isEmpty {
                                 Text(errorMessage)
                                     .foregroundColor(.red)
                                     .font(.caption)
                             }
                         }
-
-                        VStack(alignment: .leading, spacing: 6) {
+                        
+                        VStack(alignment: .leading, spacing: 6) {                            
                             SecureField("Password", text: $password)
                                 .textContentType(.password)
                                 .padding()
                                 .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-
+                            
                             if !isPasswordValid && !errorMessage.isEmpty {
                                 Text("Password cannot be empty")
                                     .foregroundColor(.red)
@@ -127,7 +132,8 @@ struct LoginView: View {
                             }
                         }
                     }
-
+                    
+                    
                     if isRegistering {
                         Group {
                             VStack(alignment: .leading, spacing: 6) {
@@ -165,21 +171,27 @@ struct LoginView: View {
                         }
                     }
                 }
-
+                
                 VStack(spacing: 16) {
                     Button(action: {
                         validateEmail(email)
                         validatePassword(password)
-
+                        
                         if isEmailValid && isPasswordValid {
                             if isRegistering {
-                                AuthManager.shared.signIn(email: email, password: password) { error in
+                                guard password == confirmPassword else {
+                                    errorMessage = "Passwords do not match"
+                                    showAlert = true
+                                    return
+                                }
+                                
+                                AuthManager.shared.signUp(email: email, password: password) { error in
                                     if let error = error {
                                         errorMessage = error.localizedDescription
                                         showAlert = true
+                                    } else {
                                     }
                                 }
-
                             } else {
                                 AuthManager.shared.signIn(email: email, password: password) { error in
                                     if let error = error {
@@ -187,8 +199,8 @@ struct LoginView: View {
                                         showAlert = true
                                     }
                                 }
-
                             }
+                            
                         }
                     }) {
                         Text(isRegistering ? "Sign Up" : "Log In")
@@ -199,7 +211,7 @@ struct LoginView: View {
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
-
+                    
                     Button(isRegistering ? "Have an account? Log in" : "No account? Sign up") {
                         isRegistering.toggle()
                     }
@@ -213,27 +225,29 @@ struct LoginView: View {
                         dismissButton: .default(Text("OK"))
                     )
                 }
-
+                
             }
             .padding()
         }
     }
-
+    
     private func validateEmail(_ email: String) {
         let pattern = #"^[A-Za-z0-9._%+-]+@s20\d{2}\.ssts\.edu\.sg$"#
         let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive)
         let range = NSRange(location: 0, length: email.utf16.count)
-
+        let splitE = email.split(separator: "@")
         if let match = regex?.firstMatch(in: email, options: [], range: range),
            match.range.location != NSNotFound {
+            
+        } else if ( splitE[1]  == "sst.edu.sg") {
             isEmailValid = true
             errorMessage = ""
         } else {
             isEmailValid = false
-            errorMessage = "Email must end with @s20XX.ssts.edu.sg"
+            errorMessage = "Email must end with @s20XX.ssts.edu.sg OR @sst.edu.sg"
         }
     }
-
+    
     private func validatePassword(_ password: String) {
         if password.isEmpty {
             isPasswordValid = false
