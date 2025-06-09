@@ -65,7 +65,6 @@ struct TypingText: View {
     }
     
     private func startBlinkingCursor() {
-        // Only start the cursor after typing is done
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             if isTypingFinished {
                 cursorVisible.toggle()
@@ -217,6 +216,34 @@ struct LoginView: View {
                     }
                     .foregroundColor(.blue)
                     .font(.footnote)
+                    Button("Bypass Login (Dev)") {
+                        email = "avyan_mehra@s2023.ssts.edu.sg"
+                        password = "amspy123"
+                        AuthManager.shared.signIn(email: email, password: password) { error in
+                            if let error = error {
+                                errorMessage = error.localizedDescription
+                                showAlert = true
+                            }
+                        }
+                    }
+                    .foregroundColor(.green)
+                    .font(.footnote)
+                    
+                    Button("Bypass Login (Staff)") {
+                        email = "amspy2468@gmail.com"
+                        password = "amspy123"
+                        selectedClass = "Staff"
+                        registerNumber = "Staff"
+                        AuthManager.shared.signIn(email: email, password: password) { error in
+                            if let error = error {
+                                errorMessage = error.localizedDescription
+                                showAlert = true
+                            }
+                        }
+                    }
+                    .foregroundColor(.purple)
+                    .font(.footnote)
+                    
                 }
                 .alert(isPresented: $showAlert) {
                     Alert(
@@ -240,6 +267,9 @@ struct LoginView: View {
            match.range.location != NSNotFound {
             
         } else if ( splitE[1]  == "sst.edu.sg") {
+            isEmailValid = true
+            errorMessage = ""
+        } else if email == "amspy2468@gmail.com" {
             isEmailValid = true
             errorMessage = ""
         } else {

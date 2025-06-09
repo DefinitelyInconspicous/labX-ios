@@ -7,64 +7,96 @@
 
 import SwiftUI
 import FirebaseAuth
+import FirebaseFirestore
 import Forever
 
-struct ProfileRow: View {
-    var label: String
-    var value: String
-
-    var body: some View {
-        HStack {
-            Text(label + ":")
-                .fontWeight(.semibold)
-            Spacer()
-            Text(value)
-                .foregroundColor(.gray)
-        }
-        .padding(.vertical, 4)
-    }
-}
-
 struct ProfileView: View {
-    let user: User
+    @State var user: User
     @Forever("isLoggedIn") var isLoggedIn: Bool = true
-
+    @State  var showEditSheet = false
+    @State  var showAlert = false
+    @State  var alertMessage = ""
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        NavigationStack {
             HStack {
-                Image(systemName: "person.crop.circle")
-                    .imageScale(.large)
-                    .font(.system(size: 50))
-                    .padding(.bottom, 16)
-                Text(user.firstName + " " + user.lastName)
-                    .font(.title2)
-            }
-            ProfileRow(label: "Email", value: user.email)
-            ProfileRow(label: "Class", value: user.className)
-            ProfileRow(label: "Register No.", value: user.registerNumber)
-
-            Spacer()
-
-            Button(action: logout) {
-                Text("Log Out")
-                    .frame(maxWidth: .infinity)
+                Image(systemName: "person.crop.circle.fill")
+                    .resizable()
+                    .frame(width: 100, height: 100)
+                    .foregroundColor(.blue)
                     .padding()
-                    .foregroundColor(.red)
-                    .background(Color(.systemGray5))
-                    .cornerRadius(8)
+            Spacer()
             }
-            .padding(.top, 32)
+            Form {
+                Section(header: Text("Personal Info")) {
+                    Text("First Name: \(user.firstName)")
+                    Text("Last Name: \(user.lastName)")
+                    Text("Email: \(user.email)")
+                }
+                Section(header: Text("School Info")) {
+                    Text("Class: \(user.className)")
+                    Text("Register Number: \(user.registerNumber)")
+                }
+                Button("Log Out") {
+                    logout()
+                }
+                .foregroundColor(.red)
+                
+                
+                .navigationBarTitleDisplayMode(.inline)
+                .navigationTitle("Profile")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: {
+                            showEditSheet = true
+                        }) {
+                            Image(systemName: "pencil")
+                        }
+                    }
+                }
+                
+            }
         }
-        .padding()
         .navigationTitle("Profile")
+        .sheet(isPresented: $showEditSheet) {
+            EditProfileView(user: user) { updatedUser, message in
+                self.user = updatedUser
+                self.alertMessage = message
+                self.showAlert = true
+            }
+            
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(title: Text("Status"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+        }
+        .onAppear {
+            loadUserData()
+        }
     }
-
-    private func logout() {
+    
+    func logout() {
         do {
             try Auth.auth().signOut()
             isLoggedIn = false
         } catch {
-            print("Error signing out: \(error.localizedDescription)")
+            alertMessage = "Error signing out: \(error.localizedDescription)"
+            showAlert = true
+        }
+    }
+    
+    func loadUserData() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+        db.collection("users").document(uid).getDocument { snapshot, error in
+            if let data = snapshot?.data() {
+                if let firstName = data["firstName"] as? String,
+                   let lastName = data["lastName"] as? String,
+                   let email = data["email"] as? String,
+                   let className = data["className"] as? String,
+                   let registerNumber = data["registerNumber"] as? String {
+                    user = User(id: uid, firstName: firstName, lastName: lastName, email: email, className: className, registerNumber: registerNumber)
+                }
+            }
         }
     }
 }
