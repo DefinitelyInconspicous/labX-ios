@@ -3,6 +3,7 @@ import Forever
 
 struct DetailView: View {
     @Environment(\.dismiss) var dismiss
+    @StateObject private var consultationManager = ConsultationManager()
     
     var consultation: consultation
     @Binding var consultations: [consultation]
@@ -56,6 +57,7 @@ struct DetailView: View {
     }
 
     func cancelConsultation() {
+        consultationManager.deleteConsultation(consultation)
         if let index = consultations.firstIndex(where: { $0.id == consultation.id }) {
             consultations.remove(at: index)
         }
@@ -63,7 +65,6 @@ struct DetailView: View {
     }
 }
 
-
 #Preview {
-    DetailView(consultation: consultation(teacher: staff(name: "", email: ""), date: .now, comment: ""), consultations: .constant([]))
+    DetailView(consultation: consultation(teacher: staff(name: "", email: ""), date: .now, comment: "", student: ""), consultations: .constant([]))
 }

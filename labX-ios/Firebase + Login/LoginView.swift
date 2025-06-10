@@ -12,14 +12,7 @@ import FirebaseAuth
 import FirebaseCore
 import FirebaseFirestore
 
-struct User: Identifiable, Codable {
-    var id: String = UUID().uuidString
-    var firstName: String
-    var lastName: String
-    var email: String
-    var className: String
-    var registerNumber: String
-}
+
 
 
 

@@ -7,27 +7,23 @@
 
 import SwiftUI
 import Forever
-struct staff: Identifiable, Equatable, Hashable, Encodable, Decodable {
-    var id = UUID()
-    var name: String
-    var email: String
-}
 
 var teachers: [staff] = [
     staff(name: "Mr Mehra", email: "amspy2468@gmail.com"),
     staff(name: "labX Admin", email: "labX.serve@gmail.com"),
-    staff(name: "Mr CHAYYYY", email: "chay_yu_hung@s2023.ssts.edu.sg"),
-    staff(name: "Mr Suresh", email: "sairam_suresh@s2023.ssts.edu.sg")]
+    staff(name: "Mr CHAYYYY", email: "chay_yu_hung@s2021.ssts.edu.sg"),
+    staff(name: "Mr Suresh", email: "sairam_suresh@s2021.ssts.edu.sg")]
 
 struct ConsultCreate: View {
     @Binding var consultations: [consultation]
+    @StateObject private var consultationManager = ConsultationManager()
+    @StateObject private var userManager = UserManager()
     
     @State var selectedTeacher: staff = staff(name: "", email: "")
     @State var selectedDate: Date = Date()
     @State var showAlert = false
     @State var comments: String = ""
     @Environment(\.dismiss) var dismiss
-    
     
     var body: some View {
         NavigationStack {
@@ -51,25 +47,29 @@ struct ConsultCreate: View {
                 Button {
                     if selectedTeacher == staff(name: "", email: "") || comments.isEmpty || selectedDate < .now {
                         showAlert = true
-                        
-                    } else {
-                        let newConsult = consultation(teacher: selectedTeacher, date: selectedDate, comment: comments)
-                        consultations.append(newConsult)
+                    } else if let user = userManager.user {
+                        let newConsult = consultation(
+                            teacher: selectedTeacher,
+                            date: selectedDate,
+                            comment: comments,
+                            student: user.email
+                        )
+                        consultationManager.addConsultation(newConsult)
                         dismiss()
                     }
-                    
                 } label: {
                     Text("Create Consultation")
                         .frame(width: 300, height: 50)
-                    
                 }
                 .buttonStyle(.borderedProminent)
-                
             }
             .navigationTitle("Create Consultation")
             .navigationBarTitleDisplayMode(.inline)
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Missing Info"), message: Text("Please ensure you have selected a teacher, added a comment and selected a valid date"), dismissButton: .default(Text("OK")))
+            }
+            .onAppear {
+                userManager.fetchUser()
             }
         }
     }
@@ -81,5 +81,5 @@ func sendNoti(teacher: staff, date: Date, comment: String, user : User) {
 }
 
 #Preview {
-    ConsultCreate(consultations: .constant([consultation(teacher: staff(name: "", email: ""), date: .now, comment: "")]))
+    ConsultCreate(consultations: .constant([consultation(teacher: staff(name: "", email: ""), date: .now, comment: "", student: "")]))
 }
