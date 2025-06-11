@@ -13,6 +13,7 @@ struct consultation: Identifiable, Decodable, Encodable {
     var date: Date
     var comment: String
     var student: String
+    var status: String?
 }
 
 struct User: Identifiable, Codable {

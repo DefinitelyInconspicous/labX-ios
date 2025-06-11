@@ -8,6 +8,7 @@
 
 import SwiftUI
 import FirebaseAuth
+import FirebaseFirestore
 
 struct BookingMain: View {
     @State private var selectedLocation: String = ""
@@ -16,6 +17,7 @@ struct BookingMain: View {
     @StateObject private var userManager = UserManager()
     @State private var showAlert = false
     @State private var alertMessage = ""
+    private let db = Firestore.firestore()
     
     let locations: [String] = [
         "Physics lab 1",
@@ -181,10 +183,29 @@ struct BookingMain: View {
             return
         }
         
-        // Here you would typically save the booking to your database
-        // For now, we'll just show a success message
-        alertMessage = "Lab booked successfully for \(selectedLocation) from \(formatTimeRange())"
-        showAlert = true
+        let booking = [
+            "location": selectedLocation,
+            "startTime": Timestamp(date: selectedTimeSlots.min()!),
+            "endTime": Timestamp(date: selectedTimeSlots.max()!),
+            "comment": comment,
+            "bookedBy": user.email,
+            "bookedByName": "\(user.firstName) \(user.lastName)",
+            "status": "pending",
+            "createdAt": Timestamp()
+        ] as [String : Any]
+        
+        db.collection("labBookings").addDocument(data: booking) { error in
+            if let error = error {
+                alertMessage = "Error booking lab: \(error.localizedDescription)"
+            } else {
+                alertMessage = "Lab booked successfully for \(selectedLocation) from \(formatTimeRange())"
+                // Clear the form
+                selectedLocation = ""
+                selectedTimeSlots.removeAll()
+                comment = ""
+            }
+            showAlert = true
+        }
     }
 }
 

@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CF1949402DF9650A009A503C /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = CF19493F2DF9650A009A503C /* FirebaseAnalytics */; };
+		CF1949422DF9650A009A503C /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = CF1949412DF9650A009A503C /* FirebaseDatabase */; };
+		CF1949442DF9650A009A503C /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = CF1949432DF9650A009A503C /* FirebaseInAppMessaging-Beta */; };
 		CFF9D1F12DACB51700A06688 /* Forever in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D1F02DACB51700A06688 /* Forever */; };
 		CFF9D1F62DACC92800A06688 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D1F52DACC92800A06688 /* FirebaseAuth */; };
 		CFF9D1F82DACC92800A06688 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D1F72DACC92800A06688 /* FirebaseCore */; };
@@ -19,9 +22,23 @@
 		CF288DD82D87C7210012B4B1 /* labX-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "labX-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CF84E3702DF9668400575CD4 /* Exceptions for "labX-ios" folder in "labX-ios" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+				Info.plist.backup,
+			);
+			target = CF288DD72D87C7210012B4B1 /* labX-ios */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CF288DDA2D87C7210012B4B1 /* labX-ios */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CF84E3702DF9668400575CD4 /* Exceptions for "labX-ios" folder in "labX-ios" target */,
+			);
 			path = "labX-ios";
 			sourceTree = "<group>";
 		};
@@ -32,11 +49,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CF1949402DF9650A009A503C /* FirebaseAnalytics in Frameworks */,
 				CFF9D1F12DACB51700A06688 /* Forever in Frameworks */,
+				CF1949442DF9650A009A503C /* FirebaseInAppMessaging-Beta in Frameworks */,
 				CFF9D2132DAE1E7500A06688 /* Discovery in Frameworks */,
 				CFF9D2072DACD21D00A06688 /* FirebaseFirestore in Frameworks */,
 				CFF9D2152DAE1E7500A06688 /* GoogleAPIRuntime in Frameworks */,
 				CFF9D1F82DACC92800A06688 /* FirebaseCore in Frameworks */,
+				CF1949422DF9650A009A503C /* FirebaseDatabase in Frameworks */,
 				CFF9D1F62DACC92800A06688 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -86,6 +106,9 @@
 				CFF9D2062DACD21D00A06688 /* FirebaseFirestore */,
 				CFF9D2122DAE1E7500A06688 /* Discovery */,
 				CFF9D2142DAE1E7500A06688 /* GoogleAPIRuntime */,
+				CF19493F2DF9650A009A503C /* FirebaseAnalytics */,
+				CF1949412DF9650A009A503C /* FirebaseDatabase */,
+				CF1949432DF9650A009A503C /* FirebaseInAppMessaging-Beta */,
 			);
 			productName = "labX-ios";
 			productReference = CF288DD82D87C7210012B4B1 /* labX-ios.app */;
@@ -379,6 +402,21 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		CF19493F2DF9650A009A503C /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFF9D1F42DACC92800A06688 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		CF1949412DF9650A009A503C /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFF9D1F42DACC92800A06688 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
+		};
+		CF1949432DF9650A009A503C /* FirebaseInAppMessaging-Beta */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFF9D1F42DACC92800A06688 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseInAppMessaging-Beta";
+		};
 		CFF9D1F02DACB51700A06688 /* Forever */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CFF9D1EF2DACB51700A06688 /* XCRemoteSwiftPackageReference "Forever" */;

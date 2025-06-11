@@ -7,12 +7,7 @@
 
 import SwiftUI
 import Forever
-
-var teachers: [staff] = [
-    staff(name: "Mr Mehra", email: "amspy2468@gmail.com"),
-    staff(name: "labX Admin", email: "labX.serve@gmail.com"),
-    staff(name: "Mr CHAYYYY", email: "chay_yu_hung@s2021.ssts.edu.sg"),
-    staff(name: "Mr Suresh", email: "sairam_suresh@s2021.ssts.edu.sg")]
+import FirebaseFirestore
 
 struct ConsultCreate: View {
     @Binding var consultations: [consultation]
@@ -23,6 +18,7 @@ struct ConsultCreate: View {
     @State var selectedDate: Date = Date()
     @State var showAlert = false
     @State var comments: String = ""
+    @State var teachers: [staff] = []
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
@@ -70,7 +66,27 @@ struct ConsultCreate: View {
             }
             .onAppear {
                 userManager.fetchUser()
+                fetchTeachers()
             }
+        }
+    }
+    
+    private func fetchTeachers() {
+        let db = Firestore.firestore()
+        db.collection("teachers").getDocuments { snapshot, error in
+            if let error = error {
+                print("Error fetching teachers: \(error.localizedDescription)")
+                return
+            }
+            
+            teachers = snapshot?.documents.compactMap { document in
+                let data = document.data()
+                guard let name = data["name"] as? String,
+                      let email = data["email"] as? String else {
+                    return nil
+                }
+                return staff(name: name, email: email)
+            } ?? []
         }
     }
 }

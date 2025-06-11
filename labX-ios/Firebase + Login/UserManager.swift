@@ -101,7 +101,8 @@ class ConsultationManager: ObservableObject {
                         teacher: teacher,
                         date: date,
                         comment: comment,
-                        student: student
+                        student: student,
+                        status: data["status"] as? String
                     )
                 }
             }
@@ -143,7 +144,8 @@ class ConsultationManager: ObservableObject {
                         teacher: teacher,
                         date: date,
                         comment: comment,
-                        student: student
+                        student: student,
+                        status: data["status"] as? String
                     )
                 }
             }
@@ -156,7 +158,8 @@ class ConsultationManager: ObservableObject {
             "teacherEmail": consultation.teacher.email,
             "date": Timestamp(date: consultation.date),
             "comment": consultation.comment,
-            "student": consultation.student
+            "student": consultation.student,
+            "status": consultation.status ?? "pending"
         ]
         
         db.collection("consultations").document(consultation.id.uuidString).setData(data) { error in

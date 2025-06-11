@@ -16,6 +16,7 @@ struct StaffConsultationsView: View {
     @State private var statuses: [UUID: String] = [:]
     @State private var createConsult: Bool = false
     @StateObject private var userManager = UserManager()
+    private let db = Firestore.firestore()
 
     var body: some View {
         VStack {
@@ -48,7 +49,7 @@ struct StaffConsultationsView: View {
                                 
                                 HStack(spacing: 16) {
                                     Button(action: {
-                                        statuses[consult.id] = "Yes"
+                                        updateConsultationStatus(consult, status: "Yes")
                                     }) {
                                         Text("Accept")
                                             .foregroundColor(.white)
@@ -59,7 +60,7 @@ struct StaffConsultationsView: View {
                                     }
                                     
                                     Button(action: {
-                                        statuses[consult.id] = "No"
+                                        updateConsultationStatus(consult, status: "No")
                                     }) {
                                         Text("Decline")
                                             .foregroundColor(.white)
@@ -70,7 +71,7 @@ struct StaffConsultationsView: View {
                                     }
                                     
                                     Button(action: {
-                                        statuses[consult.id] = "Reschedule"
+                                        updateConsultationStatus(consult, status: "Reschedule")
                                     }) {
                                         Text("Reschedule")
                                             .foregroundColor(.white)
@@ -134,6 +135,29 @@ struct StaffConsultationsView: View {
             consultationManager.fetchTeacherConsultations(forTeacher: staff.email)
             if userManager.user == nil {
                 userManager.fetchUser()
+            }
+            loadConsultationStatuses()
+        }
+    }
+    
+    private func loadConsultationStatuses() {
+        for consult in consultationManager.consultations {
+            db.collection("consultations").document(consult.id.uuidString).getDocument { document, error in
+                if let document = document, document.exists,
+                   let status = document.data()?["status"] as? String {
+                    statuses[consult.id] = status
+                }
+            }
+        }
+    }
+    
+    private func updateConsultationStatus(_ consultation: consultation, status: String) {
+        statuses[consultation.id] = status
+        db.collection("consultations").document(consultation.id.uuidString).updateData([
+            "status": status
+        ]) { error in
+            if let error = error {
+                print("Error updating consultation status: \(error.localizedDescription)")
             }
         }
     }
