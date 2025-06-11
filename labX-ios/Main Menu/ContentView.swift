@@ -12,20 +12,19 @@ struct ContentView: View {
     @StateObject private var consultationManager = ConsultationManager()
     @State private var createConsult: Bool = false
     @StateObject private var userManager = UserManager()
-    @State public var key = "AIzaSyBEu_-xF1kGjRyPVAWIGo7sGTlWakPbYuo"
     
     var body: some View {
         TabView {
             NavigationStack {
-                if let user = userManager.user {
-                    if user.className == "Staff" && user.registerNumber == "Staff" {
-                        let staffId = UUID(uuidString: user.id) ?? UUID()
-                        StaffConsultationsView(
-                            staff: staff(id: staffId, name: user.firstName + " " + user.lastName, email: user.email),
-                            consultations: $consultationManager.consultations
-                        )
-                    } else {
-                        NavigationStack {
+                Group {
+                    if let user = userManager.user {
+                        if user.className == "Staff" && user.registerNumber == "Staff" {
+                            let staffId = UUID(uuidString: user.id) ?? UUID()
+                            StaffConsultationsView(
+                                staff: staff(id: staffId, name: user.firstName + " " + user.lastName, email: user.email),
+                                consultations: $consultationManager.consultations
+                            )
+                        } else {
                             VStack {
                                 if consultationManager.consultations.isEmpty {
                                     VStack(spacing: 12) {
@@ -63,14 +62,13 @@ struct ContentView: View {
                             .navigationTitle("Your Consultations")
                             .navigationBarTitleDisplayMode(.large)
                             .toolbar {
-                                ToolbarItem() {
+                                ToolbarItem(placement: .topBarTrailing) {
                                     Button(action: {
                                         createConsult = true
                                     }) {
                                         Image(systemName: "plus")
                                             .imageScale(.large)
                                             .fontWeight(.heavy)
-                                            .frame(maxWidth: .infinity)
                                     }
                                 }
                                 
@@ -88,21 +86,51 @@ struct ContentView: View {
                     }
                 }
             }
-            .onAppear {
-                userManager.fetchUser()
-                if let user = userManager.user {
-                    if user.className == "Staff" && user.registerNumber == "Staff" {
-                        // Don't fetch consultations for staff here, it's handled in StaffConsultationsView
+            .tabItem {
+                Label("Consultations", systemImage: "calendar")
+            }
+            
+            NavigationStack {
+                Group {
+                    if let user = userManager.user, user.className == "Staff" {
+                        BookingMain()
                     } else {
-                        consultationManager.fetchConsultations(forUser: user.email)
+                        VStack(spacing: 12) {
+                            Spacer()
+                            Image(systemName: "lock.shield")
+                                .font(.system(size: 40))
+                                .foregroundColor(.gray)
+                            Text("Access Restricted")
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.gray)
+                            Text("Only staff members can access lab booking")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            Spacer()
+                        }
                     }
                 }
             }
+            .tabItem {
+                Label("Lab Booking", systemImage: "building.2")
+            }
         }
-    }
-    
-    func deleteConsultation(at offsets: IndexSet) {
-        consultationManager.consultations.remove(atOffsets: offsets)
+        .onAppear {
+            // Fetch user data only once when view appears
+            if userManager.user == nil {
+                userManager.fetchUser()
+            }
+            
+            // Fetch consultations only if we have a user
+            if let user = userManager.user {
+                if user.className == "Staff" && user.registerNumber == "Staff" {
+                    // Don't fetch consultations for staff here, it's handled in StaffConsultationsView
+                } else {
+                    consultationManager.fetchConsultations(forUser: user.email)
+                }
+            }
+        }
     }
 }
 

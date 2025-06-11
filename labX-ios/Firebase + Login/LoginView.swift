@@ -78,11 +78,13 @@ struct LoginView: View {
     @State private var selectedClass = "S1-01"
     @State private var registerNumber = "01"
     @State private var showAlert = false
+    @State private var isStaffEmail = false
+    @State private var firstName = ""
+    @State private var lastName = ""
+    @State private var isStaffSignup = false
     
-    
-    var classes = (1...4).flatMap { level in (1...10).map { "S\(level)-\($0 < 10 ? "0\($0)" : "\($0)")" } } + ["Staff"]
-    var registerNumbers = (1...30).map { $0 < 10 ? "0\($0)" : "\($0)" } + ["Staff"]
-    
+    var classes = (1...4).flatMap { level in (1...10).map { "S\(level)-\($0 < 10 ? "0\($0)" : "\($0)")" } }
+    var registerNumbers = (1...30).map { $0 < 10 ? "0\($0)" : "\($0)" }
     
     var body: some View {
         ScrollView {
@@ -91,48 +93,85 @@ struct LoginView: View {
                     .padding(.top, 40)
                 
                 VStack(spacing: 16) {
-                    Group {
-                        VStack(alignment: .leading, spacing: 6) {
-                            TextField("Email", text: $email)
-                                .textContentType(.emailAddress)
-                                .keyboardType(.emailAddress)
-                                .autocapitalization(.none)
-                                .padding()
-                                .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                                .onChange(of: email) { _ in
-                                    errorMessage = ""
-                                    isEmailValid = true
-                                }
-                            
-                            if !isEmailValid && !errorMessage.isEmpty {
-                                Text(errorMessage)
-                                    .foregroundColor(.red)
+                    if isRegistering {
+                        // Full Name Fields
+                        HStack(spacing: 12) {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("First Name")
                                     .font(.caption)
+                                    .foregroundColor(.gray)
+                                TextField("First Name", text: $firstName)
+                                    .textContentType(.givenName)
+                                    .padding()
+                                    .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
                             }
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 6) {                            
-                            SecureField("Password", text: $password)
-                                .textContentType(.password)
-                                .padding()
-                                .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
                             
-                            if !isPasswordValid && !errorMessage.isEmpty {
-                                Text("Password cannot be empty")
-                                    .foregroundColor(.red)
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Last Name")
                                     .font(.caption)
+                                    .foregroundColor(.gray)
+                                TextField("Last Name", text: $lastName)
+                                    .textContentType(.familyName)
+                                    .padding()
+                                    .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
                             }
                         }
                     }
                     
+                    // Email Field
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Email")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        TextField("Email", text: $email)
+                            .textContentType(.emailAddress)
+                            .keyboardType(.emailAddress)
+                            .autocapitalization(.none)
+                            .padding()
+                            .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                            .onChange(of: email) { _ in
+                                validateEmail(email)
+                            }
+                        
+                        if !isEmailValid && !errorMessage.isEmpty {
+                            Text(errorMessage)
+                                .foregroundColor(.red)
+                                .font(.caption)
+                        }
+                    }
+                    
+                    // Password Fields
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Password")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        SecureField("Password", text: $password)
+                            .textContentType(.password)
+                            .padding()
+                            .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                            .onChange(of: password) { _ in
+                                validatePassword(password)
+                            }
+                        
+                        if !isPasswordValid && !errorMessage.isEmpty {
+                            Text("Password cannot be empty")
+                                .foregroundColor(.red)
+                                .font(.caption)
+                        }
+                    }
                     
                     if isRegistering {
-                        Group {
-                            VStack(alignment: .leading, spacing: 6) {
-                                SecureField("Confirm Password", text: $confirmPassword)
-                                    .padding()
-                                    .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                            }
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Confirm Password")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            SecureField("Confirm Password", text: $confirmPassword)
+                                .textContentType(.password)
+                                .padding()
+                                .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                        }
+                        
+                        if !isStaffSignup {
                             HStack {
                                 Spacer()
                                 VStack(alignment: .leading, spacing: 6) {
@@ -163,38 +202,29 @@ struct LoginView: View {
                         }
                     }
                 }
+                .padding(.horizontal)
                 
                 VStack(spacing: 16) {
-                    Button(action: {
-                        validateEmail(email)
-                        validatePassword(password)
-                        
-                        if isEmailValid && isPasswordValid {
-                            if isRegistering {
-                                guard password == confirmPassword else {
-                                    errorMessage = "Passwords do not match"
-                                    showAlert = true
-                                    return
-                                }
-                                
-                                AuthManager.shared.signUp(email: email, password: password) { error in
-                                    if let error = error {
-                                        errorMessage = error.localizedDescription
-                                        showAlert = true
-                                    } else {
-                                    }
-                                }
+                    if isRegistering {
+                        Button {
+                            isStaffSignup.toggle()
+                            if isStaffSignup {
+                                selectedClass = "Staff"
+                                registerNumber = "Staff"
                             } else {
-                                AuthManager.shared.signIn(email: email, password: password) { error in
-                                    if let error = error {
-                                        errorMessage = error.localizedDescription
-                                        showAlert = true
-                                    }
-                                }
+                                selectedClass = "S1-01"
+                                registerNumber = "01"
                             }
-                            
+                        } label: {
+                            Text(isStaffSignup ? "Switch to Student Signup" : "Switch to Staff Signup")
+                                .foregroundColor(.blue)
+                                .font(.footnote)
                         }
-                    }) {
+                    }
+                    
+                    Button {
+                        handleAuthentication()
+                    } label: {
                         Text(isRegistering ? "Sign Up" : "Log In")
                             .bold()
                             .frame(maxWidth: .infinity)
@@ -204,50 +234,109 @@ struct LoginView: View {
                             .cornerRadius(10)
                     }
                     
-                    Button(isRegistering ? "Have an account? Log in" : "No account? Sign up") {
+                    Button {
                         isRegistering.toggle()
+                        errorMessage = ""
+                        isEmailValid = true
+                        isPasswordValid = true
+                        isStaffSignup = false
+                        // Clear form fields when switching modes
+                        if !isRegistering {
+                            firstName = ""
+                            lastName = ""
+                            confirmPassword = ""
+                        }
+                    } label: {
+                        Text(isRegistering ? "Have an account? Log in" : "No account? Sign up")
+                            .foregroundColor(.blue)
+                            .font(.footnote)
                     }
-                    .foregroundColor(.blue)
-                    .font(.footnote)
-                    Button("Bypass Login (Dev)") {
+                    
+                    Button {
                         email = "avyan_mehra@s2023.ssts.edu.sg"
                         password = "amspy123"
-                        AuthManager.shared.signIn(email: email, password: password) { error in
-                            if let error = error {
-                                errorMessage = error.localizedDescription
-                                showAlert = true
-                            }
-                        }
+                        handleAuthentication()
+                    } label: {
+                        Text("Bypass Login (Dev)")
+                            .foregroundColor(.green)
+                            .font(.footnote)
                     }
-                    .foregroundColor(.green)
-                    .font(.footnote)
                     
-                    Button("Bypass Login (Staff)") {
+                    Button {
                         email = "amspy2468@gmail.com"
                         password = "amspy123"
+                        isStaffSignup = true
                         selectedClass = "Staff"
                         registerNumber = "Staff"
-                        AuthManager.shared.signIn(email: email, password: password) { error in
-                            if let error = error {
-                                errorMessage = error.localizedDescription
-                                showAlert = true
+                        handleAuthentication()
+                    } label: {
+                        Text("Bypass Login (Staff)")
+                            .foregroundColor(.purple)
+                            .font(.footnote)
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("Login Failed"),
+                message: Text(errorMessage == "The supplied auth credential is malformed or has expired." ? "No account found. Please sign up." : errorMessage),
+                dismissButton: .default(Text("OK"))
+            )
+        }
+    }
+    
+    private func handleAuthentication() {
+        validateEmail(email)
+        validatePassword(password)
+        
+        if isEmailValid && isPasswordValid {
+            if isRegistering {
+                guard !firstName.isEmpty && !lastName.isEmpty else {
+                    errorMessage = "Please enter your full name"
+                    showAlert = true
+                    return
+                }
+                
+                guard password == confirmPassword else {
+                    errorMessage = "Passwords do not match"
+                    showAlert = true
+                    return
+                }
+                
+                AuthManager.shared.signUp(email: email, password: password) { error in
+                    if let error = error {
+                        errorMessage = error.localizedDescription
+                        showAlert = true
+                    } else {
+                        // Create user document in Firestore
+                        if let user = Auth.auth().currentUser {
+                            let db = Firestore.firestore()
+                            let userData: [String: Any] = [
+                                "firstName": firstName,
+                                "lastName": lastName,
+                                "email": email,
+                                "className": isStaffSignup ? "Staff" : selectedClass,
+                                "registerNumber": isStaffSignup ? "Staff" : registerNumber
+                            ]
+                            
+                            db.collection("users").document(user.uid).setData(userData) { error in
+                                if let error = error {
+                                    print("Error creating user document: \(error.localizedDescription)")
+                                }
                             }
                         }
                     }
-                    .foregroundColor(.purple)
-                    .font(.footnote)
-                    
                 }
-                .alert(isPresented: $showAlert) {
-                    Alert(
-                        title: Text("Login Failed"),
-                        message: Text(" \(errorMessage == "The supplied auth credential is malformed or has expired." ? "No account found. Please sign up." : "OR \(errorMessage)")"),
-                        dismissButton: .default(Text("OK"))
-                    )
+            } else {
+                AuthManager.shared.signIn(email: email, password: password) { error in
+                    if let error = error {
+                        errorMessage = error.localizedDescription
+                        showAlert = true
+                    }
                 }
-                
             }
-            .padding()
         }
     }
     
@@ -255,14 +344,12 @@ struct LoginView: View {
         let pattern = #"^[A-Za-z0-9._%+-]+@s20\d{2}\.ssts\.edu\.sg$"#
         let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive)
         let range = NSRange(location: 0, length: email.utf16.count)
-        let splitE = email.split(separator: "@")
+        
         if let match = regex?.firstMatch(in: email, options: [], range: range),
            match.range.location != NSNotFound {
-            
-        } else if ( splitE[1]  == "sst.edu.sg") {
             isEmailValid = true
             errorMessage = ""
-        } else if email == "amspy2468@gmail.com" {
+        } else if email.hasSuffix("@sst.edu.sg") || email == "amspy2468@gmail.com" {
             isEmailValid = true
             errorMessage = ""
         } else {
