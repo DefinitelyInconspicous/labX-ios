@@ -26,7 +26,7 @@ struct User: Identifiable, Codable {
 }
 
 struct staff: Identifiable, Equatable, Hashable, Encodable, Decodable {
-    var id = UUID()
+    var id: String { email }
     var name: String
     var email: String
 }

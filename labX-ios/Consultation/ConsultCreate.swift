@@ -14,7 +14,7 @@ struct ConsultCreate: View {
     @StateObject private var consultationManager = ConsultationManager()
     @StateObject private var userManager = UserManager()
     
-    @State var selectedTeacher: staff = staff(name: "", email: "")
+    @State var selectedTeacher: staff?
     @State var selectedDate: Date = Date()
     @State var showAlert = false
     @State var comments: String = ""
@@ -26,8 +26,9 @@ struct ConsultCreate: View {
             Form {
                 Section(header: Text("Select Teacher")) {
                     Picker("Teacher", selection: $selectedTeacher) {
+                        Text("Select a teacher").tag(nil as staff?)
                         ForEach(teachers, id: \.self) { teacher in
-                            Text(teacher.name).tag(teacher)
+                            Text(teacher.name).tag(teacher as staff?)
                         }
                     }
                     .pickerStyle(.menu)
@@ -41,11 +42,11 @@ struct ConsultCreate: View {
                 }
                 
                 Button {
-                    if selectedTeacher == staff(name: "", email: "") || comments.isEmpty || selectedDate < .now {
+                    if selectedTeacher == nil || comments.isEmpty || selectedDate < .now {
                         showAlert = true
-                    } else if let user = userManager.user {
+                    } else if let user = userManager.user, let teacher = selectedTeacher {
                         let newConsult = consultation(
-                            teacher: selectedTeacher,
+                            teacher: teacher,
                             date: selectedDate,
                             comment: comments,
                             student: user.email
@@ -73,21 +74,34 @@ struct ConsultCreate: View {
     
     private func fetchTeachers() {
         let db = Firestore.firestore()
-        db.collection("teachers").getDocuments { snapshot, error in
-            if let error = error {
-                print("Error fetching teachers: \(error.localizedDescription)")
-                return
-            }
-            
-            teachers = snapshot?.documents.compactMap { document in
-                let data = document.data()
-                guard let name = data["name"] as? String,
-                      let email = data["email"] as? String else {
-                    return nil
+        print("Fetching teachers from Firestore...")
+        db.collection("users")
+            .whereField("className", isEqualTo: "Staff")
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching teachers: \(error.localizedDescription)")
+                    return
                 }
-                return staff(name: name, email: email)
-            } ?? []
-        }
+                
+                if let documents = snapshot?.documents {
+                    print("Found \(documents.count) teachers")
+                    teachers = documents.compactMap { document in
+                        let data = document.data()
+                        guard let firstName = data["firstName"] as? String,
+                              let lastName = data["lastName"] as? String,
+                              let email = data["email"] as? String else {
+                            print("Failed to parse teacher data: \(data)")
+                            return nil
+                        }
+                        let fullName = "\(firstName) \(lastName)"
+                        print("Parsed teacher: \(fullName) (\(email))")
+                        return staff(name: fullName, email: email)
+                    }
+                    print("Successfully loaded \(teachers.count) teachers")
+                } else {
+                    print("No teachers found in Firestore")
+                }
+            }
     }
 }
 

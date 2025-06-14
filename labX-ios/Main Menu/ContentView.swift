@@ -21,7 +21,7 @@ struct ContentView: View {
                         if user.className == "Staff" && user.registerNumber == "Staff" {
                             let staffId = UUID(uuidString: user.id) ?? UUID()
                             StaffConsultationsView(
-                                staff: staff(id: staffId, name: user.firstName + " " + user.lastName, email: user.email),
+                                staff: staff(name: user.firstName + " " + user.lastName, email: user.email),
                                 consultations: $consultationManager.consultations
                             )
                         } else {
