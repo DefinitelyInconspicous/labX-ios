@@ -27,7 +27,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Info.plist.backup,
 			);
 			target = CF288DD72D87C7210012B4B1 /* labX-ios */;
 		};
