@@ -20,6 +20,7 @@ struct BookingMain: View {
     private let db = Firestore.firestore()
     @State private var selectedDate: Date = Date()
     @State private var bookedTimeSlots: Set<Date> = []
+    private let sheetsManager = GoogleSheetsManager(sheetId: "1PXCmKQf9FSlyW89XZBNAFAgVI4XVLRYEJRUwRP0E42E", serviceAccountFileName: "labx-456903-78e686aca03b")
     
     let locations: [String] = [
         "Physics lab 1",
@@ -313,12 +314,37 @@ struct BookingMain: View {
         db.collection("bookings").addDocument(data: booking) { error in
             if let error = error {
                 alertMessage = "Error booking lab: \(error.localizedDescription)"
+                showAlert = true
             } else {
-                alertMessage = "Lab booked successfully for \(selectedLocation) from \(formatTimeRange()) on \(DateFormatter.localizedString(from: selectedDate, dateStyle: .medium, timeStyle: .none))"
+                // Save values before clearing
+                let locationForSheet = selectedLocation
+                let commentForSheet = comment
+                let teacherName = "\(user.firstName) \(user.lastName)"
+                let timeSlotsArray = sortedSlots
+                
                 // Clear the form
                 selectedLocation = ""
                 selectedTimeSlots.removeAll()
                 comment = ""
+                
+                print("Calling GoogleSheetsManager.updateSheet with location: \(locationForSheet), comment: \(commentForSheet)")
+                sheetsManager.updateSheet(
+                    date: selectedDate,
+                    timeSlots: timeSlotsArray,
+                    teacherName: teacherName,
+                    comment: commentForSheet,
+                    sheetName: locationForSheet
+                ) { result in
+                    DispatchQueue.main.async {
+                        switch result {
+                        case .success:
+                            alertMessage = "Lab booked and Google Sheet updated!"
+                        case .failure(let error):
+                            alertMessage = "Lab booked, but failed to update Google Sheet: \(error.localizedDescription)"
+                        }
+                        showAlert = true
+                    }
+                }
             }
             showAlert = true
         }

@@ -10,6 +10,7 @@
 		CF1949402DF9650A009A503C /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = CF19493F2DF9650A009A503C /* FirebaseAnalytics */; };
 		CF1949422DF9650A009A503C /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = CF1949412DF9650A009A503C /* FirebaseDatabase */; };
 		CF1949442DF9650A009A503C /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = CF1949432DF9650A009A503C /* FirebaseInAppMessaging-Beta */; };
+		CFBA08392E044B8400A4CB89 /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = CFBA08382E044B8400A4CB89 /* SwiftJWT */; };
 		CFF9D1F12DACB51700A06688 /* Forever in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D1F02DACB51700A06688 /* Forever */; };
 		CFF9D1F62DACC92800A06688 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D1F52DACC92800A06688 /* FirebaseAuth */; };
 		CFF9D1F82DACC92800A06688 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D1F72DACC92800A06688 /* FirebaseCore */; };
@@ -56,6 +57,7 @@
 				CFF9D2152DAE1E7500A06688 /* GoogleAPIRuntime in Frameworks */,
 				CFF9D1F82DACC92800A06688 /* FirebaseCore in Frameworks */,
 				CF1949422DF9650A009A503C /* FirebaseDatabase in Frameworks */,
+				CFBA08392E044B8400A4CB89 /* SwiftJWT in Frameworks */,
 				CFF9D1F62DACC92800A06688 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -108,6 +110,7 @@
 				CF19493F2DF9650A009A503C /* FirebaseAnalytics */,
 				CF1949412DF9650A009A503C /* FirebaseDatabase */,
 				CF1949432DF9650A009A503C /* FirebaseInAppMessaging-Beta */,
+				CFBA08382E044B8400A4CB89 /* SwiftJWT */,
 			);
 			productName = "labX-ios";
 			productReference = CF288DD82D87C7210012B4B1 /* labX-ios.app */;
@@ -141,6 +144,7 @@
 				CFF9D1EF2DACB51700A06688 /* XCRemoteSwiftPackageReference "Forever" */,
 				CFF9D1F42DACC92800A06688 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				CFF9D2112DAE1E7500A06688 /* XCRemoteSwiftPackageReference "google-api-swift-client" */,
+				CFBA08372E044B8400A4CB89 /* XCRemoteSwiftPackageReference "Swift-JWT" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CF288DD92D87C7210012B4B1 /* Products */;
@@ -374,6 +378,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		CFBA08372E044B8400A4CB89 /* XCRemoteSwiftPackageReference "Swift-JWT" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Kitura/Swift-JWT.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.2;
+			};
+		};
 		CFF9D1EF2DACB51700A06688 /* XCRemoteSwiftPackageReference "Forever" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/jiachenyee/Forever";
@@ -415,6 +427,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CFF9D1F42DACC92800A06688 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = "FirebaseInAppMessaging-Beta";
+		};
+		CFBA08382E044B8400A4CB89 /* SwiftJWT */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFBA08372E044B8400A4CB89 /* XCRemoteSwiftPackageReference "Swift-JWT" */;
+			productName = SwiftJWT;
 		};
 		CFF9D1F02DACB51700A06688 /* Forever */ = {
 			isa = XCSwiftPackageProductDependency;
