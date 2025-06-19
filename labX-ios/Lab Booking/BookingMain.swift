@@ -18,6 +18,8 @@ struct BookingMain: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     private let db = Firestore.firestore()
+    @State private var selectedDate: Date = Date()
+    @State private var bookedTimeSlots: Set<Date> = []
     
     let locations: [String] = [
         "Physics lab 1",
@@ -33,21 +35,30 @@ struct BookingMain: View {
         "R&E Lab"
     ]
     
-    // Generate time slots from 8am to 7pm in 20-minute intervals
+    // Generate time slots from 8am to 7pm in 20-minute intervals (in UTC+8)
     var timeSlots: [Date] {
-        let calendar = Calendar.current
         var slots: [Date] = []
-        
-        // Start at 8am
-        var currentDate = calendar.date(bySettingHour: 8, minute: 0, second: 0, of: Date())!
-        // End at 7pm
-        let endDate = calendar.date(bySettingHour: 19, minute: 0, second: 0, of: Date())!
-        
+        let calendar = Calendar(identifier: .gregorian)
+        var components = calendar.dateComponents([.year, .month, .day], from: selectedDate)
+        let utc8 = TimeZone(secondsFromGMT: 8 * 3600)!
+        components.timeZone = utc8
+
+        // Start at 8am UTC+8
+        components.hour = 8
+        components.minute = 0
+        components.second = 0
+        guard var currentDate = calendar.date(from: components) else { return [] }
+
+        // End at 7pm UTC+8
+        components.hour = 19
+        components.minute = 0
+        guard let endDate = calendar.date(from: components) else { return [] }
+
         while currentDate <= endDate {
             slots.append(currentDate)
             currentDate = calendar.date(byAdding: .minute, value: 20, to: currentDate)!
         }
-        
+
         return slots
     }
     
@@ -97,14 +108,90 @@ struct BookingMain: View {
         return "\(formatter.string(from: first)) - \(formatter.string(from: last))"
     }
     
+    // Helper to fetch booked slots for the selected location and date
+    private func fetchBookedSlots() {
+        guard !selectedLocation.isEmpty else {
+            bookedTimeSlots = []
+            return
+        }
+        let calendar = Calendar(identifier: .gregorian)
+        let utc8 = TimeZone(secondsFromGMT: 8 * 3600)!
+        var startOfDayComponents = calendar.dateComponents([.year, .month, .day], from: selectedDate)
+        startOfDayComponents.timeZone = utc8
+        startOfDayComponents.hour = 0
+        startOfDayComponents.minute = 0
+        startOfDayComponents.second = 0
+        guard let startOfDay = calendar.date(from: startOfDayComponents) else { return }
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { return }
+
+        db.collection("bookings")
+            .whereField("location", isEqualTo: selectedLocation)
+            .whereField("timeStart", isGreaterThanOrEqualTo: Timestamp(date: startOfDay))
+            .whereField("timeStart", isLessThan: Timestamp(date: endOfDay))
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching bookings: \(error.localizedDescription)")
+                    bookedTimeSlots = []
+                    return
+                }
+                guard let documents = snapshot?.documents else {
+                    bookedTimeSlots = []
+                    return
+                }
+                var slots: Set<Date> = []
+                for doc in documents {
+                    if let start = (doc.data()["timeStart"] as? Timestamp)?.dateValue(),
+                       let end = (doc.data()["timeEnd"] as? Timestamp)?.dateValue() {
+                        print("Fetched booking: \(start) to \(end)")
+                        var slot = start
+                        while slot <= end {
+                            slots.insert(slot)
+                            slot = calendar.date(byAdding: .minute, value: 20, to: slot)!
+                        }
+                    }
+                }
+                print("All booked slots: \(slots)")
+                bookedTimeSlots = slots
+            }
+    }
+    
+    // Helper to check if a slot is booked (ignoring seconds/milliseconds, in UTC+8)
+    private func isSlotBooked(_ slot: Date) -> Bool {
+        let calendar = Calendar(identifier: .gregorian)
+        let utc8 = TimeZone(secondsFromGMT: 8 * 3600)!
+        let slotComponents = calendar.dateComponents(in: utc8, from: slot)
+        for booked in bookedTimeSlots {
+            let bookedComponents = calendar.dateComponents(in: utc8, from: booked)
+            print("Comparing slot \(slotComponents) with booked \(bookedComponents)")
+            if slotComponents.year == bookedComponents.year &&
+                slotComponents.month == bookedComponents.month &&
+                slotComponents.day == bookedComponents.day &&
+                slotComponents.hour == bookedComponents.hour &&
+                slotComponents.minute == bookedComponents.minute {
+                print("Slot is booked!")
+                return true
+            }
+        }
+        return false
+    }
+    
     var body: some View {
         NavigationStack {
             Form {
+                Section("Date") {
+                    DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
+                        .onChange(of: selectedDate) { _ in
+                            fetchBookedSlots()
+                        }
+                }
                 Section("Location") {
                     Picker("Select Location", selection: $selectedLocation) {
                         ForEach(locations, id: \.self) { location in
                             Text(location).tag(location)
                         }
+                    }
+                    .onChange(of: selectedLocation) { _ in
+                        fetchBookedSlots()
                     }
                 }
                 
@@ -119,17 +206,21 @@ struct BookingMain: View {
                         GridItem(.adaptive(minimum: 60))
                     ], spacing: 10) {
                         ForEach(timeSlots, id: \.self) { slot in
+                            let isBooked = isSlotBooked(slot)
                             Button(action: {
-                                handleTimeSlotSelection(slot)
+                                if !isBooked {
+                                    handleTimeSlotSelection(slot)
+                                }
                             }) {
                                 Text(timeString(from: slot))
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 8)
-                                    .background(isTimeSlotSelected(slot) ? Color.blue : Color.gray.opacity(0.2))
-                                    .foregroundColor(isTimeSlotSelected(slot) ? .white : .primary)
+                                    .background(isTimeSlotSelected(slot) ? Color.blue : (isBooked ? Color.gray.opacity(0.5) : Color.gray.opacity(0.2)))
+                                    .foregroundColor(isTimeSlotSelected(slot) ? .white : (isBooked ? .gray : .primary))
                                     .cornerRadius(8)
                             }
                             .buttonStyle(PlainButtonStyle())
+                            .disabled(isBooked)
                         }
                     }
                     .padding(.vertical, 8)
@@ -160,6 +251,7 @@ struct BookingMain: View {
             }
             .onAppear {
                 userManager.fetchUser()
+                fetchBookedSlots()
             }
         }
     }
@@ -183,22 +275,46 @@ struct BookingMain: View {
             return
         }
         
+        // Combine selectedDate with each selected time slot's time
+        let calendar = Calendar.current
+        let sortedSlots = selectedTimeSlots.sorted()
+        guard let minSlot = sortedSlots.first, let maxSlot = sortedSlots.last else { return }
+        
+        func combine(date: Date, time: Date) -> Date {
+            let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+            let timeComponents = calendar.dateComponents([.hour, .minute, .second], from: time)
+            var combined = DateComponents()
+            combined.year = dateComponents.year
+            combined.month = dateComponents.month
+            combined.day = dateComponents.day
+            combined.hour = timeComponents.hour
+            combined.minute = timeComponents.minute
+            combined.second = timeComponents.second
+            return calendar.date(from: combined) ?? date
+        }
+        
+        let timeStart = combine(date: selectedDate, time: minSlot)
+        let timeEnd = combine(date: selectedDate, time: maxSlot)
+        
+        // Convert to UTC+8
+        let utc8 = TimeZone(secondsFromGMT: 8 * 3600)!
+        let timeStartUTC8 = Calendar.current.date(byAdding: .second, value: utc8.secondsFromGMT(for: timeStart) - TimeZone.current.secondsFromGMT(for: timeStart), to: timeStart) ?? timeStart
+        let timeEndUTC8 = Calendar.current.date(byAdding: .second, value: utc8.secondsFromGMT(for: timeEnd) - TimeZone.current.secondsFromGMT(for: timeEnd), to: timeEnd) ?? timeEnd
+        
         let booking = [
             "location": selectedLocation,
-            "startTime": Timestamp(date: selectedTimeSlots.min()!),
-            "endTime": Timestamp(date: selectedTimeSlots.max()!),
+            "timeStart": Timestamp(date: timeStartUTC8),
+            "timeEnd": Timestamp(date: timeEndUTC8),
             "comment": comment,
-            "bookedBy": user.email,
-            "bookedByName": "\(user.firstName) \(user.lastName)",
-            "status": "pending",
+            "staff": "\(user.firstName) \(user.lastName)",
             "createdAt": Timestamp()
         ] as [String : Any]
         
-        db.collection("labBookings").addDocument(data: booking) { error in
+        db.collection("bookings").addDocument(data: booking) { error in
             if let error = error {
                 alertMessage = "Error booking lab: \(error.localizedDescription)"
             } else {
-                alertMessage = "Lab booked successfully for \(selectedLocation) from \(formatTimeRange())"
+                alertMessage = "Lab booked successfully for \(selectedLocation) from \(formatTimeRange()) on \(DateFormatter.localizedString(from: selectedDate, dateStyle: .medium, timeStyle: .none))"
                 // Clear the form
                 selectedLocation = ""
                 selectedTimeSlots.removeAll()
