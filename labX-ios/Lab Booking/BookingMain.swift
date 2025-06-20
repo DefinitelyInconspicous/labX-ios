@@ -20,8 +20,10 @@ struct BookingMain: View {
     private let db = Firestore.firestore()
     @State private var selectedDate: Date = Date()
     @State private var bookedTimeSlots: Set<Date> = []
-    private let sheetsManager = GoogleSheetsManager(sheetId: "1PXCmKQf9FSlyW89XZBNAFAgVI4XVLRYEJRUwRP0E42E", serviceAccountFileName: "labx-456903-78e686aca03b")
-    
+    private let sheetsManager = GoogleSheetsManager(
+    sheetId: "1PXCmKQf9FSlyW89XZBNAFAgVI4XVLRYEJRUwRP0E42E",
+    serviceAccountFileName: "labx-456903-78e686aca03b"
+)
     let locations: [String] = [
         "Physics lab 1",
         "Engineering Lab",

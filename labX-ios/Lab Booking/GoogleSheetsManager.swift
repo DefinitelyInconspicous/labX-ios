@@ -19,7 +19,7 @@ class GoogleSheetsManager {
     }
     
     private func loadServiceAccount() throws -> GoogleServiceAccount {
-        // Debug: Print all files in the bundle and in 'Lab Booking' subdirectory
+        // Debug: Print all files in the bundle and in subdirectory
         if let resourcePath = Bundle.main.resourcePath {
             let files = try? FileManager.default.contentsOfDirectory(atPath: resourcePath)
             print("[DEBUG] Bundle files: \(files ?? [])")
@@ -27,26 +27,38 @@ class GoogleSheetsManager {
             let labBookingFiles = try? FileManager.default.contentsOfDirectory(atPath: labBookingPath)
             print("[DEBUG] Lab Booking folder files: \(labBookingFiles ?? [])")
         }
-        // Try to load from 'Lab Booking' subdirectory
+        
+        print("[DEBUG] Looking for service account file: \(serviceAccountFileName).json")
+        
         if let url = Bundle.main.url(forResource: serviceAccountFileName, withExtension: "json", subdirectory: "Lab Booking") {
+            print("[DEBUG] Found service account in Lab Booking subdirectory: \(url)")
             let data = try Data(contentsOf: url)
+            print("[DEBUG] Service account file size: \(data.count) bytes")
             let account = try JSONDecoder().decode(GoogleServiceAccount.self, from: data)
+            print("[DEBUG] Service account decoded successfully")
             return account
         }
-        // Fallback: Try to load from root of bundle
         if let url = Bundle.main.url(forResource: serviceAccountFileName, withExtension: "json") {
-            print("[DEBUG] Loaded service account JSON from root of bundle")
+            print("[DEBUG] Loaded service account JSON from root of bundle: \(url)")
             let data = try Data(contentsOf: url)
+            print("[DEBUG] Service account file size: \(data.count) bytes")
             let account = try JSONDecoder().decode(GoogleServiceAccount.self, from: data)
+            print("[DEBUG] Service account decoded successfully")
             return account
         }
+        print("[DEBUG] Service account file not found in any location")
         throw NSError(domain: "GoogleSheetsManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Service account JSON not found in bundle or 'Lab Booking' subdirectory"])
     }
     
     private func getAccessToken(completion: @escaping (Result<String, Error>) -> Void) {
         DispatchQueue.global().async {
             do {
+                print("[DEBUG] Loading service account...")
                 let account = try self.loadServiceAccount()
+                print("[DEBUG] Service account loaded successfully")
+                print("[DEBUG] Client email: \(account.client_email)")
+                print("[DEBUG] Token URI: \(account.token_uri)")
+                
                 let now = Date()
                 let claims = GoogleJWTClaims(
                     iss: account.client_email,
@@ -55,10 +67,18 @@ class GoogleSheetsManager {
                     iat: now,
                     exp: now.addingTimeInterval(3600)
                 )
+                print("[DEBUG] JWT claims created")
+                
                 var jwt = JWT(claims: claims)
+                print("[DEBUG] Converting private key...")
                 let privateKey = try self.pemKeyToData(account.private_key)
+                print("[DEBUG] Private key converted successfully")
+                
                 let signer = JWTSigner.rs256(privateKey: privateKey)
+                print("[DEBUG] JWT signer created")
+                
                 let signedJWT = try jwt.sign(using: signer)
+                print("[DEBUG] JWT signed successfully")
                 
                 // Exchange JWT for access token
                 var request = URLRequest(url: URL(string: account.token_uri)!)
@@ -67,17 +87,55 @@ class GoogleSheetsManager {
                 request.httpBody = body.data(using: .utf8)
                 request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
                 
+                print("[DEBUG] Making token request to: \(account.token_uri)")
+                
                 let task = URLSession.shared.dataTask(with: request) { data, response, error in
                     if let error = error {
+                        print("[DEBUG] Network error: \(error.localizedDescription)")
                         completion(.failure(error))
                         return
                     }
-                    guard let data = data,
-                          let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                          let accessToken = json["access_token"] as? String else {
-                        completion(.failure(NSError(domain: "GoogleSheetsManager", code: 2, userInfo: [NSLocalizedDescriptionKey: "Failed to parse access token"])))
+                    
+                    // Debug HTTP response
+                    if let httpResponse = response as? HTTPURLResponse {
+                        print("[DEBUG] HTTP Status Code: \(httpResponse.statusCode)")
+                        print("[DEBUG] HTTP Headers: \(httpResponse.allHeaderFields)")
+                    }
+                    
+                    guard let data = data else {
+                        print("[DEBUG] No data received from token endpoint")
+                        completion(.failure(NSError(domain: "GoogleSheetsManager", code: 2, userInfo: [NSLocalizedDescriptionKey: "No data received from token endpoint"])))
                         return
                     }
+                    
+                    // Debug raw response
+                    let responseString = String(data: data, encoding: .utf8) ?? "nil"
+                    print("[DEBUG] Raw token response: \(responseString)")
+                    
+                    // Try to parse JSON
+                    guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                        print("[DEBUG] Failed to parse JSON from token response")
+                        completion(.failure(NSError(domain: "GoogleSheetsManager", code: 2, userInfo: [NSLocalizedDescriptionKey: "Failed to parse JSON from token response"])))
+                        return
+                    }
+                    
+                    print("[DEBUG] Parsed JSON: \(json)")
+                    
+                    // Check for error in response
+                    if let error = json["error"] as? String {
+                        print("[DEBUG] Token endpoint returned error: \(error)")
+                        let errorDescription = json["error_description"] as? String ?? "Unknown error"
+                        completion(.failure(NSError(domain: "GoogleSheetsManager", code: 2, userInfo: [NSLocalizedDescriptionKey: "Token error: \(error) - \(errorDescription)"])))
+                        return
+                    }
+                    
+                    guard let accessToken = json["access_token"] as? String else {
+                        print("[DEBUG] No access_token found in response. Available keys: \(json.keys)")
+                        completion(.failure(NSError(domain: "GoogleSheetsManager", code: 2, userInfo: [NSLocalizedDescriptionKey: "Failed to parse access token from response"])))
+                        return
+                    }
+                    
+                    print("[DEBUG] Successfully obtained access token")
                     completion(.success(accessToken))
                 }
                 task.resume()
@@ -89,21 +147,25 @@ class GoogleSheetsManager {
     
     // Helper to convert PEM string to Data
     private func pemKeyToData(_ pem: String) throws -> Data {
+        print("[DEBUG] Converting PEM key...")
+        print("[DEBUG] PEM key length: \(pem.count)")
+        print("[DEBUG] PEM key starts with: \(String(pem.prefix(50)))")
+        
         let lines = pem.components(separatedBy: "\n").filter { !$0.contains("BEGIN") && !$0.contains("END") && !$0.isEmpty }
+        print("[DEBUG] Filtered lines count: \(lines.count)")
+        
         let base64 = lines.joined()
+        print("[DEBUG] Base64 length: \(base64.count)")
+        
         guard let data = Data(base64Encoded: base64) else {
+            print("[DEBUG] Failed to decode base64 from PEM key")
             throw NSError(domain: "GoogleSheetsManager", code: 3, userInfo: [NSLocalizedDescriptionKey: "Invalid private key format"])
         }
+        
+        print("[DEBUG] Successfully converted PEM to Data, size: \(data.count) bytes")
         return data
     }
     
-    /// Updates the Google Sheet with the booking info.
-    /// - Parameters:
-    ///   - date: The booking date
-    ///   - timeSlots: The array of Date objects representing the booked time slots
-    ///   - teacherName: The full name of the teacher
-    ///   - comment: Any comment from the booking
-    ///   - sheetName: The name of the sheet/tab (location)
     func updateSheet(date: Date, timeSlots: [Date], teacherName: String, comment: String, sheetName: String, completion: @escaping (Result<Void, Error>) -> Void) {
         getAccessToken { result in
             switch result {
@@ -239,7 +301,7 @@ class GoogleSheetsManager {
         let range = "\(quotedSheetName)!\(colLetter)\(startRow):\(colLetter)\(endRow)"
         let value = "\(teacherName) - \(comment)"
         
-        // 1. Merge cells (use tabId for batchUpdate)
+        // 1. Merge cells and apply formatting (use tabId for batchUpdate)
         let mergeUrl = URL(string: "https://sheets.googleapis.com/v4/spreadsheets/\(self.sheetId):batchUpdate")!
         var mergeRequest = URLRequest(url: mergeUrl)
         mergeRequest.httpMethod = "POST"
@@ -257,6 +319,31 @@ class GoogleSheetsManager {
                             "endColumnIndex": colIndex + 1
                         ],
                         "mergeType": "MERGE_ALL"
+                    ]
+                ],
+                [
+                    "repeatCell": [
+                        "range": [
+                            "sheetId": tabId,
+                            "startRowIndex": startRow - 1,
+                            "endRowIndex": endRow,
+                            "startColumnIndex": colIndex,
+                            "endColumnIndex": colIndex + 1
+                        ],
+                        "cell": [
+                            "userEnteredFormat": [
+                                "backgroundColor": [
+                                    "red": 1.0,
+                                    "green": 0.8,
+                                    "blue": 0.6
+                                ],
+                                "textFormat": [
+                                    "fontSize": 15
+                                ],
+                                "wrapStrategy": "WRAP"
+                            ]
+                        ],
+                        "fields": "userEnteredFormat(backgroundColor,textFormat,wrapStrategy)"
                     ]
                 ]
             ]
