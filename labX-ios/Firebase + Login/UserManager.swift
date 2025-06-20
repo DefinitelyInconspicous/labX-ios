@@ -9,6 +9,7 @@
 import FirebaseAuth
 import FirebaseFirestore
 
+
 class UserManager: ObservableObject {
     @Published var user: User?
 
