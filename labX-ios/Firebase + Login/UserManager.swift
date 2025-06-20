@@ -89,6 +89,7 @@ class ConsultationManager: ObservableObject {
                     guard let teacherName = data["teacherName"] as? String,
                           let teacherEmail = data["teacherEmail"] as? String,
                           let date = (data["date"] as? Timestamp)?.dateValue(),
+                          let location = data["location"] as? String,
                           let comment = data["comment"] as? String,
                           let student = data["student"] as? String else {
                         print("Failed to parse consultation data: \(data)")
@@ -102,7 +103,8 @@ class ConsultationManager: ObservableObject {
                         date: date,
                         comment: comment,
                         student: student,
-                        status: data["status"] as? String
+                        status: data["status"] as? String,
+                        location: location
                     )
                 }
             }
@@ -132,6 +134,7 @@ class ConsultationManager: ObservableObject {
                     guard let teacherName = data["teacherName"] as? String,
                           let teacherEmail = data["teacherEmail"] as? String,
                           let date = (data["date"] as? Timestamp)?.dateValue(),
+                          let location = data["location"] as? String,
                           let comment = data["comment"] as? String,
                           let student = data["student"] as? String else {
                         print("Failed to parse consultation data: \(data)")
@@ -145,7 +148,8 @@ class ConsultationManager: ObservableObject {
                         date: date,
                         comment: comment,
                         student: student,
-                        status: data["status"] as? String
+                        status: data["status"] as? String,
+                        location: location
                     )
                 }
             }
@@ -159,6 +163,7 @@ class ConsultationManager: ObservableObject {
             "date": Timestamp(date: consultation.date),
             "comment": consultation.comment,
             "student": consultation.student,
+            "location": consultation.location,
             "status": consultation.status ?? "pending"
         ]
         
