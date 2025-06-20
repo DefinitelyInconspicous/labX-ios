@@ -16,10 +16,19 @@ struct ConsultCreate: View {
     
     @State var selectedTeacher: staff?
     @State var selectedDate: Date = Date()
+    @State var selectedLocation: String = ""
     @State var showAlert = false
     @State var comments: String = ""
     @State var teachers: [staff] = []
     @Environment(\.dismiss) var dismiss
+    
+    let locations: [String] = [
+        "Outside Staffroom",
+        "Classroom (Please specify in comments)",
+        "Outside Labs (Level 1)",
+        "Outside Labs (Level 2)",
+        "Online"
+    ]
     
     var body: some View {
         NavigationStack {
@@ -37,6 +46,14 @@ struct ConsultCreate: View {
                 Section(header: Text("Select Date")) {
                     DatePicker("Date", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
                 }
+                Section(header: Text("Select location")) {
+                    Picker("Location", selection: $selectedLocation) {
+                        ForEach(locations, id: \.self) { location in
+                            Text(location).tag(location)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
                 Section(header: Text("Comments")) {
                     TextField("I would like to catch up on...", text: $comments)
                 }
@@ -49,7 +66,8 @@ struct ConsultCreate: View {
                             teacher: teacher,
                             date: selectedDate,
                             comment: comments,
-                            student: user.email
+                            student: user.email,
+                            location: selectedLocation
                         )
                         consultationManager.addConsultation(newConsult)
                         dismiss()
@@ -111,5 +129,5 @@ func sendNoti(teacher: staff, date: Date, comment: String, user : User) {
 }
 
 #Preview {
-    ConsultCreate(consultations: .constant([consultation(teacher: staff(name: "", email: ""), date: .now, comment: "", student: "")]))
+    ConsultCreate(consultations: .constant([consultation(teacher: staff(name: "", email: ""), date: .now, comment: "", student: "", location: "")]))
 }

@@ -14,6 +14,7 @@ struct consultation: Identifiable, Decodable, Encodable {
     var comment: String
     var student: String
     var status: String?
+    var location: String
 }
 
 struct User: Identifiable, Codable {

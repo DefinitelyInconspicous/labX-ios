@@ -66,5 +66,5 @@ struct DetailView: View {
 }
 
 #Preview {
-    DetailView(consultation: consultation(teacher: staff(name: "", email: ""), date: .now, comment: "", student: ""), consultations: .constant([]))
+    DetailView(consultation: consultation(teacher: staff(name: "", email: ""), date: .now, comment: "", student: "", location: ""), consultations: .constant([]))
 }

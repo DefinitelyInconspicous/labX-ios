@@ -16,6 +16,13 @@ struct ContentView: View {
     var body: some View {
         TabView {
             NavigationStack {
+                HomeView()
+                    .navigationTitle("Home")
+            }
+            .tabItem {
+                Label("Home", systemImage: "house")
+            }
+            NavigationStack {
                 Group {
                     if let user = userManager.user {
                         if user.className == "Staff" && user.registerNumber == "Staff" {
