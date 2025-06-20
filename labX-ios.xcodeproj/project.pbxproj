@@ -11,6 +11,15 @@
 		CF1949422DF9650A009A503C /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = CF1949412DF9650A009A503C /* FirebaseDatabase */; };
 		CF1949442DF9650A009A503C /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = CF1949432DF9650A009A503C /* FirebaseInAppMessaging-Beta */; };
 		CFBA08392E044B8400A4CB89 /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = CFBA08382E044B8400A4CB89 /* SwiftJWT */; };
+		CFBA08402E04EAD500A4CB89 /* OAuth1 in Frameworks */ = {isa = PBXBuildFile; productRef = CFBA083F2E04EAD500A4CB89 /* OAuth1 */; };
+		CFBA08422E04EAD500A4CB89 /* OAuth2 in Frameworks */ = {isa = PBXBuildFile; productRef = CFBA08412E04EAD500A4CB89 /* OAuth2 */; };
+		CFBA08442E04EAD500A4CB89 /* SwiftyBase64 in Frameworks */ = {isa = PBXBuildFile; productRef = CFBA08432E04EAD500A4CB89 /* SwiftyBase64 */; };
+		CFBA08462E04EAD500A4CB89 /* TinyHTTPServer in Frameworks */ = {isa = PBXBuildFile; productRef = CFBA08452E04EAD500A4CB89 /* TinyHTTPServer */; };
+		CFBA08492E05018E00A4CB89 /* GTMAppAuth in Frameworks */ = {isa = PBXBuildFile; productRef = CFBA08482E05018E00A4CB89 /* GTMAppAuth */; };
+		CFC455412E05052C006611C9 /* GTMSessionFetcher in Frameworks */ = {isa = PBXBuildFile; productRef = CFC455402E05052C006611C9 /* GTMSessionFetcher */; };
+		CFC455432E05052C006611C9 /* GTMSessionFetcherCore in Frameworks */ = {isa = PBXBuildFile; productRef = CFC455422E05052C006611C9 /* GTMSessionFetcherCore */; };
+		CFC455452E05052C006611C9 /* GTMSessionFetcherFull in Frameworks */ = {isa = PBXBuildFile; productRef = CFC455442E05052C006611C9 /* GTMSessionFetcherFull */; };
+		CFC455472E05052C006611C9 /* GTMSessionFetcherLogView in Frameworks */ = {isa = PBXBuildFile; productRef = CFC455462E05052C006611C9 /* GTMSessionFetcherLogView */; };
 		CFF9D1F12DACB51700A06688 /* Forever in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D1F02DACB51700A06688 /* Forever */; };
 		CFF9D1F62DACC92800A06688 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D1F52DACC92800A06688 /* FirebaseAuth */; };
 		CFF9D1F82DACC92800A06688 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D1F72DACC92800A06688 /* FirebaseCore */; };
@@ -49,7 +58,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CFBA08442E04EAD500A4CB89 /* SwiftyBase64 in Frameworks */,
 				CF1949402DF9650A009A503C /* FirebaseAnalytics in Frameworks */,
+				CFBA08402E04EAD500A4CB89 /* OAuth1 in Frameworks */,
 				CFF9D1F12DACB51700A06688 /* Forever in Frameworks */,
 				CF1949442DF9650A009A503C /* FirebaseInAppMessaging-Beta in Frameworks */,
 				CFF9D2132DAE1E7500A06688 /* Discovery in Frameworks */,
@@ -57,8 +68,15 @@
 				CFF9D2152DAE1E7500A06688 /* GoogleAPIRuntime in Frameworks */,
 				CFF9D1F82DACC92800A06688 /* FirebaseCore in Frameworks */,
 				CF1949422DF9650A009A503C /* FirebaseDatabase in Frameworks */,
+				CFC455432E05052C006611C9 /* GTMSessionFetcherCore in Frameworks */,
+				CFC455472E05052C006611C9 /* GTMSessionFetcherLogView in Frameworks */,
+				CFBA08422E04EAD500A4CB89 /* OAuth2 in Frameworks */,
+				CFBA08492E05018E00A4CB89 /* GTMAppAuth in Frameworks */,
 				CFBA08392E044B8400A4CB89 /* SwiftJWT in Frameworks */,
 				CFF9D1F62DACC92800A06688 /* FirebaseAuth in Frameworks */,
+				CFC455452E05052C006611C9 /* GTMSessionFetcherFull in Frameworks */,
+				CFC455412E05052C006611C9 /* GTMSessionFetcher in Frameworks */,
+				CFBA08462E04EAD500A4CB89 /* TinyHTTPServer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -69,6 +87,7 @@
 			isa = PBXGroup;
 			children = (
 				CF288DDA2D87C7210012B4B1 /* labX-ios */,
+				CFC455482E0505AB006611C9 /* Frameworks */,
 				CF288DD92D87C7210012B4B1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -79,6 +98,13 @@
 				CF288DD82D87C7210012B4B1 /* labX-ios.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		CFC455482E0505AB006611C9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -111,6 +137,15 @@
 				CF1949412DF9650A009A503C /* FirebaseDatabase */,
 				CF1949432DF9650A009A503C /* FirebaseInAppMessaging-Beta */,
 				CFBA08382E044B8400A4CB89 /* SwiftJWT */,
+				CFBA083F2E04EAD500A4CB89 /* OAuth1 */,
+				CFBA08412E04EAD500A4CB89 /* OAuth2 */,
+				CFBA08432E04EAD500A4CB89 /* SwiftyBase64 */,
+				CFBA08452E04EAD500A4CB89 /* TinyHTTPServer */,
+				CFBA08482E05018E00A4CB89 /* GTMAppAuth */,
+				CFC455402E05052C006611C9 /* GTMSessionFetcher */,
+				CFC455422E05052C006611C9 /* GTMSessionFetcherCore */,
+				CFC455442E05052C006611C9 /* GTMSessionFetcherFull */,
+				CFC455462E05052C006611C9 /* GTMSessionFetcherLogView */,
 			);
 			productName = "labX-ios";
 			productReference = CF288DD82D87C7210012B4B1 /* labX-ios.app */;
@@ -145,6 +180,9 @@
 				CFF9D1F42DACC92800A06688 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				CFF9D2112DAE1E7500A06688 /* XCRemoteSwiftPackageReference "google-api-swift-client" */,
 				CFBA08372E044B8400A4CB89 /* XCRemoteSwiftPackageReference "Swift-JWT" */,
+				CFBA083E2E04EAD500A4CB89 /* XCRemoteSwiftPackageReference "google-auth-library-swift" */,
+				CFBA08472E05018E00A4CB89 /* XCRemoteSwiftPackageReference "GTMAppAuth" */,
+				CFC4553F2E05052C006611C9 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CF288DD92D87C7210012B4B1 /* Products */;
@@ -386,6 +424,30 @@
 				minimumVersion = 4.0.2;
 			};
 		};
+		CFBA083E2E04EAD500A4CB89 /* XCRemoteSwiftPackageReference "google-auth-library-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleapis/google-auth-library-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.5.3;
+			};
+		};
+		CFBA08472E05018E00A4CB89 /* XCRemoteSwiftPackageReference "GTMAppAuth" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GTMAppAuth.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
+		CFC4553F2E05052C006611C9 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/gtm-session-fetcher";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		CFF9D1EF2DACB51700A06688 /* XCRemoteSwiftPackageReference "Forever" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/jiachenyee/Forever";
@@ -432,6 +494,51 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CFBA08372E044B8400A4CB89 /* XCRemoteSwiftPackageReference "Swift-JWT" */;
 			productName = SwiftJWT;
+		};
+		CFBA083F2E04EAD500A4CB89 /* OAuth1 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFBA083E2E04EAD500A4CB89 /* XCRemoteSwiftPackageReference "google-auth-library-swift" */;
+			productName = OAuth1;
+		};
+		CFBA08412E04EAD500A4CB89 /* OAuth2 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFBA083E2E04EAD500A4CB89 /* XCRemoteSwiftPackageReference "google-auth-library-swift" */;
+			productName = OAuth2;
+		};
+		CFBA08432E04EAD500A4CB89 /* SwiftyBase64 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFBA083E2E04EAD500A4CB89 /* XCRemoteSwiftPackageReference "google-auth-library-swift" */;
+			productName = SwiftyBase64;
+		};
+		CFBA08452E04EAD500A4CB89 /* TinyHTTPServer */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFBA083E2E04EAD500A4CB89 /* XCRemoteSwiftPackageReference "google-auth-library-swift" */;
+			productName = TinyHTTPServer;
+		};
+		CFBA08482E05018E00A4CB89 /* GTMAppAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFBA08472E05018E00A4CB89 /* XCRemoteSwiftPackageReference "GTMAppAuth" */;
+			productName = GTMAppAuth;
+		};
+		CFC455402E05052C006611C9 /* GTMSessionFetcher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFC4553F2E05052C006611C9 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcher;
+		};
+		CFC455422E05052C006611C9 /* GTMSessionFetcherCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFC4553F2E05052C006611C9 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcherCore;
+		};
+		CFC455442E05052C006611C9 /* GTMSessionFetcherFull */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFC4553F2E05052C006611C9 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcherFull;
+		};
+		CFC455462E05052C006611C9 /* GTMSessionFetcherLogView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFC4553F2E05052C006611C9 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcherLogView;
 		};
 		CFF9D1F02DACB51700A06688 /* Forever */ = {
 			isa = XCSwiftPackageProductDependency;
