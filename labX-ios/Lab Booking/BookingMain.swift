@@ -22,7 +22,7 @@ struct BookingMain: View {
     @State private var bookedTimeSlots: Set<Date> = []
     private let sheetsManager = GoogleSheetsManager(
     sheetId: "1PXCmKQf9FSlyW89XZBNAFAgVI4XVLRYEJRUwRP0E42E",
-    serviceAccountFileName: "labx-456903-78e686aca03b"
+    serviceAccountFileName: "labx-sheets-service-account"
 )
     let locations: [String] = [
         "Physics lab 1",
