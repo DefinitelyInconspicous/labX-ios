@@ -11,6 +11,7 @@ import FirebaseMessaging
 import UserNotifications
 import SwiftUI
 
+//firebase cloud messaging stuff
 final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
         _ application: UIApplication,
@@ -83,6 +84,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 
 @main
 struct labX_iosApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    
     init() {
         FirebaseApp.configure()
     }
