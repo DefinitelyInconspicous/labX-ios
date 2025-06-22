@@ -68,5 +68,13 @@ node_modules/
 # dataconnect generated files
 .dataconnect
 
+# Google Service Account files
 Lab Booking/GoogleServiceAccount.json
 Lab Booking/labx-456903-78e686aca03b.json
+labX-ios/Lab Booking/labx-sheets-service-account.json
+labX-ios/GoogleService-Info.plist
+**/GoogleService-Info.plist
+**/*-service-account*.json
+**/GoogleServiceAccount*.json
+**/google-services.json
+**/google-services.plist
