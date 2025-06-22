@@ -85,10 +85,6 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 @main
 struct labX_iosApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    
-    init() {
-        FirebaseApp.configure()
-    }
 
     var body: some Scene {
         WindowGroup {
