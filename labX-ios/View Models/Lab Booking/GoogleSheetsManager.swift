@@ -30,7 +30,7 @@ class GoogleSheetsManager {
         
         print("[DEBUG] Looking for service account file: \(serviceAccountFileName).json")
         
-        if let url = Bundle.main.url(forResource: serviceAccountFileName, withExtension: "json", subdirectory: "Lab Booking") {
+        if let url = Bundle.main.url(forResource: serviceAccountFileName, withExtension: "json", subdirectory: "View Models/Lab Booking") {
             print("[DEBUG] Found service account in Lab Booking subdirectory: \(url)")
             let data = try Data(contentsOf: url)
             print("[DEBUG] Service account file size: \(data.count) bytes")
