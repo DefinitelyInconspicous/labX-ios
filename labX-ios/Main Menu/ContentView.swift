@@ -16,13 +16,6 @@ struct ContentView: View {
     var body: some View {
         TabView {
             NavigationStack {
-                HomeView()
-                    .navigationTitle("Home")
-            }
-            .tabItem {
-                Label("Home", systemImage: "house")
-            }
-            NavigationStack {
                 Group {
                     if let user = userManager.user {
                         if user.className == "Staff" && user.registerNumber == "Staff" {
@@ -33,40 +26,9 @@ struct ContentView: View {
                             )
                         } else {
                             VStack {
-                                if consultationManager.consultations.isEmpty {
-                                    VStack(spacing: 12) {
-                                        Spacer()
-                                        Image(systemName: "calendar.badge.exclamationmark")
-                                            .font(.system(size: 40))
-                                            .foregroundColor(.gray)
-                                        Text("No consultations yet")
-                                            .font(.title3)
-                                            .fontWeight(.semibold)
-                                            .foregroundColor(.gray)
-                                        Spacer()
-                                    }
-                                } else {
-                                    List {
-                                        ForEach(consultationManager.consultations) { consultation in
-                                            NavigationLink {
-                                                DetailView(consultation: consultation, consultations: $consultationManager.consultations)
-                                            } label: {
-                                                VStack(alignment: .leading, spacing: 6) {
-                                                    Text(consultation.teacher.name)
-                                                        .font(.headline)
-                                                        .foregroundColor(.primary)
-                                                    Text(consultation.date.formatted(date: .abbreviated, time: .shortened))
-                                                        .font(.subheadline)
-                                                        .foregroundColor(.secondary)
-                                                }
-                                                .padding(.vertical, 8)
-                                            }
-                                        }
-                                    }
-                                    .listStyle(.insetGrouped)
-                                }
+                                HomeView()
                             }
-                            .navigationTitle("Your Consultations")
+                            .navigationTitle("Home")
                             .navigationBarTitleDisplayMode(.large)
                             .toolbar {
                                 ToolbarItem(placement: .topBarTrailing) {
@@ -94,7 +56,7 @@ struct ContentView: View {
                 }
             }
             .tabItem {
-                Label("Consultations", systemImage: "calendar")
+                Label("Home", systemImage: "house")
             }
             
             NavigationStack {
