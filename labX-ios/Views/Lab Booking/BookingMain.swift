@@ -153,7 +153,6 @@ struct BookingMain: View {
                         }
                     }
                 }
-                print("All booked slots: \(slots)")
                 bookedTimeSlots = slots
             }
     }
@@ -165,7 +164,6 @@ struct BookingMain: View {
         let slotComponents = calendar.dateComponents(in: utc8, from: slot)
         for booked in bookedTimeSlots {
             let bookedComponents = calendar.dateComponents(in: utc8, from: booked)
-            print("Comparing slot \(slotComponents) with booked \(bookedComponents)")
             if slotComponents.year == bookedComponents.year &&
                 slotComponents.month == bookedComponents.month &&
                 slotComponents.day == bookedComponents.day &&

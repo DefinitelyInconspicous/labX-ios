@@ -214,7 +214,6 @@ class GoogleSheetsManager {
     }
     
     private func updateSheetWithToken(token: String, date: Date, timeSlots: [Date], teacherName: String, comment: String, sheetId: Int, sheetName: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        // 1. Fetch the header row to find the correct date column
         let quotedSheetName = "'\(sheetName)'"
         let headerRange = "1:1"
         let url = URL(string: "https://sheets.googleapis.com/v4/spreadsheets/\(self.sheetId)/values/\(quotedSheetName)!\(headerRange)?majorDimension=ROWS")!
@@ -300,8 +299,7 @@ class GoogleSheetsManager {
         let endRow = maxRow + 2
         let range = "\(quotedSheetName)!\(colLetter)\(startRow):\(colLetter)\(endRow)"
         let value = "\(teacherName) - \(comment)"
-        
-        // 1. Merge cells and apply formatting (use tabId for batchUpdate)
+
         let mergeUrl = URL(string: "https://sheets.googleapis.com/v4/spreadsheets/\(self.sheetId):batchUpdate")!
         var mergeRequest = URLRequest(url: mergeUrl)
         mergeRequest.httpMethod = "POST"
