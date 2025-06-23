@@ -12,18 +12,22 @@ import FirebaseFirestore
 
 //i am FAR too lazy to leave comments
 
-struct Consultation: Identifiable {
-    let id: String
-    let consultant: String
-    let date: Date
-    let location: String
-    let status: String
-}
-
-class ConsultationViewThingIdk: ObservableObject {
-    @Published var consultations: [Consultation] = []
+class ConsultationViewModel: ObservableObject {
+    @Published var consultations: [consultation] = []
     @Published var fetchError: Bool = false
     @Published var isLoaded: Bool = false
+    
+    var upcomingConsultations: [consultation] {
+        consultations
+            .filter { $0.date >= Date() }
+            .sorted { $0.date < $1.date }
+    }
+    
+    var pastConsultations: [consultation] {
+        consultations
+            .filter { $0.date < Date() }
+            .sorted { $0.date > $1.date }
+    }
     
     private let db = Firestore.firestore()
     
@@ -42,16 +46,25 @@ class ConsultationViewThingIdk: ObservableObject {
                     
                     self.consultations = snapshot?.documents.compactMap { doc in
                         let data = doc.data()
-                        let consultant = data["teacherName"] as? String ?? "Unknown"
-                        let date = (data["date"] as? Timestamp)?.dateValue() ?? Date()
-                        let location = data["location"] as? String ?? "Unknown"
-                        let status = data["status"] as? String ?? "pending"
+                        guard let teacherName = data["teacherName"] as? String,
+                              let teacherEmail = data["teacherEmail"] as? String,
+                              let date = (data["date"] as? Timestamp)?.dateValue(),
+                              let location = data["location"] as? String,
+                              let comment = data["comment"] as? String,
+                              let student = data["student"] as? String else {
+                            return nil
+                        }
                         
-                        return Consultation(id: doc.documentID,
-                                            consultant: consultant,
-                                            date: date,
-                                            location: location,
-                                            status: status)
+                        let teacher = staff(name: teacherName, email: teacherEmail)
+                        return consultation(
+                            id: UUID(uuidString: doc.documentID) ?? UUID(),
+                            teacher: teacher,
+                            date: date,
+                            comment: comment,
+                            student: student,
+                            status: data["status"] as? String,
+                            location: location
+                        )
                     } ?? []
                     
                     self.fetchError = false
@@ -60,73 +73,122 @@ class ConsultationViewThingIdk: ObservableObject {
     }
 }
 
-
 struct HomeView: View {
-    @StateObject private var stuffToShow = ConsultationViewThingIdk()
+    @StateObject private var viewModel = ConsultationViewModel()
+    @State private var showPast = false
     
-    private func statusText(for status: String) -> String {
+    private func statusText(for status: String?) -> String {
+        guard let status = status else { return "Pending" }
         switch status.lowercased() {
-        case "yes":
-            return "Confirmed"
-        case "reschedule":
-            return "Reschedule"
-        default:
-            return "Pending"
+        case "approved": return "Confirmed"
+        case "denied": return "Declined"
+        case "reschedule": return "Reschedule"
+        default: return "Pending"
         }
     }
     
-    private func statusColour(for status: String) -> Color {
+    private func statusColor(for status: String?) -> Color {
+        guard let status = status else { return .orange }
         switch status.lowercased() {
-        case "yes":
-            return .green
-        case "reschedule":
-            return .yellow
-        default:
-            return .red
+        case "approved": return .green
+        case "denied": return .red
+        case "reschedule": return .yellow
+        default: return .orange
         }
     }
-
+    
+    private func consultationRow(_ consultation: consultation) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(consultation.teacher.name)
+                    .font(.headline)
+                Spacer()
+                Text(statusText(for: consultation.status))
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(statusColor(for: consultation.status))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(statusColor(for: consultation.status).opacity(0.1))
+                    .cornerRadius(8)
+            }
+            
+            Text("Date: \(consultation.date.formatted(date: .abbreviated, time: .shortened))")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            Text("Location: \(consultation.location)")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            if !consultation.comment.isEmpty {
+                Text("Comment: \(consultation.comment)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+            }
+        }
+        .padding(.vertical, 4)
+    }
     
     var body: some View {
         List {
-            Section(header: Text("Upcoming")) {
-                if stuffToShow.fetchError {
-                    Text("Error fetching consultations, please try again")
+            Section(header: Text("Upcoming Consultations")) {
+                if !viewModel.isLoaded {
+                    HStack {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                        Text("Loading consultations...")
+                            .foregroundColor(.secondary)
+                    }
+                } else if viewModel.fetchError {
+                    Label("Error fetching consultations", systemImage: "exclamationmark.triangle")
                         .foregroundColor(.red)
-                } else if stuffToShow.isLoaded && stuffToShow.consultations.isEmpty {
-                    Text("No consultations")
+                } else if viewModel.upcomingConsultations.isEmpty {
+                    Label("No upcoming consultations", systemImage: "calendar.badge.exclamationmark")
                         .foregroundColor(.secondary)
                 } else {
-                    ForEach(stuffToShow.consultations) { consultation in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(consultation.consultant)
-                                .font(.headline)
-                            Text("Date: \(consultation.date.formatted(date: .long, time: .shortened))")
-                            Text("Location: \(consultation.location)")
-                                .foregroundStyle(.secondary)
-                            
-                            Text(statusText(for: consultation.status))
-                                .foregroundColor(statusColour(for: consultation.status))
-                                .bold()
+                    ForEach(viewModel.upcomingConsultations) { consultation in
+                        NavigationLink(destination: DetailView(consultation: consultation, consultations: $viewModel.consultations)) {
+                            consultationRow(consultation)
                         }
-                        .padding(.vertical, 5)
                     }
                 }
             }
+            
+            Section {
+                DisclosureGroup(isExpanded: $showPast) {
+                    if viewModel.pastConsultations.isEmpty {
+                        Text("No past consultations")
+                            .foregroundColor(.secondary)
+                    } else {
+                        ForEach(viewModel.pastConsultations) { consultation in
+                            NavigationLink(destination: DetailView(consultation: consultation, consultations: $viewModel.consultations)) {
+                                consultationRow(consultation)
+                            }
+                        }
+                    }
+                } label: {
+                    Text("Past Consultations")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                }
+            }
         }
+        .navigationTitle("Home")
         .onAppear {
             if let email = Auth.auth().currentUser?.email {
-                stuffToShow.fetchConsultations(for: email)
+                viewModel.fetchConsultations(for: email)
             } else {
-                print("No logged-in user")
-                stuffToShow.fetchError = true
-                stuffToShow.isLoaded = true
+                viewModel.fetchError = true
+                viewModel.isLoaded = true
             }
         }
     }
 }
 
-
 #Preview {
-    HomeView()
+    NavigationStack {
+        HomeView()
+    }
 }
