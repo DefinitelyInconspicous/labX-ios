@@ -6,10 +6,6 @@
 //
 
 import SwiftUI
-import Forever
-import FirebaseAuth
-import FirebaseCore
-import FirebaseFirestore
 
 struct TypingText: View {
     let fullText: String

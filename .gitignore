@@ -78,3 +78,5 @@ labX-ios/GoogleService-Info.plist
 **/GoogleServiceAccount*.json
 **/google-services.json
 **/google-services.plist
+labX-ios/View Models/Lab Booking/labx-sheets-service-account.json
+labX-ios/View Models/Lab Booking/GoogleService-Info.plist

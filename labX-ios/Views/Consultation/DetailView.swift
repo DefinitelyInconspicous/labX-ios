@@ -1,5 +1,6 @@
 import SwiftUI
 import Forever
+import FirebaseFirestore
 
 struct DetailView: View {
     @Environment(\.dismiss) var dismiss

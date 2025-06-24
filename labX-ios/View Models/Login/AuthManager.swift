@@ -12,24 +12,36 @@ class AuthManager: ObservableObject {
     static let shared = AuthManager()
 
     @Published var user: FirebaseAuth.User?
+    @Published var isLoading: Bool = true
 
     private init() {
         Auth.auth().addStateDidChangeListener { [weak self] _, user in
-            self?.user = user
+            DispatchQueue.main.async {
+                self?.user = user
+                self?.isLoading = false
+            }
         }
     }
 
     func signIn(email: String, password: String, completion: @escaping (Error?) -> Void) {
+        isLoading = true
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
-            self?.user = result?.user
-            completion(error)
+            DispatchQueue.main.async {
+                self?.user = result?.user
+                self?.isLoading = false
+                completion(error)
+            }
         }
     }
 
     func signUp(email: String, password: String, completion: @escaping (Error?) -> Void) {
+        isLoading = true
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
-            self?.user = result?.user
-            completion(error)
+            DispatchQueue.main.async {
+                self?.user = result?.user
+                self?.isLoading = false
+                completion(error)
+            }
         }
     }
 

@@ -41,30 +41,25 @@ struct ProfileView: View {
                     logout()
                 }
                 .foregroundColor(.red)
-                
-                
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationTitle("Profile")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: {
-                            showEditSheet = true
-                        }) {
-                            Image(systemName: "pencil")
-                        }
+            }
+            .navigationTitle("Profile")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        showEditSheet = true
+                    }) {
+                        Image(systemName: "pencil")
                     }
                 }
-                
             }
         }
-        .navigationTitle("Profile")
         .sheet(isPresented: $showEditSheet) {
             EditProfileView(user: user) { updatedUser, message in
                 self.user = updatedUser
                 self.alertMessage = message
                 self.showAlert = true
             }
-            
         }
         .alert(isPresented: $showAlert) {
             Alert(title: Text("Status"), message: Text(alertMessage), dismissButton: .default(Text("OK")))

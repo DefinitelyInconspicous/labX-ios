@@ -62,7 +62,7 @@ def get_access_token(jwt):
 
 if __name__ == "__main__":
     # Load service account data
-    with open("labX-ios/Lab Booking/labx-456903-78e686aca03b.json", "r") as f:
+    with open("labX-ios/View Models/Lab Booking/labx-sheets-service-account.json", "r") as f:
         service_account_data = json.load(f)
     
     # Create JWT

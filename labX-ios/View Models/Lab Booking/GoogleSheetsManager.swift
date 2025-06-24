@@ -19,15 +19,6 @@ class GoogleSheetsManager {
     }
     
     private func loadServiceAccount() throws -> GoogleServiceAccount {
-        // Debug: Print all files in the bundle and in subdirectory
-        if let resourcePath = Bundle.main.resourcePath {
-            let files = try? FileManager.default.contentsOfDirectory(atPath: resourcePath)
-            print("[DEBUG] Bundle files: \(files ?? [])")
-            let labBookingPath = (resourcePath as NSString).appendingPathComponent("Lab Booking")
-            let labBookingFiles = try? FileManager.default.contentsOfDirectory(atPath: labBookingPath)
-            print("[DEBUG] Lab Booking folder files: \(labBookingFiles ?? [])")
-        }
-        
         print("[DEBUG] Looking for service account file: \(serviceAccountFileName).json")
         
         if let url = Bundle.main.url(forResource: serviceAccountFileName, withExtension: "json", subdirectory: "View Models/Lab Booking") {
@@ -63,7 +54,7 @@ class GoogleSheetsManager {
                 let claims = GoogleJWTClaims(
                     iss: account.client_email,
                     scope: "https://www.googleapis.com/auth/spreadsheets",
-                    aud: account.token_uri,
+                    aud: "https://oauth2.googleapis.com/token",
                     iat: now,
                     exp: now.addingTimeInterval(3600)
                 )
@@ -74,11 +65,14 @@ class GoogleSheetsManager {
                 let privateKey = try self.pemKeyToData(account.private_key)
                 print("[DEBUG] Private key converted successfully")
                 
+                // Use the key data with SwiftJWT
                 let signer = JWTSigner.rs256(privateKey: privateKey)
                 print("[DEBUG] JWT signer created")
                 
                 let signedJWT = try jwt.sign(using: signer)
                 print("[DEBUG] JWT signed successfully")
+                print("[DEBUG] JWT length: \(signedJWT.count)")
+                print("[DEBUG] JWT starts with: \(String(signedJWT.prefix(50)))")
                 
                 // Exchange JWT for access token
                 var request = URLRequest(url: URL(string: account.token_uri)!)
@@ -140,6 +134,7 @@ class GoogleSheetsManager {
                 }
                 task.resume()
             } catch {
+                print("[DEBUG] Error in getAccessToken: \(error)")
                 completion(.failure(error))
             }
         }
@@ -151,14 +146,26 @@ class GoogleSheetsManager {
         print("[DEBUG] PEM key length: \(pem.count)")
         print("[DEBUG] PEM key starts with: \(String(pem.prefix(50)))")
         
-        let lines = pem.components(separatedBy: "\n").filter { !$0.contains("BEGIN") && !$0.contains("END") && !$0.isEmpty }
+        // Remove header and footer lines and any whitespace
+        let lines = pem.components(separatedBy: .newlines)
+            .filter { !$0.contains("BEGIN") && !$0.contains("END") && !$0.isEmpty }
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        
         print("[DEBUG] Filtered lines count: \(lines.count)")
         
+        // Join all lines
         let base64 = lines.joined()
         print("[DEBUG] Base64 length: \(base64.count)")
         
-        guard let data = Data(base64Encoded: base64) else {
+        // Add padding if needed
+        var paddedBase64 = base64
+        while paddedBase64.count % 4 != 0 {
+            paddedBase64 += "="
+        }
+        
+        guard let data = Data(base64Encoded: paddedBase64) else {
             print("[DEBUG] Failed to decode base64 from PEM key")
+            print("[DEBUG] Base64 string: \(paddedBase64)")
             throw NSError(domain: "GoogleSheetsManager", code: 3, userInfo: [NSLocalizedDescriptionKey: "Invalid private key format"])
         }
         

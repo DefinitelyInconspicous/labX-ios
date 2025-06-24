@@ -132,4 +132,29 @@ class ConsultationManager: ObservableObject {
             }
         }
     }
+    
+    func rescheduleConsultation(_ consultationId: String, newDate: Date, newLocation: String, reason: String, rescheduledBy: String) async -> Bool {
+        print("Rescheduling consultation: \(consultationId)")
+        
+        let data: [String: Any] = [
+            "date": Timestamp(date: newDate),
+            "location": newLocation,
+            "status": "rescheduled",
+            "rescheduleReason": reason,
+            "rescheduledBy": rescheduledBy,
+            "rescheduledAt": Timestamp()
+        ]
+        
+        return await withCheckedContinuation { continuation in
+            db.collection("consultations").document(consultationId).updateData(data) { error in
+                if let error = error {
+                    print("Error rescheduling consultation: \(error.localizedDescription)")
+                    continuation.resume(returning: false)
+                } else {
+                    print("Successfully rescheduled consultation")
+                    continuation.resume(returning: true)
+                }
+            }
+        }
+    }
 }
