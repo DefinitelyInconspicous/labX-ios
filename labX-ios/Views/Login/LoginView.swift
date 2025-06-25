@@ -289,7 +289,7 @@ struct LoginView: View {
                         case AuthErrorCode.wrongPassword.rawValue:
                             errorMessage = "Incorrect password. Please try again."
                         case AuthErrorCode.userNotFound.rawValue:
-                            errorMessage = "No account found with this email."
+                            errorMessage = "No account found with this email. Check for spelling errors, or sign up."
                         case AuthErrorCode.invalidEmail.rawValue:
                             errorMessage = "Invalid email format."
                         default:
