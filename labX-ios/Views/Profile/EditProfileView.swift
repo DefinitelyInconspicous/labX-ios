@@ -15,8 +15,8 @@ struct EditProfileView: View {
     @State var user: User
     let onSave: (User, String) -> Void
 
-    let classes = (1...4).flatMap { level in (1...10).map { "S\(level)-\($0 < 10 ? "0\($0)" : "\($0)")" } } + ["Staff"]
-    let registerNumbers = (1...30).map { $0 < 10 ? "0\($0)" : "\($0)" } + ["Staff"]
+    let classes = (1...4).flatMap { level in (1...10).map { "S\(level)-\($0 < 10 ? "0\($0)" : "\($0)")" } }
+    let registerNumbers = (1...30).map { $0 < 10 ? "0\($0)" : "\($0)" }
 
     @State private var showAlert = false
     @State private var alertMessage = ""
@@ -31,12 +31,14 @@ struct EditProfileView: View {
                         .keyboardType(.emailAddress)
                         .autocapitalization(.none)
                 }
-                Section(header: Text("School Info")) {
-                    Picker("Class", selection: $user.className) {
-                        ForEach(classes, id: \.self) { Text($0) }
-                    }
-                    Picker("Register Number", selection: $user.registerNumber) {
-                        ForEach(registerNumbers, id: \.self) { Text($0) }
+                if user.className != "Staff" {
+                    Section(header: Text("School Info")) {
+                        Picker("Class", selection: $user.className) {
+                            ForEach(classes, id: \.self) { Text($0) }
+                        }
+                        Picker("Register Number", selection: $user.registerNumber) {
+                            ForEach(registerNumbers, id: \.self) { Text($0) }
+                        }
                     }
                 }
             }

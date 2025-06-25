@@ -5,28 +5,93 @@ import FirebaseFirestore
 struct DetailView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var consultationManager = ConsultationManager()
-    
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+    @StateObject private var userManager = UserManager()
     var consultation: consultation
     @Binding var consultations: [consultation]
 
     var body: some View {
-        VStack(spacing: 24) {
-            Image(systemName: "calendar.circle.fill")
-                .resizable()
-                .frame(width: 100, height: 100)
-                .foregroundColor(.blue)
-                .padding(.top, 40)
-
-            Text(consultation.teacher.name)
-                .font(.largeTitle)
-                .fontWeight(.bold)
-
-            VStack(alignment: .leading, spacing: 12) {
+        if let user = userManager.user {
+            if user.className == "Staff"  {
+                VStack {
+                    HStack {
+                        Spacer()
+                        Button {
+                            updateConsultationStatus(consultation, status: "Approved")
+                            alertMessage = "Consultation successfully approved"
+                            showAlert.toggle()
+                        } label: {
+                            HStack {
+                                Image(systemName: "calendar.badge.checkmark")
+                                    .padding()
+                                Text("Accept")
+                                    .padding()
+                                    .font(.headline)
+                            }
+                        }
+                        .buttonBorderShape(.roundedRectangle)
+                        .background(.green)
+                        .foregroundStyle(.white)
+                        .cornerRadius(8)
+                        
+                        Spacer()
+                        
+                        Button {
+                            updateConsultationStatus(consultation, status: "Declined")
+                            alertMessage = "Consultation successfully declined"
+                            showAlert.toggle()
+                        } label: {
+                            HStack {
+                                Image(systemName: "calendar.badge.minus")
+                                    .padding()
+                                Text("Decline")
+                                    .padding()
+                                    .font(.headline)
+                            }
+                        }
+                        .buttonBorderShape(.roundedRectangle)
+                        .background(.red)
+                        .foregroundStyle(.white)
+                        .cornerRadius(8)
+                        Spacer()
+                    }
+                    .padding(.top, 4)
+                    
+                    
+                    
+                    NavigationLink {
+                        RescheduleView(consultation: consultation)
+                    } label: {
+                        HStack {
+                            Image(systemName: "calendar.badge.clock")
+                                .padding()
+                            Text("Reschedule")
+                                .padding()
+                                .font(.headline)
+                        }
+                    }
+                    .buttonBorderShape(.roundedRectangle)
+                    .background(.yellow)
+                    .foregroundStyle(.white)
+                    .cornerRadius(8)
+                }
+            }
+        }
+        
+        Form {
+            
+            Section(header: Text("Consultation Details")) {
+                HStack {
+                    Image(systemName: "person.circle.fill")
+                        .foregroundColor(.blue)
+                    Text(consultation.teacher.name)
+                        .font(.headline)
+                }
                 HStack {
                     Image(systemName: "calendar")
                     Text(consultation.date.formatted(date: .long, time: .shortened))
                 }
-
                 if !consultation.comment.isEmpty {
                     HStack(alignment: .top) {
                         Image(systemName: "text.bubble")
@@ -34,27 +99,28 @@ struct DetailView: View {
                     }
                 }
             }
-            .font(.body)
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
-            .padding(.horizontal)
-
-            Spacer()
             
-            Button(role: .destructive) {
-                cancelConsultation()
-            } label: {
-                Label("Cancel Consultation", systemImage: "trash")
-                    .frame(maxWidth: .infinity)
+            Section {
+                Button(role: .destructive) {
+                    cancelConsultation()
+                } label: {
+                    Label("Cancel Consultation", systemImage: "trash")
+                        .frame(maxWidth: .infinity)
+                }
             }
-            .buttonStyle(.borderedProminent)
-            .padding(.horizontal)
-            .padding(.bottom, 20)
+        }
+        .onAppear {
+            if userManager.user == nil {
+                userManager.fetchUser()
+            }
         }
         .navigationTitle("Consultation Info")
         .navigationBarTitleDisplayMode(.inline)
+        .alert("Status", isPresented: $showAlert, actions: {
+            Button("Ok") {}
+        }, message: {
+            Text(alertMessage)
+        })
     }
 
     func cancelConsultation() {
@@ -64,6 +130,18 @@ struct DetailView: View {
         }
         dismiss()
     }
+}
+
+private func updateConsultationStatus(_ consultation: consultation, status: String) {
+    let db = Firestore.firestore()
+    db.collection("consultations").document(consultation.id.uuidString).updateData([
+        "status": status
+    ]) { error in
+        if let error = error {
+            print("Error updating consultation status: \(error.localizedDescription)")
+        }
+    }
+    print("Updated status with \(status)")
 }
 
 #Preview {

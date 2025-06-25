@@ -17,9 +17,9 @@ struct StaffConsultationsView: View {
     @State private var createConsult: Bool = false
     @StateObject private var userManager = UserManager()
     @State private var showPast = false
-
+    
     private let db = Firestore.firestore()
-
+    
     var body: some View {
         VStack {
             if consultationManager.consultations.isEmpty {
@@ -44,12 +44,12 @@ struct StaffConsultationsView: View {
                                 .foregroundColor(.secondary)
                         } else {
                             ForEach(upcoming) { consult in
-                                ConsultationTile(consult: consult)
+                                NavigationLink(destination: DetailView(consultation: consult, consultations: $consultations)) {
+                                    ConsultationTile(consult)
+                                }
                             }
                         }
                     }
-
-                    // Past Section with Disclosure
                     Section {
                         DisclosureGroup(isExpanded: $showPast) {
                             let past = consultationManager.consultations.filter { $0.date <= Date() }
@@ -58,12 +58,19 @@ struct StaffConsultationsView: View {
                                     .foregroundColor(.secondary)
                             } else {
                                 ForEach(past) { consult in
-                                    ConsultationTile(consult: consult)
+                                    NavigationLink(destination: DetailView(consultation: consult, consultations: $consultations)) {
+                                        ConsultationTile(consult)
+                                    }
                                 }
                             }
                         } label: {
-                            Text("Past Consultations")
-                                .font(.headline)
+                            HStack {
+                                Image(systemName: "archivebox.fill")
+                                    .padding()
+                                    .imageScale(.large)
+                                Text("Past Consultations")
+                                    .font(.headline)
+                            }
                         }
                     }
                 }
@@ -82,7 +89,7 @@ struct StaffConsultationsView: View {
                         .fontWeight(.heavy)
                 }
             }
-
+            
             if let user = userManager.user {
                 ToolbarItem(placement: .topBarLeading) {
                     NavigationLink(destination: ProfileView(user: user)) {
@@ -105,76 +112,61 @@ struct StaffConsultationsView: View {
             }
         }
     }
-
-    private func ConsultationTile(consult: consultation) -> some View {
-        NavigationLink {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Student: \(consult.student)")
+    
+    private func ConsultationTile(_ consultation: consultation) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(consultation.teacher.name)
                     .font(.headline)
-                Text("Student Comment: \(consult.comment)")
-                    .font(.subheadline)
-                Text("Date: \(consult.date.formatted(date: .abbreviated, time: .shortened))")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-
-                Divider()
-
-                HStack(spacing: 16) {
-                    Button(action: {
-                        updateConsultationStatus(consult, status: "Yes")
-                    }) {
-                        Text("Accept")
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(statuses[consult.id] == "Yes" ? Color.green : Color.gray)
-                            .cornerRadius(8)
-                    }
-
-                    Button(action: {
-                        updateConsultationStatus(consult, status: "No")
-                    }) {
-                        Text("Decline")
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(statuses[consult.id] == "No" ? Color.red : Color.gray)
-                            .cornerRadius(8)
-                    }
-
-                    Button(action: {
-                        updateConsultationStatus(consult, status: "Reschedule")
-                    }) {
-                        Text("Reschedule")
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(statuses[consult.id] == "Reschedule" ? Color.orange : Color.gray)
-                            .cornerRadius(8)
-                    }
-                }
-
-                if let status = statuses[consult.id] {
-                    Text("Status: \(status)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .padding(.top, 4)
-                }
+                Spacer()
+                Text(statusText(for: consultation.status))
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(statusColor(for: consultation.status))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(statusColor(for: consultation.status).opacity(0.1))
+                    .cornerRadius(8)
             }
-            .padding()
-        } label: {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(consult.student)
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                Text(consult.date.formatted(date: .abbreviated, time: .shortened))
-                    .font(.subheadline)
+            
+            Text("Date: \(consultation.date.formatted(date: .abbreviated, time: .shortened))")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            Text("Location: \(consultation.location)")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            if !consultation.comment.isEmpty {
+                Text("Comment: \(consultation.comment)")
+                    .font(.caption)
                     .foregroundColor(.secondary)
+                    .lineLimit(2)
             }
-            .padding(.vertical, 8)
+        }
+        .padding(.vertical, 4)
+    }
+    private func statusText(for status: String?) -> String {
+        guard let status = status else { return "Pending" }
+        switch status.lowercased() {
+        case "approved": return "Confirmed"
+        case "denied": return "Declined"
+        case "reschedule": return "Reschedule"
+        default: return "Pending"
+        }
+    }
+    private func statusColor(for status: String?) -> Color {
+        switch status {
+        case "Approved":
+            return .green
+        case "Declined":
+            return .red
+        default:
+            return .yellow
         }
     }
 
+    
     private func loadConsultationStatuses() {
         for consult in consultationManager.consultations {
             db.collection("consultations").document(consult.id.uuidString).getDocument { document, error in
@@ -186,14 +178,7 @@ struct StaffConsultationsView: View {
         }
     }
 
-    private func updateConsultationStatus(_ consultation: consultation, status: String) {
-        statuses[consultation.id] = status
-        db.collection("consultations").document(consultation.id.uuidString).updateData([
-            "status": status
-        ]) { error in
-            if let error = error {
-                print("Error updating consultation status: \(error.localizedDescription)")
-            }
-        }
-    }
 }
+
+
+

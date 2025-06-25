@@ -86,15 +86,11 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            // Fetch user data only once when view appears
             if userManager.user == nil {
                 userManager.fetchUser()
             }
-            
-            // Fetch consultations only if we have a user
             if let user = userManager.user {
                 if user.className == "Staff" && user.registerNumber == "Staff" {
-                    // Don't fetch consultations for staff here, it's handled in StaffConsultationsView
                 } else {
                     consultationManager.fetchConsultations(forUser: user.email)
                 }

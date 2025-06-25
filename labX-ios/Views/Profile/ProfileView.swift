@@ -25,23 +25,49 @@ struct ProfileView: View {
                     .frame(width: 100, height: 100)
                     .foregroundColor(.blue)
                     .padding()
-            Spacer()
+                Spacer()
             }
+            
             Form {
                 Section(header: Text("Personal Info")) {
-                    Text("First Name: \(user.firstName)")
-                    Text("Last Name: \(user.lastName)")
-                    Text("Email: \(user.email)")
+                    LabeledContent {
+                        Text(user.firstName)
+                    } label: {
+                        Text("First Name")
+                    }
+                    LabeledContent {
+                        Text(user.lastName)
+                    } label: {
+                        Text("Last Name")
+                    }
+                    LabeledContent {
+                        Text(user.email)
+                    } label: {
+                        Text("Email")
+                    }
                 }
-                Section(header: Text("School Info")) {
-                    Text("Class: \(user.className)")
-                    Text("Register Number: \(user.registerNumber)")
+                
+                if user.className != "Staff" {
+                    Section(header: Text("School Info")) {
+                        LabeledContent {
+                            Text(user.className)
+                        } label: {
+                            Text("Class")
+                        }
+                        LabeledContent {
+                            Text(user.registerNumber)
+                        } label: {
+                            Text("Register Number")
+                        }
+                    }
                 }
-                Button("Log Out") {
+                Button(role: .destructive) {
                     logout()
+                } label: {
+                    Text("Log Out")
                 }
-                .foregroundColor(.red)
             }
+        }
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -52,7 +78,7 @@ struct ProfileView: View {
                         Image(systemName: "pencil")
                     }
                 }
-            }
+        
         }
         .sheet(isPresented: $showEditSheet) {
             EditProfileView(user: user) { updatedUser, message in
