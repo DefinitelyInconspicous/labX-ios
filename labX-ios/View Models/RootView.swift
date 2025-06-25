@@ -22,6 +22,7 @@ struct RootView: View {
             } else {
                 Group {
                     if auth.user != nil {
+                        
                         ContentView()
                     } else {
                         LoginView()

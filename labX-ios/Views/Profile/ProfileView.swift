@@ -16,6 +16,7 @@ struct ProfileView: View {
     @State  var showEditSheet = false
     @State  var showAlert = false
     @State  var alertMessage = ""
+    @State private var resetPasswordSheetShowing = false
     
     var body: some View {
         NavigationStack {
@@ -61,6 +62,17 @@ struct ProfileView: View {
                         }
                     }
                 }
+                
+                Button {
+                    resetPasswordSheetShowing = true
+                } label: {
+                    Text("Forgot Password?")
+                        .foregroundStyle(.blue)
+                }
+                .sheet(isPresented: $resetPasswordSheetShowing) {
+                    ForgotPassword()
+                }
+                
                 Button(role: .destructive) {
                     logout()
                 } label: {

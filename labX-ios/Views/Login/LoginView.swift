@@ -29,214 +29,228 @@ struct LoginView: View {
     @State private var firstName = ""
     @State private var lastName = ""
     @State private var isStaffSignup = false
+    @State private var resetPasswordSheetShowing = false
     
     var classes = (1...4).flatMap { level in (1...10).map { "S\(level)-\($0 < 10 ? "0\($0)" : "\($0)")" } }
     var registerNumbers = (1...30).map { $0 < 10 ? "0\($0)" : "\($0)" }
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                TypingText(fullText: "Welcome to labX")
-                    .padding(.top, 40)
-                
-                VStack(spacing: 16) {
-                    if isRegistering {
-                        // Full Name Fields
-                        HStack(spacing: 12) {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 24) {
+                    TypingText(fullText: "Welcome to labX")
+                        .padding(.top, 40)
+                    
+                    VStack(spacing: 16) {
+                        if isRegistering {
+                            // Full Name Fields
+                            HStack(spacing: 12) {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("First Name")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                    TextField("First Name", text: $firstName)
+                                        .textContentType(.givenName)
+                                        .padding()
+                                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("Last Name")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                    TextField("Last Name", text: $lastName)
+                                        .textContentType(.familyName)
+                                        .padding()
+                                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                                }
+                            }
+                        }
+                        
+                        // Email Field
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Email")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            TextField("Email", text: $email)
+                                .textContentType(.emailAddress)
+                                .keyboardType(.emailAddress)
+                                .autocapitalization(.none)
+                                .padding()
+                                .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                                .onChange(of: email) { _ in
+                                    validateEmail(email)
+                                }
+                            
+                            if !isEmailValid && !errorMessage.isEmpty {
+                                Text(errorMessage)
+                                    .foregroundColor(.red)
+                                    .font(.caption)
+                            }
+                        }
+                        
+                        // Password Fields
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Password")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            SecureField("Password", text: $password)
+                                .textContentType(.password)
+                                .padding()
+                                .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                                .onChange(of: password) { _ in
+                                    validatePassword(password)
+                                }
+                            
+                            if !isPasswordValid && !errorMessage.isEmpty {
+                                Text("Password cannot be empty")
+                                    .foregroundColor(.red)
+                                    .font(.caption)
+                            }
+                        }
+                        
+                        if isRegistering {
                             VStack(alignment: .leading, spacing: 6) {
-                                Text("First Name")
+                                Text("Confirm Password")
                                     .font(.caption)
                                     .foregroundColor(.gray)
-                                TextField("First Name", text: $firstName)
-                                    .textContentType(.givenName)
+                                SecureField("Confirm Password", text: $confirmPassword)
+                                    .textContentType(.password)
                                     .padding()
                                     .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
                             }
                             
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Last Name")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                                TextField("Last Name", text: $lastName)
-                                    .textContentType(.familyName)
-                                    .padding()
-                                    .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                            }
-                        }
-                    }
-                    
-                    // Email Field
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Email")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                        TextField("Email", text: $email)
-                            .textContentType(.emailAddress)
-                            .keyboardType(.emailAddress)
-                            .autocapitalization(.none)
-                            .padding()
-                            .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                            .onChange(of: email) { _ in
-                                validateEmail(email)
-                            }
-                        
-                        if !isEmailValid && !errorMessage.isEmpty {
-                            Text(errorMessage)
-                                .foregroundColor(.red)
-                                .font(.caption)
-                        }
-                    }
-                    
-                    // Password Fields
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Password")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                        SecureField("Password", text: $password)
-                            .textContentType(.password)
-                            .padding()
-                            .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                            .onChange(of: password) { _ in
-                                validatePassword(password)
-                            }
-                        
-                        if !isPasswordValid && !errorMessage.isEmpty {
-                            Text("Password cannot be empty")
-                                .foregroundColor(.red)
-                                .font(.caption)
-                        }
-                    }
-                    
-                    if isRegistering {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Confirm Password")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                            SecureField("Confirm Password", text: $confirmPassword)
-                                .textContentType(.password)
-                                .padding()
-                                .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                        }
-                        
-                        if !isStaffSignup {
-                            HStack {
-                                Spacer()
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text("Class")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                    Picker("Class", selection: $selectedClass) {
-                                        ForEach(classes, id: \.self) { Text($0) }
+                            if !isStaffSignup {
+                                HStack {
+                                    Spacer()
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text("Class")
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
+                                        Picker("Class", selection: $selectedClass) {
+                                            ForEach(classes, id: \.self) { Text($0) }
+                                        }
+                                        .pickerStyle(.menu)
+                                        .padding()
+                                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
                                     }
-                                    .pickerStyle(.menu)
-                                    .padding()
-                                    .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                                }
-                                
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text("Register Number")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                    Picker("Register Number", selection: $registerNumber) {
-                                        ForEach(registerNumbers, id: \.self) { Text($0) }
+                                    
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text("Register Number")
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
+                                        Picker("Register Number", selection: $registerNumber) {
+                                            ForEach(registerNumbers, id: \.self) { Text($0) }
+                                        }
+                                        .pickerStyle(.menu)
+                                        .padding()
+                                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
                                     }
-                                    .pickerStyle(.menu)
-                                    .padding()
-                                    .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                                    Spacer()
                                 }
-                                Spacer()
                             }
                         }
                     }
-                }
-                .padding(.horizontal)
-                
-                VStack(spacing: 16) {
-                    if isRegistering {
+                    .padding(.horizontal)
+                    
+                    VStack(spacing: 16) {
+                        if isRegistering {
+                            Button {
+                                isStaffSignup.toggle()
+                                if isStaffSignup {
+                                    selectedClass = "Staff"
+                                    registerNumber = "Staff"
+                                } else {
+                                    selectedClass = "S1-01"
+                                    registerNumber = "01"
+                                }
+                            } label: {
+                                Text(isStaffSignup ? "Switch to Student Signup" : "Switch to Staff Signup")
+                                    .foregroundColor(.blue)
+                                    .font(.footnote)
+                            }
+                        }
+                        
                         Button {
-                            isStaffSignup.toggle()
-                            if isStaffSignup {
-                                selectedClass = "Staff"
-                                registerNumber = "Staff"
-                            } else {
-                                selectedClass = "S1-01"
-                                registerNumber = "01"
+                            handleAuthentication()
+                        } label: {
+                            Text(isRegistering ? "Sign Up" : "Log In")
+                                .bold()
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                        }
+                                    
+                        Button {
+                            isRegistering.toggle()
+                            errorMessage = ""
+                            isEmailValid = true
+                            isPasswordValid = true
+                            isStaffSignup = false
+                            // Clear form fields when switching modes
+                            if !isRegistering {
+                                firstName = ""
+                                lastName = ""
+                                confirmPassword = ""
                             }
                         } label: {
-                            Text(isStaffSignup ? "Switch to Student Signup" : "Switch to Staff Signup")
+                            Text(isRegistering ? "Have an account? Log in" : "No account? Sign up")
                                 .foregroundColor(.blue)
                                 .font(.footnote)
                         }
-                    }
-                    
-                    Button {
-                        handleAuthentication()
-                    } label: {
-                        Text(isRegistering ? "Sign Up" : "Log In")
-                            .bold()
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    }
-                    
-                    Button {
-                        isRegistering.toggle()
-                        errorMessage = ""
-                        isEmailValid = true
-                        isPasswordValid = true
-                        isStaffSignup = false
-                        // Clear form fields when switching modes
-                        if !isRegistering {
-                            firstName = ""
-                            lastName = ""
-                            confirmPassword = ""
+                        
+                        Button {
+                            resetPasswordSheetShowing = true
+                        } label: {
+                            Text("Forgot Password?")
+                                .font(.footnote)
+                                .foregroundStyle(.blue)
                         }
-                    } label: {
-                        Text(isRegistering ? "Have an account? Log in" : "No account? Sign up")
-                            .foregroundColor(.blue)
-                            .font(.footnote)
+                        .sheet(isPresented: $resetPasswordSheetShowing) {
+                            ForgotPassword()
+                        }
+                        
+                        Button {
+                            email = "avyan_mehra@s2023.ssts.edu.sg"
+                            password = "amspy123"
+                            handleAuthentication()
+                        } label: {
+                            Text("Bypass Login (Dev)")
+                                .foregroundColor(.green)
+                                .font(.footnote)
+                        }
+                        
+                        Button {
+                            email = "amspy2468@gmail.com"
+                            password = "amspy123"
+                            isStaffSignup = true
+                            selectedClass = "Staff"
+                            registerNumber = "Staff"
+                            handleAuthentication()
+                        } label: {
+                            Text("Bypass Login (Staff)")
+                                .foregroundColor(.purple)
+                                .font(.footnote)
+                        }
                     }
-                    
-                    Button {
-                        email = "avyan_mehra@s2023.ssts.edu.sg"
-                        password = "amspy123"
-                        handleAuthentication()
-                    } label: {
-                        Text("Bypass Login (Dev)")
-                            .foregroundColor(.green)
-                            .font(.footnote)
-                    }
-                    
-                    Button {
-                        email = "amspy2468@gmail.com"
-                        password = "amspy123"
-                        isStaffSignup = true
-                        selectedClass = "Staff"
-                        registerNumber = "Staff"
-                        handleAuthentication()
-                    } label: {
-                        Text("Bypass Login (Staff)")
-                            .foregroundColor(.purple)
-                            .font(.footnote)
-                    }
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
             }
-        }
-        .onChange(of: auth.authErrorMessage) { newMessage in
-            if let newMessage = newMessage {
-                errorMessage = newMessage
-                showAlert = true
+            .onChange(of: auth.authErrorMessage) { newMessage in
+                if let newMessage = newMessage {
+                    errorMessage = newMessage
+                    showAlert = true
+                }
             }
-        }
-        .alert(isPresented: $showAlert) {
-            Alert(
-                title: Text("Login Failed"),
-                message: Text(errorMessage == "The supplied auth credential is malformed or has expired." ? "No account found. Please sign up." : errorMessage),
-                dismissButton: .default(Text("OK"))
-            )
+            .alert(isPresented: $showAlert) {
+                Alert(
+                    title: Text("Login Failed"),
+                    message: Text(errorMessage == "The supplied auth credential is malformed or has expired." ? "No account found. Please sign up." : errorMessage),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
         }
     }
     
