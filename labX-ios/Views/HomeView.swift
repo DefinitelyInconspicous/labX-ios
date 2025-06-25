@@ -169,9 +169,13 @@ struct HomeView: View {
                         }
                     }
                 } label: {
-                    Text("Past Consultations")
-                        .font(.headline)
-                        .foregroundColor(.primary)
+                    HStack {
+                        Image(systemName: "archivebox.fill")
+                            .padding()
+                            .imageScale(.large)
+                        Text("Past Consultations")
+                            .font(.headline)
+                    }
                 }
             }
         }
