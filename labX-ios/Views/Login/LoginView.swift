@@ -13,6 +13,8 @@ import FirebaseCore
 import FirebaseFirestore
 
 struct LoginView: View {
+    @StateObject private var auth = AuthManager.shared
+
     @State private var email = ""
     @State private var password = ""
     @State private var isRegistering = false
@@ -223,6 +225,12 @@ struct LoginView: View {
                 .padding(.horizontal)
             }
         }
+        .onChange(of: auth.authErrorMessage) { newMessage in
+            if let newMessage = newMessage {
+                errorMessage = newMessage
+                showAlert = true
+            }
+        }
         .alert(isPresented: $showAlert) {
             Alert(
                 title: Text("Login Failed"),
@@ -276,8 +284,17 @@ struct LoginView: View {
                 }
             } else {
                 AuthManager.shared.signIn(email: email, password: password) { error in
-                    if let error = error {
-                        errorMessage = error.localizedDescription
+                    if let error = error as NSError? {
+                        switch error.code {
+                        case AuthErrorCode.wrongPassword.rawValue:
+                            errorMessage = "Incorrect password. Please try again."
+                        case AuthErrorCode.userNotFound.rawValue:
+                            errorMessage = "No account found with this email."
+                        case AuthErrorCode.invalidEmail.rawValue:
+                            errorMessage = "Invalid email format."
+                        default:
+                            errorMessage = error.localizedDescription
+                        }
                         showAlert = true
                     }
                 }
@@ -312,3 +329,4 @@ struct LoginView: View {
         }
     }
 }
+

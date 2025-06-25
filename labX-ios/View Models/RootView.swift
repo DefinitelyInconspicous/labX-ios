@@ -21,17 +21,7 @@ struct RootView: View {
                     .zIndex(1)
             } else {
                 Group {
-                    if auth.isLoading {
-                        VStack(spacing: 20) {
-                            ProgressView()
-                                .scaleEffect(1.5)
-                            Text("Loading...")
-                                .font(.headline)
-                                .foregroundColor(.secondary)
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color(.systemBackground))
-                    } else if auth.user != nil {
+                    if auth.user != nil {
                         ContentView()
                     } else {
                         LoginView()

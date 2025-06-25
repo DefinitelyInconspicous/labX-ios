@@ -13,6 +13,7 @@ class AuthManager: ObservableObject {
 
     @Published var user: FirebaseAuth.User?
     @Published var isLoading: Bool = true
+    @Published var authErrorMessage: String? = nil
 
     private init() {
         Auth.auth().addStateDidChangeListener { [weak self] _, user in
@@ -22,13 +23,33 @@ class AuthManager: ObservableObject {
             }
         }
     }
+    
+    private func extractErrorMessage(from error: Error) -> String {
+        let errCode = AuthErrorCode(rawValue: (error as NSError).code)
+        switch errCode {
+        case .wrongPassword:
+            return "Incorrect password. Please try again."
+        case .userNotFound:
+            return "No account found with this email."
+        case .invalidEmail:
+            return "Invalid email format."
+        default:
+            return error.localizedDescription
+        }
+    }
+
 
     func signIn(email: String, password: String, completion: @escaping (Error?) -> Void) {
         isLoading = true
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
             DispatchQueue.main.async {
-                self?.user = result?.user
                 self?.isLoading = false
+                if let error = error {
+                    self?.authErrorMessage = self?.extractErrorMessage(from: error)
+                } else {
+                    self?.authErrorMessage = nil
+                    self?.user = result?.user
+                }
                 completion(error)
             }
         }
