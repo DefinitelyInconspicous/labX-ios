@@ -211,29 +211,6 @@ struct LoginView: View {
                         .sheet(isPresented: $resetPasswordSheetShowing) {
                             ForgotPassword()
                         }
-                        
-                        Button {
-                            email = "avyan_mehra@s2023.ssts.edu.sg"
-                            password = "amspy123"
-                            handleAuthentication()
-                        } label: {
-                            Text("Bypass Login (Dev)")
-                                .foregroundColor(.green)
-                                .font(.footnote)
-                        }
-                        
-                        Button {
-                            email = "amspy2468@gmail.com"
-                            password = "amspy123"
-                            isStaffSignup = true
-                            selectedClass = "Staff"
-                            registerNumber = "Staff"
-                            handleAuthentication()
-                        } label: {
-                            Text("Bypass Login (Staff)")
-                                .foregroundColor(.purple)
-                                .font(.footnote)
-                        }
                     }
                     .padding(.horizontal)
                 }
