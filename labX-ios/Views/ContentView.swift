@@ -31,13 +31,15 @@ struct ContentView: View {
                             .navigationTitle("Home")
                             .navigationBarTitleDisplayMode(.large)
                             .toolbar {
-                                ToolbarItem(placement: .topBarTrailing) {
-                                    Button(action: {
-                                        createConsult = true
-                                    }) {
-                                        Image(systemName: "plus")
-                                            .imageScale(.large)
-                                            .fontWeight(.heavy)
+                                if user.className != "Staff" {
+                                    ToolbarItem(placement: .topBarTrailing) {
+                                        Button(action: {
+                                            createConsult = true
+                                        }) {
+                                            Image(systemName: "plus")
+                                                .imageScale(.large)
+                                                .fontWeight(.heavy)
+                                        }
                                     }
                                 }
                                 

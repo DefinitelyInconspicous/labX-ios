@@ -77,19 +77,9 @@ struct StaffConsultationsView: View {
                 .listStyle(.insetGrouped)
             }
         }
-        .navigationTitle("Your Bookings")
+        .navigationTitle("Consultations")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(action: {
-                    createConsult = true
-                }) {
-                    Image(systemName: "plus")
-                        .imageScale(.large)
-                        .fontWeight(.heavy)
-                }
-            }
-            
             if let user = userManager.user {
                 ToolbarItem(placement: .topBarLeading) {
                     NavigationLink(destination: ProfileView(user: user)) {

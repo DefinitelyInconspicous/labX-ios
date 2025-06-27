@@ -1,3 +1,10 @@
+//
+//  RescheduleView.swift
+//  labX-ios
+//
+//  Created by Avyan Mehra on 14/4/25.
+//
+
 import SwiftUI
 import Forever
 import FirebaseFirestore
