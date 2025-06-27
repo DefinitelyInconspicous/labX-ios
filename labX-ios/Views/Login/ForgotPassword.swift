@@ -59,7 +59,7 @@ struct ForgotPassword: View {
             if let error = error {
                 message = error.localizedDescription
             } else {
-                message = "A password reset email has been sent. Please check your email and/or your spam."
+                message = "A password reset email has been sent. Please check your inbox and/or your spam."
             }
             showAlert = true
         }
