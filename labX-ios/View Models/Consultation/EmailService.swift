@@ -45,10 +45,10 @@ class EmailService: NSObject, ObservableObject {
         onSent: @escaping () -> Void,
         onCancelled: @escaping () -> Void
     ) -> Bool {
-        print("📧 sendConsultationEmail called for teacher: \(teacher.name)")
+        print("sendConsultationEmail called for teacher: \(teacher.name)")
         
         guard MFMailComposeViewController.canSendMail() else {
-            print("📧 Device cannot send emails")
+            print("Device cannot send emails")
             return false
         }
         

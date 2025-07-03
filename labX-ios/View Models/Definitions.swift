@@ -31,3 +31,11 @@ struct staff: Identifiable, Equatable, Hashable, Encodable, Decodable {
     var name: String
     var email: String
 }
+
+struct Event: Identifiable, Codable {
+    var id: UUID = UUID()
+    var title: String
+    var date: Date
+    var duration: Int
+    var description: String
+}

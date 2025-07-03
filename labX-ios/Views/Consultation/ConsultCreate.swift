@@ -36,6 +36,11 @@ struct ConsultCreate: View {
     
     var body: some View {
         NavigationStack {
+            NavigationLink {
+                ConsultationScheduler()
+            } label: {
+                Text("Dev bypass to schedule")
+            }
             Form {
                 Section(header: Text("Select Teacher")) {
                     Picker("Teacher", selection: $selectedTeacher) {
@@ -218,8 +223,22 @@ struct ConsultCreate: View {
                 }
             }
         }
-    }
+        
+        let newEvent: Event = Event(
+            id: UUID(),
+            title: "Consultation with \(teacher.name)",
+            date: selectedDate,
+            duration: 30,
+            description: comments,
+        )
+            requestCalendarAccess()
+            requestEvent(newEvent)
+        print("Added Calendar Event")
+
+        
     
+}
+
     private func fetchTeachers() {
         let db = Firestore.firestore()
         print("Fetching teachers from Firestore...")

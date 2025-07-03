@@ -302,7 +302,7 @@ struct LoginView: View {
            match.range.location != NSNotFound {
             isEmailValid = true
             errorMessage = ""
-        } else if email.hasSuffix("@sst.edu.sg") || email == "amspy2468@gmail.com" {
+        } else if email.hasSuffix("@sst.edu.sg") {
             isEmailValid = true
             errorMessage = ""
         } else {

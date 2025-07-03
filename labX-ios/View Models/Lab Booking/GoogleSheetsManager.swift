@@ -343,7 +343,7 @@ class GoogleSheetsManager {
                                     "blue": 0.6
                                 ],
                                 "textFormat": [
-                                    "fontSize": 15
+                                    "fontSize": 13
                                 ],
                                 "wrapStrategy": "WRAP"
                             ]
@@ -386,12 +386,11 @@ class GoogleSheetsManager {
         task.resume()
     }
     
-    // Helper to escape sheet name for range
     private func sheetNameEscape(sheetId: Int, range: String) -> String {
         // This is a workaround: Google Sheets API allows using 'SheetName!A1:B2' for ranges
         // But for API calls, you can use the sheetId in batchUpdate, and for values API, you use 'SheetName!A1:B2'
         // Here, we need to map sheetId back to sheetName if needed, or pass sheetName as parameter
         // For now, assume the caller has the sheetName and can build 'SheetName!A1:B2'
-        return range // Placeholder, will update in next step
+        return range
     }
 } 

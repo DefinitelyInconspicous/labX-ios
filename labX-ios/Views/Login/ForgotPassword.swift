@@ -26,7 +26,7 @@ struct ForgotPassword: View {
                         .keyboardType(.emailAddress)
                         .autocapitalization(.none)
                         .padding()
-                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray5)))
                 }
                 
                 Button(action: resetPassword) {

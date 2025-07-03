@@ -104,7 +104,7 @@ struct SplashScreenView: View {
                         .foregroundColor(.white.opacity(0.6))
                         .opacity(versionOpacity)
                     
-                    Text("Brought to you by teamX 2025")
+                    Text("Brought to you by teamX 2024 - 2025")
                         .font(.system(size: 11, weight: .regular))
                         .foregroundColor(.white.opacity(0.5))
                         .opacity(versionOpacity)
