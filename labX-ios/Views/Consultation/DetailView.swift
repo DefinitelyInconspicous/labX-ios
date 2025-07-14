@@ -98,7 +98,7 @@ struct DetailView: View {
                         if events.isEmpty {
                             Text("No calendar events found for this day.")
                                 .foregroundColor(.secondary)
-                        } else {
+//                        } else {
                             
                             let timeSlots = [
                                 "08:00", "08:15", "08:30", "08:45",
@@ -131,7 +131,7 @@ struct DetailView: View {
                                 HStack(alignment: .top, spacing: 16) {
                                     
                                     // Time column
-                                    VStack(alignment: .leading, spacing: 0) {
+                                    VStack(alignment: .leading, spacing: 20) {
                                         ForEach(timeSlots, id: \.self) { slot in
                                             Text(slot)
                                                 .font(.caption2)
@@ -176,7 +176,6 @@ struct DetailView: View {
                 
             }
         }
-        .padding()
         
         .onAppear {
             if userManager.user == nil {
