@@ -88,7 +88,7 @@ struct EmailSetupGuide: View {
                             StepCard(
                                 number: 7,
                                 title: "Test Setup",
-                                description: "Return to this app and try creating a consultation again",
+                                description: "Return to labX and try creating a consultation again",
                                 icon: "checkmark.shield"
                             )
                         }
