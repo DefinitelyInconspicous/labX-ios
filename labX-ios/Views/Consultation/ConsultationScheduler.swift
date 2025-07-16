@@ -187,19 +187,65 @@ struct ConsultationScheduler: View {
     
     private func fetchCalendarEvents() {
         bookedTimeSlots = []
-        let events = fetchEvents(date: selectedDate)
-        var blocked = Set<Date>()
-        let calendar = Calendar.current
-        
-        for event in events {
-            var time = event.startDate
-            while time ?? Date.now < event.endDate {
-                blocked.insert(calendar.date(bySetting: .second, value: 0, of: time ?? Date.now)!)
-                time = calendar.date(byAdding: .minute, value: 20, to: time ?? Date.now)!
+        guard let teacher = selectedTeacher else { return }
+
+        let db = Firestore.firestore()
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)! // ← Force UTC to match Firestore
+
+        let startOfDay = calendar.startOfDay(for: selectedDate)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+
+        let teacherEmail = teacher.email.lowercased()
+
+        db.collection("timings")
+            .whereField("teacherEmail", isEqualTo: teacherEmail)
+            .whereField("date", isGreaterThanOrEqualTo: Timestamp(date: startOfDay))
+            .whereField("date", isLessThan: Timestamp(date: endOfDay))
+            .getDocuments { snapshot, error in
+                var blocked: Set<Date> = []
+
+                if let documents = snapshot?.documents {
+                    for doc in documents {
+                        if let startTimestamp = doc["date"] as? Timestamp,
+                           let duration = doc["duration"] as? Int {
+                            let startDate = startTimestamp.dateValue()
+                            let endDate = Calendar.current.date(byAdding: .minute, value: duration, to: startDate)!
+
+                            var current = roundDownToNearest20(startDate)
+                            while current < endDate {
+                                blocked.insert(current)
+                                current = Calendar.current.date(byAdding: .minute, value: 20, to: current)!
+                            }
+                        }
+                    }
+                }
+
+                DispatchQueue.main.async {
+                    self.bookedTimeSlots = blocked
+                    print("Fetched \(snapshot?.documents.count ?? 0) timing entries for \(teacherEmail) on \(selectedDate)")
+                    for doc in snapshot?.documents ?? [] {
+                        print(">> \(doc.data())")
+                    }
+
+                }
             }
-        }
-        bookedTimeSlots = blocked
     }
+
+    
+    private func roundDownToNearest20(_ date: Date) -> Date {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.hour, .minute], from: date)
+        let roundedMinute = (components.minute ?? 0) / 20 * 20
+        var newComponents = calendar.dateComponents([.year, .month, .day], from: date)
+        newComponents.hour = components.hour
+        newComponents.minute = roundedMinute
+        newComponents.second = 0
+        return calendar.date(from: newComponents)!
+    }
+
+
+
     
     private func fetchTeachers() {
         let db = Firestore.firestore()

@@ -9,7 +9,7 @@ import SwiftUI
 import Forever
 import FirebaseFirestore
 
-struct ConsultCreate: View {
+struct ConsultCreateOLD: View {
     @Binding var consultations: [consultation]
     @StateObject private var consultationManager = ConsultationManager()
     @StateObject private var userManager = UserManager()
@@ -273,5 +273,5 @@ struct ConsultCreate: View {
 }
 
 #Preview {
-    ConsultCreate(consultations: .constant([consultation(teacher: staff(name: "", email: ""), date: .now, comment: "", student: "", location: "")]))
+    ConsultCreateOLD(consultations: .constant([consultation(teacher: staff(name: "", email: ""), date: .now, comment: "", student: "", location: "")]))
 }

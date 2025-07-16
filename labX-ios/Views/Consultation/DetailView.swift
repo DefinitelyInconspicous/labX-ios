@@ -98,7 +98,7 @@ struct DetailView: View {
                         if events.isEmpty {
                             Text("No calendar events found for this day.")
                                 .foregroundColor(.secondary)
-//                        } else {
+                        } else {
                             
                             let timeSlots = [
                                 "08:00", "08:15", "08:30", "08:45",

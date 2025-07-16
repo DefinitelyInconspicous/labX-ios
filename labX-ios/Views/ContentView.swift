@@ -51,7 +51,7 @@ struct ContentView: View {
                                 }
                             }
                             .sheet(isPresented: $createConsult) {
-                                ConsultCreate(consultations: $consultationManager.consultations)
+                                ConsultationScheduler()
                             }
                         }
                     }
