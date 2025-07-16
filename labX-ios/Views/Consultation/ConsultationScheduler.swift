@@ -15,7 +15,7 @@ struct ConsultationScheduler: View {
     @State private var selectedDate: Date = Date()
     @State private var selectedTimeSlots: Set<Date> = []
     @State private var bookedTimeSlots: Set<Date> = []
-    @State private var selectedLocation: String = ""
+    @State private var selectedLocation: String = "Select Location"
     @State private var comments: String = ""
     @State private var showAlert = false
     @State private var alertMessage = ""
@@ -41,7 +41,7 @@ struct ConsultationScheduler: View {
         components.minute = 0
         guard var current = calendar.date(from: components) else { return [] }
         
-        while current < calendar.date(bySettingHour: 19, minute: 20, second: 0, of: selectedDate)! {
+        while current < calendar.date(bySettingHour: 19, minute: 00, second: 0, of: selectedDate)! {
             slots.append(current)
             current = calendar.date(byAdding: .minute, value: 20, to: current)!
         }
@@ -102,7 +102,7 @@ struct ConsultationScheduler: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 10) {
-                        ForEach(chunked(timeSlots, size: 4), id: \.self) { row in
+                        ForEach(chunked(timeSlots, size: 3), id: \.self) { row in
                             HStack(spacing: 10) {
                                 ForEach(row, id: \.self) { slot in
                                     let isBooked = isSlotBooked(slot)
@@ -126,12 +126,6 @@ struct ConsultationScheduler: View {
                                     }
                                     .buttonStyle(PlainButtonStyle())
                                     .disabled(isBooked)
-                                }
-                                // Fill remaining space if row is short
-                                if row.count < 4 {
-                                    ForEach(0..<(4 - row.count), id: \.self) { _ in
-                                        Spacer()
-                                    }
                                 }
                             }
                         }
@@ -265,12 +259,38 @@ struct ConsultationScheduler: View {
     }
     
     private func handleTimeSlotSelection(_ slot: Date) {
+        let sortedSlots = selectedTimeSlots.sorted()
+
         if selectedTimeSlots.contains(slot) {
-            selectedTimeSlots.remove(slot)
-        } else {
+            // If tapped slot is in the middle or start, deselect it and all slots after it
+            let toRemove = sortedSlots.filter { $0 >= slot }
+            selectedTimeSlots.subtract(toRemove)
+            return
+        }
+
+        // If no slot is selected, just insert
+        if sortedSlots.isEmpty {
             selectedTimeSlots.insert(slot)
+            return
+        }
+
+        guard let minSlot = sortedSlots.first,
+              let maxSlot = sortedSlots.last else { return }
+
+        let calendar = Calendar.current
+        let prevSlot = calendar.date(byAdding: .minute, value: -20, to: minSlot)!
+        let nextSlot = calendar.date(byAdding: .minute, value: 20, to: maxSlot)!
+
+        if slot == prevSlot || slot == nextSlot {
+            selectedTimeSlots.insert(slot)
+        } else {
+            // Disallow non-consecutive selection
+            alertMessage = "Please select consecutive time slots only."
+            showAlert = true
         }
     }
+
+
     
     private func isSlotBooked(_ slot: Date) -> Bool {
         bookedTimeSlots.contains { Calendar.current.isDate($0, equalTo: slot, toGranularity: .minute) }

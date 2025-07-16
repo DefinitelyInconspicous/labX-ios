@@ -24,13 +24,37 @@ struct EditProfileView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Personal Info")) {
-                    TextField("First Name", text: $user.firstName)
-                    TextField("Last Name", text: $user.lastName)
-                    TextField("Email", text: $user.email)
-                        .keyboardType(.emailAddress)
-                        .autocapitalization(.none)
+                Section(header: Text("Personal Info").font(.headline)) {
+                    HStack {
+                        Text("First Name")
+                        Spacer()
+                        TextField("First Name", text: $user.firstName)
+                            .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: 200)
+                    }
+
+                    HStack {
+                        Text("Last Name")
+                        Spacer()
+                        TextField("Last Name", text: $user.lastName)
+                            .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: 200)
+                    }
+
+                    HStack {
+                        Text("Email")
+                        Spacer()
+                        TextField("Email", text: $user.email)
+                            .keyboardType(.emailAddress)
+                            .textContentType(.emailAddress)
+                            .autocapitalization(.none)
+                            .autocorrectionDisabled(true)
+                            .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: 250)
+                    }
                 }
+
+
                 if user.className != "Staff" {
                     Section(header: Text("School Info")) {
                         Picker("Class", selection: $user.className) {

@@ -90,7 +90,7 @@ struct StaffConsultationsView: View {
             }
         }
         .sheet(isPresented: $createConsult) {
-            ConsultCreate(consultations: $consultationManager.consultations)
+            ConsultationScheduler()
         }
         .onAppear {
             consultationManager.fetchTeacherConsultations(forTeacher: staff.email)

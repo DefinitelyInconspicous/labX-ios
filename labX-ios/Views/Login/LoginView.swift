@@ -78,9 +78,17 @@ struct LoginView: View {
                                 .autocapitalization(.none)
                                 .padding()
                                 .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                                .onChange(of: email) { _ in
-                                    validateEmail(email)
+                                .onChange(of: email) { newEmail in
+                                    validateEmail(newEmail)
+                                    isStaffSignup = newEmail.lowercased().hasSuffix("@sst.edu.sg")
+                                    
+                                    // Automatically set staff values if needed
+                                    if isStaffSignup {
+                                        selectedClass = "Staff"
+                                        registerNumber = "Staff"
+                                    }
                                 }
+
                             
                             if !isEmailValid && !errorMessage.isEmpty {
                                 Text(errorMessage)
@@ -154,22 +162,6 @@ struct LoginView: View {
                     .padding(.horizontal)
                     
                     VStack(spacing: 16) {
-                        if isRegistering {
-                            Button {
-                                isStaffSignup.toggle()
-                                if isStaffSignup {
-                                    selectedClass = "Staff"
-                                    registerNumber = "Staff"
-                                } else {
-                                    selectedClass = "S1-01"
-                                    registerNumber = "01"
-                                }
-                            } label: {
-                                Text(isStaffSignup ? "Switch to Student Signup" : "Switch to Staff Signup")
-                                    .foregroundColor(.blue)
-                                    .font(.footnote)
-                            }
-                        }
                         
                         Button {
                             handleAuthentication()
