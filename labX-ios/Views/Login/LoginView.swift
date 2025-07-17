@@ -246,7 +246,6 @@ struct LoginView: View {
                         errorMessage = error.localizedDescription
                         showAlert = true
                     } else {
-                        // Create user document in Firestore
                         if let user = Auth.auth().currentUser {
                             let db = Firestore.firestore()
                             let userData: [String: Any] = [

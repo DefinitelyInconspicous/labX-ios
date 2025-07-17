@@ -262,13 +262,12 @@ struct ConsultationScheduler: View {
         let sortedSlots = selectedTimeSlots.sorted()
 
         if selectedTimeSlots.contains(slot) {
-            // If tapped slot is in the middle or start, deselect it and all slots after it
+
             let toRemove = sortedSlots.filter { $0 >= slot }
             selectedTimeSlots.subtract(toRemove)
             return
         }
 
-        // If no slot is selected, just insert
         if sortedSlots.isEmpty {
             selectedTimeSlots.insert(slot)
             return
@@ -284,7 +283,6 @@ struct ConsultationScheduler: View {
         if slot == prevSlot || slot == nextSlot {
             selectedTimeSlots.insert(slot)
         } else {
-            // Disallow non-consecutive selection
             alertMessage = "Please select consecutive time slots only."
             showAlert = true
         }

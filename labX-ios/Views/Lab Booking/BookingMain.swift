@@ -38,7 +38,7 @@ struct BookingMain: View {
         "R&E Lab"
     ]
     
-    // Generate time slots from 8am to 7pm in 20-minute intervals (in UTC+8)
+    
     var timeSlots: [Date] {
         var slots: [Date] = []
         let calendar = Calendar(identifier: .gregorian)
@@ -46,13 +46,13 @@ struct BookingMain: View {
         let utc8 = TimeZone(secondsFromGMT: 8 * 3600)!
         components.timeZone = utc8
 
-        // Start at 8am UTC+8
+        
         components.hour = 8
         components.minute = 0
         components.second = 0
         guard var currentDate = calendar.date(from: components) else { return [] }
 
-        // End at 7pm UTC+8
+        
         components.hour = 19
         components.minute = 0
         guard let endDate = calendar.date(from: components) else { return [] }
@@ -72,7 +72,7 @@ struct BookingMain: View {
     private func handleTimeSlotSelection(_ slot: Date) {
         let calendar = Calendar.current
         
-        // If slot is already selected, remove it and any slots after it
+ 
         if selectedTimeSlots.contains(slot) {
             selectedTimeSlots = selectedTimeSlots.filter { selectedSlot in
                 selectedSlot < slot
@@ -80,21 +80,19 @@ struct BookingMain: View {
             return
         }
         
-        // If no slots are selected, just add this one
+
         if selectedTimeSlots.isEmpty {
             selectedTimeSlots.insert(slot)
             return
         }
         
-        // Get the last selected slot
+
         guard let lastSelected = selectedTimeSlots.max() else { return }
-        
-        // Check if the new slot is 20 minutes after the last selected slot
+
         let nextSlot = calendar.date(byAdding: .minute, value: 20, to: lastSelected)!
         if calendar.isDate(slot, equalTo: nextSlot, toGranularity: .minute) {
             selectedTimeSlots.insert(slot)
         } else {
-            // If not consecutive, show alert
             alertMessage = "Please select consecutive time slots"
             showAlert = true
         }
@@ -111,7 +109,6 @@ struct BookingMain: View {
         return "\(formatter.string(from: first)) - \(formatter.string(from: last))"
     }
     
-    // Helper to fetch booked slots for the selected location and date
     private func fetchBookedSlots() {
         guard !selectedLocation.isEmpty else {
             bookedTimeSlots = []
@@ -157,7 +154,7 @@ struct BookingMain: View {
             }
     }
     
-    // Helper to check if a slot is booked (ignoring seconds/milliseconds, in UTC+8)
+
     private func isSlotBooked(_ slot: Date) -> Bool {
         let calendar = Calendar(identifier: .gregorian)
         let utc8 = TimeZone(secondsFromGMT: 8 * 3600)!
@@ -297,7 +294,6 @@ struct BookingMain: View {
         let timeStart = combine(date: selectedDate, time: minSlot)
         let timeEnd = combine(date: selectedDate, time: maxSlot)
         
-        // Convert to UTC+8
         let utc8 = TimeZone(secondsFromGMT: 8 * 3600)!
         let timeStartUTC8 = Calendar.current.date(byAdding: .second, value: utc8.secondsFromGMT(for: timeStart) - TimeZone.current.secondsFromGMT(for: timeStart), to: timeStart) ?? timeStart
         let timeEndUTC8 = Calendar.current.date(byAdding: .second, value: utc8.secondsFromGMT(for: timeEnd) - TimeZone.current.secondsFromGMT(for: timeEnd), to: timeEnd) ?? timeEnd
@@ -316,13 +312,13 @@ struct BookingMain: View {
                 alertMessage = "Error booking lab: \(error.localizedDescription)"
                 showAlert = true
             } else {
-                // Save values before clearing
+
                 let locationForSheet = selectedLocation
                 let commentForSheet = comment
                 let teacherName = "\(user.firstName) \(user.lastName)"
                 let timeSlotsArray = sortedSlots
                 
-                // Clear the form
+
                 selectedLocation = ""
                 selectedTimeSlots.removeAll()
                 comment = ""
