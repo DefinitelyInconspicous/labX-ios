@@ -232,6 +232,35 @@ struct DetailView: View {
             consultations.remove(at: index)
         }
         dismiss()
+        //delet timings (the cool calendar thing)
+        let db = Firestore.firestore()
+        
+        db.collection("timings")
+            .whereField("teacherEmail", isEqualTo: consultation.teacher.email)
+            .whereField("date", isEqualTo: consultation.date)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching timing slots: \(error.localizedDescription)")
+                    return
+                }
+
+                guard let documents = snapshot?.documents else { return }
+
+                for doc in documents {
+                    if let timestamp = doc["date"] as? Timestamp {
+                        let timingDate = timestamp.dateValue()
+                        if Calendar.current.isDate(timingDate, equalTo: consultation.date, toGranularity: .minute) {
+                            db.collection("timings").document(doc.documentID).delete { err in
+                                if let err = err {
+                                    print("Error deleting timing: \(err.localizedDescription)")
+                                } else {
+                                    print("Timing slot successfully deleted.")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
     }
 
     func updateConsultationStatus(status: String) {
