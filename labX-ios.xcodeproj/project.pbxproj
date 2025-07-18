@@ -7,10 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		54575DAB2E059CFC0073EF75 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 54575DAA2E059CFC0073EF75 /* FirebaseMessaging */; };
 		CF1949402DF9650A009A503C /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = CF19493F2DF9650A009A503C /* FirebaseAnalytics */; };
 		CF1949422DF9650A009A503C /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = CF1949412DF9650A009A503C /* FirebaseDatabase */; };
-		CF1949442DF9650A009A503C /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = CF1949432DF9650A009A503C /* FirebaseInAppMessaging-Beta */; };
 		CFBA08392E044B8400A4CB89 /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = CFBA08382E044B8400A4CB89 /* SwiftJWT */; };
 		CFBA08402E04EAD500A4CB89 /* OAuth1 in Frameworks */ = {isa = PBXBuildFile; productRef = CFBA083F2E04EAD500A4CB89 /* OAuth1 */; };
 		CFBA08422E04EAD500A4CB89 /* OAuth2 in Frameworks */ = {isa = PBXBuildFile; productRef = CFBA08412E04EAD500A4CB89 /* OAuth2 */; };
@@ -63,7 +61,6 @@
 				CF1949402DF9650A009A503C /* FirebaseAnalytics in Frameworks */,
 				CFBA08402E04EAD500A4CB89 /* OAuth1 in Frameworks */,
 				CFF9D1F12DACB51700A06688 /* Forever in Frameworks */,
-				CF1949442DF9650A009A503C /* FirebaseInAppMessaging-Beta in Frameworks */,
 				CFF9D2132DAE1E7500A06688 /* Discovery in Frameworks */,
 				CFF9D2072DACD21D00A06688 /* FirebaseFirestore in Frameworks */,
 				CFF9D2152DAE1E7500A06688 /* GoogleAPIRuntime in Frameworks */,
@@ -71,7 +68,6 @@
 				CF1949422DF9650A009A503C /* FirebaseDatabase in Frameworks */,
 				CFC455432E05052C006611C9 /* GTMSessionFetcherCore in Frameworks */,
 				CFC455472E05052C006611C9 /* GTMSessionFetcherLogView in Frameworks */,
-				54575DAB2E059CFC0073EF75 /* FirebaseMessaging in Frameworks */,
 				CFBA08422E04EAD500A4CB89 /* OAuth2 in Frameworks */,
 				CFBA08492E05018E00A4CB89 /* GTMAppAuth in Frameworks */,
 				CFBA08392E044B8400A4CB89 /* SwiftJWT in Frameworks */,
@@ -137,7 +133,6 @@
 				CFF9D2142DAE1E7500A06688 /* GoogleAPIRuntime */,
 				CF19493F2DF9650A009A503C /* FirebaseAnalytics */,
 				CF1949412DF9650A009A503C /* FirebaseDatabase */,
-				CF1949432DF9650A009A503C /* FirebaseInAppMessaging-Beta */,
 				CFBA08382E044B8400A4CB89 /* SwiftJWT */,
 				CFBA083F2E04EAD500A4CB89 /* OAuth1 */,
 				CFBA08412E04EAD500A4CB89 /* OAuth2 */,
@@ -148,7 +143,6 @@
 				CFC455422E05052C006611C9 /* GTMSessionFetcherCore */,
 				CFC455442E05052C006611C9 /* GTMSessionFetcherFull */,
 				CFC455462E05052C006611C9 /* GTMSessionFetcherLogView */,
-				54575DAA2E059CFC0073EF75 /* FirebaseMessaging */,
 			);
 			productName = "labX-ios";
 			productReference = CF288DD82D87C7210012B4B1 /* labX-ios.app */;
@@ -376,7 +370,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 42V9477C3N;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "labX-ios/Info.plist";
@@ -482,11 +476,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		54575DAA2E059CFC0073EF75 /* FirebaseMessaging */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = CFF9D1F42DACC92800A06688 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseMessaging;
-		};
 		CF19493F2DF9650A009A503C /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CFF9D1F42DACC92800A06688 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
@@ -496,11 +485,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CFF9D1F42DACC92800A06688 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseDatabase;
-		};
-		CF1949432DF9650A009A503C /* FirebaseInAppMessaging-Beta */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = CFF9D1F42DACC92800A06688 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = "FirebaseInAppMessaging-Beta";
 		};
 		CFBA08382E044B8400A4CB89 /* SwiftJWT */ = {
 			isa = XCSwiftPackageProductDependency;
