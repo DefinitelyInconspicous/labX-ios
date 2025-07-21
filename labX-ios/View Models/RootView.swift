@@ -10,6 +10,7 @@ import SwiftUI
 import Firebase
 import EventKit
 import FirebaseFirestore
+import math_h
 
 struct RootView: View {
     @StateObject private var auth = AuthManager.shared
@@ -41,7 +42,7 @@ struct RootView: View {
             }
         }
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 withAnimation {
                     showSplash = false
                 }
