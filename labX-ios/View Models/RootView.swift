@@ -10,7 +10,6 @@ import SwiftUI
 import Firebase
 import EventKit
 import FirebaseFirestore
-import math_h
 
 struct RootView: View {
     @StateObject private var auth = AuthManager.shared
