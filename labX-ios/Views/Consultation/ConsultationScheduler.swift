@@ -180,6 +180,7 @@ struct ConsultationScheduler: View {
     }
     
     private func fetchCalendarEvents() {
+        print("fetchcalendarevents called")
         bookedTimeSlots = []
         guard let teacher = selectedTeacher else { return }
 
@@ -242,6 +243,7 @@ struct ConsultationScheduler: View {
 
     
     private func fetchTeachers() {
+        print("Fetching teachers")
         let db = Firestore.firestore()
         db.collection("users").whereField("className", isEqualTo: "Staff").getDocuments { snapshot, error in
             guard let docs = snapshot?.documents, error == nil else { return }
@@ -259,6 +261,7 @@ struct ConsultationScheduler: View {
     }
     
     private func handleTimeSlotSelection(_ slot: Date) {
+        print("Handling time slot selection for \(timeString(from: slot))")
         let sortedSlots = selectedTimeSlots.sorted()
 
         if selectedTimeSlots.contains(slot) {
@@ -301,6 +304,7 @@ struct ConsultationScheduler: View {
     }
     
     private func formatTimeRange() -> String {
+        print("formattimerange called")
         guard let start = selectedTimeSlots.min(), let end = selectedTimeSlots.max() else { return "" }
         let fmt = DateFormatter()
         fmt.timeStyle = .short
@@ -308,6 +312,7 @@ struct ConsultationScheduler: View {
     }
     
     private func submitConsultation() {
+        
         guard let teacher = selectedTeacher,
               let user = userManager.user,
               let start = selectedTimeSlots.min(),
@@ -320,7 +325,7 @@ struct ConsultationScheduler: View {
         }
 
         isCreating = true
-
+        print("SubmitConsultation called")
         let consult = consultation(
             teacher: teacher,
             date: start,
@@ -343,6 +348,7 @@ struct ConsultationScheduler: View {
                         self.isCreating = false
                         self.alertMessage = "Consultation created successfully!\n\nEmail notification sent to \(teacher.name)."
                         self.showAlert = true
+                        print("Consultation created successfully!\n\nEmail notification sent to \(teacher.name).")
                         self.selectedTimeSlots.removeAll()
                         self.dismiss()
                     }
@@ -352,6 +358,7 @@ struct ConsultationScheduler: View {
                         self.isCreating = false
                         self.alertMessage = "Consultation created, but email notification was not sent."
                         self.showAlert = true
+                        print("Consultation created, but email notification was not sent.")
                         self.selectedTimeSlots.removeAll()
                         self.dismiss()
                     }
@@ -362,6 +369,7 @@ struct ConsultationScheduler: View {
                 DispatchQueue.main.async {
                     self.isCreating = false
                     self.alertMessage = "Consultation created, but unable to open email composer."
+                    print("Consultation created, but unable to open email composer.")
                     self.showAlert = true
                     self.selectedTimeSlots.removeAll()
                     self.dismiss()
@@ -371,6 +379,7 @@ struct ConsultationScheduler: View {
             DispatchQueue.main.async {
                 self.isCreating = false
                 self.alertMessage = "Consultation created.\n\nEmail notifications are unavailable on this device."
+                print("Consultation created.\n\nEmail notifications are unavailable on this device.")
                 self.showAlert = true
                 self.selectedTimeSlots.removeAll()
                 self.dismiss()
