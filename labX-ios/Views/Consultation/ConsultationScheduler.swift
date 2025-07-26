@@ -312,7 +312,7 @@ struct ConsultationScheduler: View {
     }
     
     private func submitConsultation() {
-        
+        print("submit consultation called")
         guard let teacher = selectedTeacher,
               let user = userManager.user,
               let start = selectedTimeSlots.min(),
