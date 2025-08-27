@@ -99,7 +99,7 @@ struct SplashScreenView: View {
                 
                 // Version and branding
                 VStack(spacing: 4) {
-                    Text("Version Beta 1.0.1")
+                    Text("Release 1.0.0")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                         .opacity(versionOpacity)
