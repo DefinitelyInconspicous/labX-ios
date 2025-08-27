@@ -44,7 +44,7 @@ class ConsultationManager: ObservableObject {
                     
                     let teacher = staff(name: teacherName, email: teacherEmail)
                     return consultation(
-                        id: UUID(uuidString: document.documentID) ?? UUID(),
+                        id: document.documentID,
                         teacher: teacher,
                         date: date,
                         comment: comment,
@@ -89,7 +89,7 @@ class ConsultationManager: ObservableObject {
                     
                     let teacher = staff(name: teacherName, email: teacherEmail)
                     return consultation(
-                        id: UUID(uuidString: document.documentID) ?? UUID(),
+                        id: document.documentID,
                         teacher: teacher,
                         date: date,
                         comment: comment,
@@ -112,8 +112,8 @@ class ConsultationManager: ObservableObject {
             "location": consultation.location,
             "status": consultation.status ?? "pending"
         ]
-        
-        db.collection("consultations").document(consultation.id.uuidString).setData(data) { error in
+        // Use addDocument to let Firestore generate the ID
+        db.collection("consultations").addDocument(data: data) { error in
             if let error = error {
                 print("Error adding consultation: \(error.localizedDescription)")
             } else {
@@ -124,7 +124,7 @@ class ConsultationManager: ObservableObject {
     
     func deleteConsultation(_ consultation: consultation) {
         print("Deleting consultation: \(consultation.id)")
-        db.collection("consultations").document(consultation.id.uuidString).delete { error in
+        db.collection("consultations").document(consultation.id).delete { error in
             if let error = error {
                 print("Error deleting consultation: \(error.localizedDescription)")
             } else {

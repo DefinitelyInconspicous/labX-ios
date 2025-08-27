@@ -62,6 +62,7 @@ struct DetailView: View {
                                 .foregroundColor(.white)
                                 .cornerRadius(8)
                         }
+                        .padding()
                     }
                 }
 
@@ -265,7 +266,8 @@ struct DetailView: View {
 
     func updateConsultationStatus(status: String) {
         let db = Firestore.firestore()
-        db.collection("consultations").document(consultation.id.uuidString).updateData([
+        print("Updating Consultation Status")
+        db.collection("consultations").document(String(consultation.id)).updateData([
             "status": status
         ]) { error in
             if let error = error {

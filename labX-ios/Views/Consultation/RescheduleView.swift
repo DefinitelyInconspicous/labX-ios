@@ -171,7 +171,7 @@ struct RescheduleView: View {
         // Use the ConsultationManager to reschedule
         Task {
             let success = await consultationManager.rescheduleConsultation(
-                consultation.id.uuidString,
+                consultation.id,
                 newDate: newDate,
                 newLocation: newLocation,
                 reason: rescheduleReason,
@@ -271,7 +271,7 @@ struct RescheduleView: View {
 
 #Preview {
     RescheduleView(consultation: consultation(
-        teacher: staff(name: "Dr. Smith", email: "smith@school.edu"),
+        id: "", teacher: staff(name: "Mr Low", email: "test@sst.edu"),
         date: Date(),
         comment: "Need help with physics",
         student: "student@school.edu",

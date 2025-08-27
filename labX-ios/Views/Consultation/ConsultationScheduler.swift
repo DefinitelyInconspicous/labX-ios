@@ -327,13 +327,14 @@ struct ConsultationScheduler: View {
         isCreating = true
         print("SubmitConsultation called")
         let consult = consultation(
+            id: "", 
             teacher: teacher,
             date: start,
             comment: comments,
             student: user.email,
+            status: nil,
             location: selectedLocation
         )
-
         consultationManager.addConsultation(consult)
 
         if emailService.canSendEmail() {
@@ -404,4 +405,3 @@ func chunked<T>(_ array: [T], size: Int) -> [[T]] {
         Array(array[$0..<min($0 + size, array.count)])
     }
 }
-

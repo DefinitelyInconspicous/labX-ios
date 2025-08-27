@@ -13,7 +13,7 @@ struct StaffConsultationsView: View {
     var staff: staff
     @Binding var consultations: [consultation]
     @StateObject private var consultationManager = ConsultationManager()
-    @State private var statuses: [UUID: String] = [:]
+    @State private var statuses: [String] = []
     @State private var createConsult: Bool = false
     @StateObject private var userManager = UserManager()
     @State private var showPast = false
@@ -159,10 +159,12 @@ struct StaffConsultationsView: View {
     
     private func loadConsultationStatuses() {
         for consult in consultationManager.consultations {
-            db.collection("consultations").document(consult.id.uuidString).getDocument { document, error in
+            db.collection("consultations").document(consult.id).getDocument { document, error in
                 if let document = document, document.exists,
                    let status = document.data()?["status"] as? String {
-                    statuses[consult.id] = status
+                    if statuses.isEmpty != true {
+                        statuses[statuses.firstIndex(of: consult.id) ?? 0] = status
+                    }
                 }
             }
         }

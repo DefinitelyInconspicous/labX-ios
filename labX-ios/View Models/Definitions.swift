@@ -8,7 +8,7 @@
 import Foundation
 
 struct consultation: Identifiable, Decodable, Encodable {
-    var id = UUID()
+    var id: String 
     var teacher: staff
     var date: Date
     var comment: String

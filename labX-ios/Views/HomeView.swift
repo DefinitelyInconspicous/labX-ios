@@ -54,10 +54,9 @@ class ConsultationViewModel: ObservableObject {
                               let student = data["student"] as? String else {
                             return nil
                         }
-                        
                         let teacher = staff(name: teacherName, email: teacherEmail)
                         return consultation(
-                            id: UUID(uuidString: doc.documentID) ?? UUID(),
+                            id: doc.documentID, // Use Firebase's document ID
                             teacher: teacher,
                             date: date,
                             comment: comment,
