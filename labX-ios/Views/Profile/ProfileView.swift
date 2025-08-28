@@ -18,6 +18,9 @@ struct ProfileView: View {
     @State  var alertMessage = ""
     @State private var resetPasswordSheetShowing = false
     
+    // New state for delete confirmation
+    @State private var showDeleteConfirm = false
+    
     var body: some View {
         NavigationStack {
             HStack {
@@ -83,14 +86,10 @@ struct ProfileView: View {
                     }
                 }
                 
-                
-                
-                
                 Section {
                     Button(role: .destructive) {
-                        Task {
-                            await DeleteAccount(docID: user.id)
-                        }
+                        // Show confirmation alert first
+                        showDeleteConfirm = true
                     } label: {
                         Text("Delete Account")
                     }
@@ -107,8 +106,7 @@ struct ProfileView: View {
                         Image(systemName: "pencil")
                     }
                 }
-        
-        }
+            }
         .sheet(isPresented: $showEditSheet) {
             EditProfileView(user: user) { updatedUser, message in
                 self.user = updatedUser
@@ -119,6 +117,19 @@ struct ProfileView: View {
         .alert(isPresented: $showAlert) {
             Alert(title: Text("Status"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }
+        .alert("Delete Account?",
+               isPresented: $showDeleteConfirm,
+               actions: {
+                   Button("Cancel", role: .cancel) { }
+                   Button("Delete", role: .destructive) {
+                       Task {
+                           await DeleteAccount(docID: user.id)
+                       }
+                   }
+               },
+               message: {
+                   Text("This action cannot be undone. Are you sure you want to delete your account?")
+               })
         .onAppear {
             loadUserData()
         }
@@ -130,25 +141,26 @@ struct ProfileView: View {
         
         do {
             try await db.collection("users").document(docID).delete()
-          print("Document successfully removed!")
+            print("Document successfully removed!")
             alertMessage = "Account Deleted Successfully"
             showAlert = true
         } catch {
-          print("Error removing document: \(error)")
+            print("Error removing document: \(error)")
             alertMessage = "Error Deleting Account: \(error.localizedDescription)"
             showAlert = true
         }
         curuser?.delete { error in
-          if let error = error {
-            print("Error deleting user: \(error.localizedDescription)")
+            if let error = error {
+                print("Error deleting user: \(error.localizedDescription)")
                 alertMessage = "Error Deleting Account: \(error.localizedDescription)"
                 showAlert = true
-          } else {
-            print("User account deleted successfully")
+            } else {
+                print("User account deleted successfully")
                 isLoggedIn = false
-          }
+            }
         }
     }
+    
     func logout() {
         do {
             try Auth.auth().signOut()
