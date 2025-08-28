@@ -63,20 +63,37 @@ struct ProfileView: View {
                     }
                 }
                 
-                Button {
-                    resetPasswordSheetShowing = true
-                } label: {
-                    Text("Forgot Password?")
-                        .foregroundStyle(.blue)
-                }
-                .sheet(isPresented: $resetPasswordSheetShowing) {
-                    ForgotPassword()
+                Section {
+                    
+                    Button {
+                        resetPasswordSheetShowing = true
+                    } label: {
+                        Text("Forgot Password?")
+                            .foregroundStyle(.blue)
+                    }
+                    .sheet(isPresented: $resetPasswordSheetShowing) {
+                        ForgotPassword()
+                    }
+                    
+                    
+                    Button {
+                        logout()
+                    } label: {
+                        Text("Log Out")
+                    }
                 }
                 
-                Button(role: .destructive) {
-                    logout()
-                } label: {
-                    Text("Log Out")
+                
+                
+                
+                Section {
+                    Button(role: .destructive) {
+                        Task {
+                            await DeleteAccount(docID: user.id)
+                        }
+                    } label: {
+                        Text("Delete Account")
+                    }
                 }
             }
         }
@@ -107,6 +124,31 @@ struct ProfileView: View {
         }
     }
     
+    func DeleteAccount(docID: String) async {
+        let db = Firestore.firestore()
+        let curuser = Auth.auth().currentUser
+        
+        do {
+            try await db.collection("users").document(docID).delete()
+          print("Document successfully removed!")
+            alertMessage = "Account Deleted Successfully"
+            showAlert = true
+        } catch {
+          print("Error removing document: \(error)")
+            alertMessage = "Error Deleting Account: \(error.localizedDescription)"
+            showAlert = true
+        }
+        curuser?.delete { error in
+          if let error = error {
+            print("Error deleting user: \(error.localizedDescription)")
+                alertMessage = "Error Deleting Account: \(error.localizedDescription)"
+                showAlert = true
+          } else {
+            print("User account deleted successfully")
+                isLoggedIn = false
+          }
+        }
+    }
     func logout() {
         do {
             try Auth.auth().signOut()
@@ -132,4 +174,8 @@ struct ProfileView: View {
             }
         }
     }
+}
+
+#Preview {
+    ProfileView(user: User(id: "1", firstName: "John", lastName: "Doe", email: "john_doe@s2023.ssts.edu.sg", className: "S1-01", registerNumber: "1"))
 }

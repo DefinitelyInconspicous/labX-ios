@@ -3,6 +3,6 @@
 <plist version="1.0">
 <dict>
 	<key>NSCalendarsUsageDescription - 2</key>
-	<string>labX requires calendar access for consultations</string>
+	<string>labX requires calendar access to block your consultations in your calendar, as well as update the timings of your pre-booked events(No other information, just the timings) to ensure you are not double-booking events.</string>
 </dict>
 </plist>
