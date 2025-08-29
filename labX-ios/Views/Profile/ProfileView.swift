@@ -87,7 +87,6 @@ struct ProfileView: View {
                 
                 Section {
                     Button(role: .destructive) {
-                        // Show confirmation alert first
                         showDeleteConfirm = true
                     } label: {
                         Text("Delete Account")

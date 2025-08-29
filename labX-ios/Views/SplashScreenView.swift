@@ -17,7 +17,6 @@ struct SplashScreenView: View {
     
     var body: some View {
         ZStack {
-            // Animated background gradient
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color.blue.opacity(0.8),
@@ -28,8 +27,6 @@ struct SplashScreenView: View {
                 endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
-            
-            // Floating particles effect
             ForEach(0..<6, id: \.self) { index in
                 Circle()
                     .fill(Color.white.opacity(0.1))

@@ -7,7 +7,6 @@
 
 
 import SwiftUI
-import Forever
 import FirebaseAuth
 import FirebaseCore
 import FirebaseFirestore
@@ -43,7 +42,6 @@ struct LoginView: View {
                     
                     VStack(spacing: 16) {
                         if isRegistering {
-                            // Full Name Fields
                             HStack(spacing: 12) {
                                 VStack(alignment: .leading, spacing: 6) {
                                     Text("First Name")
@@ -66,8 +64,6 @@ struct LoginView: View {
                                 }
                             }
                         }
-                        
-                        // Email Field
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Email")
                                 .font(.caption)
@@ -81,8 +77,6 @@ struct LoginView: View {
                                 .onChange(of: email) { newEmail in
                                     validateEmail(newEmail)
                                     isStaffSignup = newEmail.lowercased().hasSuffix("@sst.edu.sg")
-                                    
-                                    // Automatically set staff values if needed
                                     if isStaffSignup {
                                         selectedClass = "Staff"
                                         registerNumber = "Staff"
@@ -96,8 +90,6 @@ struct LoginView: View {
                                     .font(.caption)
                             }
                         }
-                        
-                        // Password Fields
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Password")
                                 .font(.caption)

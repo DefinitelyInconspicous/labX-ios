@@ -69,7 +69,6 @@ struct RootView: View {
                 let events = fetchEvents(from: now, to: fourWeeksFromNow)
                 let timingsCollection = db.collection("timings")
                 print(events)
-                // Step 1: Delete past events
                 timingsCollection
                     .whereField("teacherEmail", isEqualTo: email)
                     .whereField("date", isLessThan: Timestamp(date: now))
@@ -79,8 +78,6 @@ struct RootView: View {
                         for doc in docs {
                             timingsCollection.document(doc.documentID).delete()
                         }
-                        
-                        // Step 2: Upload future events
                         for event in events {
                             let start = event.startDate
                             let duration = Int(event.endDate.timeIntervalSince(start ?? .now) / 60)
