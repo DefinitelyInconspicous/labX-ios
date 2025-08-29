@@ -47,22 +47,17 @@ struct SplashScreenView: View {
             }
             
             VStack(spacing: 30) {
-                // App Logo/Icon with enhanced effects
                 ZStack {
-                    // Outer glow
                     Circle()
                         .fill(Color.white.opacity(0.1))
                         .frame(width: 140, height: 140)
                         .blur(radius: 30)
                         .scaleEffect(pulseScale)
                     
-                    // Inner glow
                     Circle()
                         .fill(Color.white.opacity(0.2))
                         .frame(width: 120, height: 120)
                         .blur(radius: 20)
-                    
-                    // Main icon
                     Image("iconcopy")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -71,8 +66,6 @@ struct SplashScreenView: View {
                         .opacity(logoOpacity)
                         .shadow(color: .white.opacity(0.3), radius: 10, x: 0, y: 0)
                 }
-                
-                // App Name with enhanced typography
                 VStack(spacing: 8) {
                     Text("labX")
                         .font(.system(size: 42, weight: .bold, design: .rounded))
@@ -81,7 +74,6 @@ struct SplashScreenView: View {
                         .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
                 }
                 
-                // Enhanced loading indicator
                 VStack(spacing: 12) {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
@@ -97,7 +89,6 @@ struct SplashScreenView: View {
                 
                 Spacer()
                 
-                // Version and branding
                 VStack(spacing: 4) {
                     Text("Release 1.1.0")
                         .font(.system(size: 12, weight: .medium))
@@ -114,7 +105,6 @@ struct SplashScreenView: View {
             .padding(.top, 100)
         }
         .onAppear {
-            // Trigger haptic feedback
             let impactFeedback = UIImpactFeedbackGenerator(style: .light)
             impactFeedback.impactOccurred()
             
@@ -123,28 +113,19 @@ struct SplashScreenView: View {
     }
     
     private func startAnimation() {
-        // Animate logo appearance
         withAnimation(.easeOut(duration: 1.0).delay(0.2)) {
             logoScale = 1.0
             logoOpacity = 1.0
         }
-        
-        // Animate text appearance
         withAnimation(.easeOut(duration: 0.8).delay(0.8)) {
             textOpacity = 1.0
         }
-        
-        // Animate version text appearance
         withAnimation(.easeOut(duration: 0.6).delay(1.2)) {
             versionOpacity = 1.0
         }
-        
-        // Start pulsing animation
         withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true).delay(1.5)) {
             pulseScale = 1.1
         }
-        
-        // Start particle animation
         withAnimation(.easeInOut(duration: 1.0).delay(1.0)) {
             isAnimating = true
         }

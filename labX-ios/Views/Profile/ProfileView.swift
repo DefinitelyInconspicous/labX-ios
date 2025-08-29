@@ -13,12 +13,11 @@ import Forever
 struct ProfileView: View {
     @State var user: User
     @Forever("isLoggedIn") var isLoggedIn: Bool = true
-    @State  var showEditSheet = false
-    @State  var showAlert = false
-    @State  var alertMessage = ""
+    @State var showEditSheet = false
+    @State var showAlert = false
+    @State var alertMessage = ""
+    @State var showCredits = false
     @State private var resetPasswordSheetShowing = false
-    
-    // New state for delete confirmation
     @State private var showDeleteConfirm = false
     
     var body: some View {
@@ -95,17 +94,27 @@ struct ProfileView: View {
                     }
                 }
             }
-        }
+        
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
+                    Button {
                         showEditSheet = true
-                    }) {
+                    } label: {
                         Image(systemName: "pencil")
                     }
                 }
+                
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        showCredits = true
+                    } label: {
+                        Image(systemName: "person.2.fill")
+                    }
+                    
+                }
+            }
             }
         .sheet(isPresented: $showEditSheet) {
             EditProfileView(user: user) { updatedUser, message in
@@ -114,6 +123,10 @@ struct ProfileView: View {
                 self.showAlert = true
             }
         }
+        .sheet(isPresented: $showCredits ) {
+            Credits()
+        }
+        
         .alert(isPresented: $showAlert) {
             Alert(title: Text("Status"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }

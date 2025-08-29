@@ -18,10 +18,10 @@ struct DetailView: View {
     @StateObject private var userManager = UserManager()
     var consultation: consultation
     @Binding var consultations: [consultation]
-
+    
     @State private var events: [EKEvent] = []
     private let eventStore = EKEventStore()
-
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
@@ -38,7 +38,7 @@ struct DetailView: View {
                                     .foregroundColor(.white)
                                     .cornerRadius(8)
                             }
-
+                            
                             Button {
                                 updateConsultationStatus(status: "Declined")
                             } label: {
@@ -51,7 +51,7 @@ struct DetailView: View {
                             }
                         }
                         .padding()
-
+                        
                         NavigationLink {
                             RescheduleView(consultation: consultation)
                         } label: {
@@ -65,7 +65,7 @@ struct DetailView: View {
                         .padding()
                     }
                 }
-
+                
                 // Consultation Info
                 List {
                     Section(header: Text("Consultation Details")) {
@@ -75,19 +75,19 @@ struct DetailView: View {
                             Text(consultation.teacher.name)
                                 .font(.headline)
                         }
-
+                        
                         HStack {
                             Image(systemName: "calendar")
                             Text(consultation.date.formatted(date: .long, time: .shortened))
                         }
-
+                        
                         if !consultation.comment.isEmpty {
                             HStack(alignment: .top) {
                                 Image(systemName: "text.bubble")
                                 Text(consultation.comment)
                             }
                         }
-
+                        
                         Section {
                             Button(role: .destructive) {
                                 cancelConsultation()
@@ -99,13 +99,13 @@ struct DetailView: View {
                     }
                 }
                 .frame(height: 300) // Limit list height to avoid scroll conflict
-
+                
                 // Calendar View (moved out of List)
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Your Calendar")
                         .font(.headline)
                         .padding(.horizontal)
-
+                    
                     if events.isEmpty {
                         Text("No calendar events found for this day.")
                             .foregroundColor(.secondary)
@@ -125,7 +125,7 @@ struct DetailView: View {
                             "18:00", "18:15", "18:30", "18:45",
                             "19:00"
                         ]
-
+                        
                         let slotDurations: [String: (EKEvent, Int)] = {
                             var map: [String: (EKEvent, Int)] = [:]
                             for event in events {
@@ -133,9 +133,9 @@ struct DetailView: View {
                                 let minutes = Calendar.current.component(.minute, from: roundedStart)
                                 let roundedMinutes = (minutes / 15) * 15
                                 let roundedDate = Calendar.current.date(bySettingHour: Calendar.current.component(.hour, from: roundedStart),
-                                                                         minute: roundedMinutes,
-                                                                         second: 0,
-                                                                         of: roundedStart)!
+                                                                        minute: roundedMinutes,
+                                                                        second: 0,
+                                                                        of: roundedStart)!
                                 let key = String(format: "%02d:%02d",
                                                  Calendar.current.component(.hour, from: roundedDate),
                                                  Calendar.current.component(.minute, from: roundedDate))
@@ -144,7 +144,7 @@ struct DetailView: View {
                             }
                             return map
                         }()
-
+                        
                         ScrollView(.horizontal) {
                             HStack(alignment: .top, spacing: 16) {
                                 
@@ -157,7 +157,7 @@ struct DetailView: View {
                                             .frame(height: 24, alignment: .top)
                                     }
                                 }
-
+                                
                                 // Events column with minWidth to expand
                                 VStack(spacing: 0) {
                                     ForEach(timeSlots, id: \.self) { slot in
@@ -165,7 +165,7 @@ struct DetailView: View {
                                             Rectangle()
                                                 .fill(Color.gray.opacity(0.1))
                                                 .frame(height: 24)
-
+                                            
                                             if let (event, blockCount) = slotDurations[slot] {
                                                 VStack(alignment: .leading, spacing: 2) {
                                                     Text(event.title ?? "No Title")
@@ -188,11 +188,11 @@ struct DetailView: View {
                                     }
                                 }
                                 .frame(minWidth: 300)
-
+                                
                             }
                             .padding(.horizontal)
                         }
-
+                        
                     }
                 }
             }
@@ -211,9 +211,9 @@ struct DetailView: View {
             Text(alertMessage)
         }
     }
-
+    
     // MARK: - Functions
-
+    
     func dateFrom(timeString: String, on baseDate: Date) -> Date {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
@@ -226,7 +226,7 @@ struct DetailView: View {
                              second: 0,
                              of: baseDate) ?? baseDate
     }
-
+    
     func cancelConsultation() {
         consultationManager.deleteConsultation(consultation)
         if let index = consultations.firstIndex(where: { $0.id == consultation.id }) {
@@ -244,9 +244,9 @@ struct DetailView: View {
                     print("Error fetching timing slots: \(error.localizedDescription)")
                     return
                 }
-
+                
                 guard let documents = snapshot?.documents else { return }
-
+                
                 for doc in documents {
                     if let timestamp = doc["date"] as? Timestamp {
                         let timingDate = timestamp.dateValue()
@@ -263,7 +263,7 @@ struct DetailView: View {
                 }
             }
     }
-
+    
     func updateConsultationStatus(status: String) {
         let db = Firestore.firestore()
         print("Updating Consultation Status")
@@ -278,27 +278,27 @@ struct DetailView: View {
             }
         }
     }
-
+    
     func fetchEventsForConsultationDay() {
         eventStore.requestAccess(to: .event) { granted, error in
             guard granted else {
                 print("Access to calendar denied: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
-
+            
             let startOfDay = Calendar.current.startOfDay(for: consultation.date)
             let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
-
+            
             let predicate = eventStore.predicateForEvents(withStart: startOfDay, end: endOfDay, calendars: nil)
             let fetchedEvents = eventStore.events(matching: predicate)
-
+            
             let visibleStart = Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: startOfDay)!
             let visibleEnd = Calendar.current.date(bySettingHour: 19, minute: 0, second: 0, of: startOfDay)!
-
+            
             let filteredEvents = fetchedEvents.filter { event in
                 event.endDate > visibleStart && event.startDate < visibleEnd
             }
-
+            
             DispatchQueue.main.async {
                 self.events = filteredEvents.sorted(by: { $0.startDate < $1.startDate })
             }
