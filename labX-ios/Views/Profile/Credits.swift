@@ -60,7 +60,7 @@ struct Credits: View {
                     CreditCard(role: "CEO", personClass: "S3-01", name: "Avyan Mehra", icon: "apple.terminal.circle.fill")
                     CreditCard(role: "COO", personClass: "S3-03", name: "Prakash Dhanvin", icon: "questionmark.circle.fill")
                     CreditCard(role: "CTO", personClass: "S3-01", name: "Balasaravanan Dhanwin Basil", icon: "leaf.circle.fill")
-                    CreditCard(role: "CDO/CMO", personClass: "S3-03", name: "Dhanush Parthasarathy", icon: "line.3.crossed.swirl.circle.fill")
+                    CreditCard(role: "CDO/CMO", personClass: "S3-03", name: "Dhanush Parthasarathy", icon: "hydrogen.circle.fill")
                     CreditCard(role: "Advisor", personClass: "Alumni", name: "Tristan Chay", icon: "bolt.circle.fill")
                     CreditCard(role: "Advisor", personClass: "Alumni", name: "Aathithya Jegatheesan", icon: "rugbyball.circle.fill")
                     CreditCard(role: "Former CDO", personClass: "S3-02", name: "Lee Yu Hang", icon: "eject.circle.fill")
