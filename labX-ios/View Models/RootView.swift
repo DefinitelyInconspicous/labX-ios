@@ -33,11 +33,34 @@ struct RootView: View {
                         .fontWeight(.semibold)
                     Text("We apologise for the inconvenience.\n Please check back later.")
                         .foregroundColor(.gray)
+                    if true {//auth.user?.email == "avyan_mehra@s2023.ssts.edu.sg" {
+                    Button {
+                        unlockApp()
+                    } label: {
+                        Text("Unlock App for Everyone")
+                            .padding()
+                            .foregroundColor(.white)
+                            .background(Color.blue)
+                            .cornerRadius(10)
+                    }
+                        
+                    Button {
+                        isUnderMaintenance = false
+                    } label: {
+                        Text("Bypass Maintenance")
+                            .padding()
+                            .foregroundColor(.white)
+                            .background(Color.blue)
+                            .cornerRadius(10)
+                    }
+                    
                 }
-                .multilineTextAlignment(.center)
-                .padding()
-                .transition(.opacity)
-                .zIndex(2)
+            }
+                    .multilineTextAlignment(.center)
+                    .padding()
+                    .transition(.opacity)
+                    .zIndex(2)
+                
             } else {
                 Group {
                     if auth.user != nil {
@@ -63,6 +86,17 @@ struct RootView: View {
                 }
             }
             listenForMaintenance()
+        }
+    }
+    
+    private func unlockApp() {
+        let db = Firestore.firestore()
+        db.collection("settings").document("maintanence").setData(["status": false], merge: true) { error in
+            if let error = error {
+                print("Failed to update status: \(error.localizedDescription)")
+            } else {
+                print("Maintenance mode disabled by superuser")
+            }
         }
     }
     
