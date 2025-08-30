@@ -46,6 +46,10 @@ class AuthManager: ObservableObject {
                 self?.isLoading = false
                 if let error = error {
                     self?.authErrorMessage = self?.extractErrorMessage(from: error)
+                    self?.user = nil
+                } else if let user = result?.user, !user.isEmailVerified {
+                    self?.authErrorMessage = "Please verify your email before logging in."
+                    self?.user = nil
                 } else {
                     self?.authErrorMessage = nil
                     self?.user = result?.user
@@ -61,9 +65,40 @@ class AuthManager: ObservableObject {
             DispatchQueue.main.async {
                 self?.user = result?.user
                 self?.isLoading = false
+                if let user = result?.user, error == nil {
+                    user.sendEmailVerification { err in
+                        if let err = err {
+                            print("Error sending verification email: \(err.localizedDescription)")
+                        } else {
+                            print("Verification email sent to \(email)")
+                        }
+                    }
+                    self?.authErrorMessage = "A verification email has been sent. Please verify your email before logging in."
+                    self?.user = nil
+                }
                 completion(error)
             }
         }
+    }
+
+    func resendVerificationEmail(completion: @escaping (Error?) -> Void) {
+        guard let user = Auth.auth().currentUser else {
+            completion(NSError(domain: "AuthManager", code: 0, userInfo: [NSLocalizedDescriptionKey: "No user signed in"]))
+            return
+        }
+        user.sendEmailVerification { error in
+            completion(error)
+        }
+    }
+
+    func checkEmailVerified(completion: @escaping (Bool) -> Void) {
+        Auth.auth().currentUser?.reload(completion: { error in
+            if let user = Auth.auth().currentUser {
+                completion(user.isEmailVerified)
+            } else {
+                completion(false)
+            }
+        })
     }
 
     func signOut() {

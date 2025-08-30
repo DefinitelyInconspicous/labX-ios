@@ -29,6 +29,8 @@ struct LoginView: View {
     @State private var lastName = ""
     @State private var isStaffSignup = false
     @State private var resetPasswordSheetShowing = false
+    @State private var showVerificationSheet = false
+    @State private var verificationMessage = ""
     
     var classes = (1...4).flatMap { level in (1...10).map { "S\(level)-\($0 < 10 ? "0\($0)" : "\($0)")" } }
     var registerNumbers = (1...30).map { $0 < 10 ? "0\($0)" : "\($0)" }
@@ -166,14 +168,13 @@ struct LoginView: View {
                                 .foregroundColor(.white)
                                 .cornerRadius(10)
                         }
-                                    
+                        
                         Button {
                             isRegistering.toggle()
                             errorMessage = ""
                             isEmailValid = true
                             isPasswordValid = true
                             isStaffSignup = false
-                            // Clear form fields when switching modes
                             if !isRegistering {
                                 firstName = ""
                                 lastName = ""
@@ -203,6 +204,10 @@ struct LoginView: View {
                 if let newMessage = newMessage {
                     errorMessage = newMessage
                     showAlert = true
+                    if newMessage.contains("verify your email") {
+                        showVerificationSheet = true
+                        verificationMessage = "A verification email has been sent. Please verify your email before logging in."
+                    }
                 }
             }
             .alert(isPresented: $showAlert) {
@@ -211,6 +216,9 @@ struct LoginView: View {
                     message: Text(errorMessage == "The supplied auth credential is malformed or has expired." ? "No account found. Please sign up." : errorMessage),
                     dismissButton: .default(Text("OK"))
                 )
+            }
+            .sheet(isPresented: $showVerificationSheet) {
+                VerificationView(verificationMessage: $verificationMessage, showVerificationSheet: $showVerificationSheet)
             }
         }
     }
@@ -238,22 +246,8 @@ struct LoginView: View {
                         errorMessage = error.localizedDescription
                         showAlert = true
                     } else {
-                        if let user = Auth.auth().currentUser {
-                            let db = Firestore.firestore()
-                            let userData: [String: Any] = [
-                                "firstName": firstName,
-                                "lastName": lastName,
-                                "email": email,
-                                "className": isStaffSignup ? "Staff" : selectedClass,
-                                "registerNumber": isStaffSignup ? "Staff" : registerNumber
-                            ]
-                            
-                            db.collection("users").document(user.uid).setData(userData) { error in
-                                if let error = error {
-                                    print("Error creating user document: \(error.localizedDescription)")
-                                }
-                            }
-                        }
+                        showVerificationSheet = true
+                        verificationMessage = "A verification email has been sent. Please check your inbox and verify your email before logging in."
                     }
                 }
             } else {
@@ -270,6 +264,10 @@ struct LoginView: View {
                             errorMessage = error.localizedDescription
                         }
                         showAlert = true
+                        if errorMessage.contains("verify your email") {
+                            showVerificationSheet = true
+                            verificationMessage = "Please verify your email before logging in."
+                        }
                     }
                 }
             }
