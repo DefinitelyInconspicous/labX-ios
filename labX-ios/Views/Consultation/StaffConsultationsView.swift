@@ -106,7 +106,7 @@ struct StaffConsultationsView: View {
     private func ConsultationTile(_ consultation: consultation) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(consultation.teacher.name)
+                Text(consultation.student.description)
                     .font(.headline)
                 Spacer()
                 Text(statusText(for: consultation.status))
