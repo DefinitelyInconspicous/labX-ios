@@ -153,6 +153,7 @@ struct ConsultationScheduler: View {
                 }
             }
             .navigationTitle("Schedule Consultation")
+            .scrollDismissesKeyboard(.interactively)
             .onAppear {
                 requestCalendarAccess()
                 fetchCalendarEvents()

@@ -71,23 +71,10 @@ struct SplashScreenView: View {
                         .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
                 }
                 
-                VStack(spacing: 12) {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .scaleEffect(1.2)
-                        .opacity(textOpacity)
-                        .shadow(color: .white.opacity(0.3), radius: 5, x: 0, y: 0)
-                    
-                    Text("Loading...")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.white.opacity(0.8))
-                        .opacity(textOpacity)
-                }
-                
                 Spacer()
                 
                 VStack(spacing: 4) {
-                    Text("Release 1.1.0")
+                    Text("Release 1.1.1")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                         .opacity(versionOpacity)
@@ -102,7 +89,7 @@ struct SplashScreenView: View {
             .padding(.top, 100)
         }
         .onAppear {
-            let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+            let impactFeedback = UIImpactFeedbackGenerator(style: .heavy)
             impactFeedback.impactOccurred()
             
             startAnimation()

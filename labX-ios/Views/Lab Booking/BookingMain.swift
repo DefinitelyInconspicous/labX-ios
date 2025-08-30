@@ -240,6 +240,7 @@ struct BookingMain: View {
                 .disabled(selectedLocation.isEmpty || selectedTimeSlots.isEmpty)
             }
             .navigationTitle("Book a lab")
+            .scrollDismissesKeyboard(.interactively)
             .alert(isPresented: $showAlert) {
                 Alert(
                     title: Text("Booking Status"),
