@@ -15,13 +15,29 @@ struct RootView: View {
     @StateObject private var auth = AuthManager.shared
     @State private var showSplash = true
     @State private var hasSyncedEvents = false
+    @State private var isUnderMaintenance = false
     
     var body: some View {
         ZStack {
             if showSplash {
                 SplashScreenView()
                     .transition(.opacity)
-                    .zIndex(1)
+                    .zIndex(2)
+            } else if isUnderMaintenance {
+                VStack(spacing: 20) {
+                    Image(systemName: "wrench.and.screwdriver.fill")
+                        .font(.system(size: 60))
+                        .foregroundColor(.orange)
+                    Text("App Under Maintenance")
+                        .font(.title)
+                        .fontWeight(.semibold)
+                    Text("We apologise for the inconvenience.\n Please check back later.")
+                        .foregroundColor(.gray)
+                }
+                .multilineTextAlignment(.center)
+                .padding()
+                .transition(.opacity)
+                .zIndex(2)
             } else {
                 Group {
                     if auth.user != nil {
@@ -46,7 +62,23 @@ struct RootView: View {
                     showSplash = false
                 }
             }
+            listenForMaintenance()
         }
+    }
+    
+    private func listenForMaintenance() {
+        let db = Firestore.firestore()
+        db.collection("settings").document("maintanence")
+            .addSnapshotListener { snapshot, error in
+                guard let doc = snapshot, error == nil else {
+                    print("Error fetching maintenance status: \(error?.localizedDescription ?? "Unknown error")")
+                    return
+                }
+                if let status = doc["status"] as? Bool {
+                    isUnderMaintenance = status
+                    print(isUnderMaintenance ? "App is under maintenance." : "App is operational.")
+                }
+            }
     }
     
     private func syncTeacherCalendarEvents() {
@@ -68,7 +100,7 @@ struct RootView: View {
                 let fourWeeksFromNow = Calendar.current.date(byAdding: .weekOfYear, value: 4, to: now)!
                 let events = fetchEvents(from: now, to: fourWeeksFromNow)
                 let timingsCollection = db.collection("timings")
-                print(events)
+                
                 timingsCollection
                     .whereField("teacherEmail", isEqualTo: email)
                     .whereField("date", isLessThan: Timestamp(date: now))
@@ -103,7 +135,6 @@ struct RootView: View {
         }
     }
     
-    
     private func fetchEvents(from startDate: Date, to endDate: Date) -> [EKEvent] {
         let eventStore = EKEventStore()
         let calendars = eventStore.calendars(for: .event)
@@ -113,7 +144,8 @@ struct RootView: View {
         
         return events.sorted { $0.startDate < $1.startDate }
     }
-    
 }
 
-
+#Preview {
+    RootView()
+}
