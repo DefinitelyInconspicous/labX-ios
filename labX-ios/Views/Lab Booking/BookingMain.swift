@@ -336,14 +336,15 @@ struct BookingMain: View {
                         switch result {
                         case .success:
                             alertMessage = "Lab booked and Google Sheet updated!"
+                            showAlert = true
                         case .failure(let error):
                             alertMessage = "Lab booked, but failed to update Google Sheet: \(error.localizedDescription)"
+                            showAlert = true
                         }
-                        showAlert = true
+                        
                     }
                 }
             }
-            showAlert = true
         }
     }
 }
