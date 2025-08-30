@@ -19,6 +19,8 @@ struct ProfileView: View {
     @State var showCredits = false
     @State private var resetPasswordSheetShowing = false
     @State private var showDeleteConfirm = false
+    @State private var isUnderMaintenance = false
+    @StateObject private var auth = AuthManager.shared
     
     var body: some View {
         NavigationStack {
@@ -64,7 +66,19 @@ struct ProfileView: View {
                         }
                     }
                 }
-                
+                if auth.user?.email == "avyan_mehra@s2023.ssts.edu.sg" {
+                Section("Dev Options") {
+                    Button {
+                        unlockApp()
+                    } label: {
+                        Text("Unlock App for Everyone")
+                            .padding()
+                            .foregroundColor(.white)
+                            .background(Color.blue)
+                            .cornerRadius(10)
+                    }
+                }
+                }
                 Section {
                     
                     Button {
@@ -180,6 +194,17 @@ struct ProfileView: View {
         } catch {
             alertMessage = "Error signing out: \(error.localizedDescription)"
             showAlert = true
+        }
+    }
+    
+    func unlockApp() {
+        let db = Firestore.firestore()
+        db.collection("settings").document("maintanence").setData(["status": false], merge: true) { error in
+            if let error = error {
+                print("Failed to update status: \(error.localizedDescription)")
+            } else {
+                print("Maintenance mode disabled by superuser")
+            }
         }
     }
     

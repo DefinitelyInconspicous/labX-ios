@@ -33,7 +33,7 @@ struct RootView: View {
                         .fontWeight(.semibold)
                     Text("We apologise for the inconvenience.\n Please check back later.")
                         .foregroundColor(.gray)
-                    if true {//auth.user?.email == "avyan_mehra@s2023.ssts.edu.sg" {
+                    if auth.user?.email == "avyan_mehra@s2023.ssts.edu.sg" {
                     Button {
                         unlockApp()
                     } label: {
