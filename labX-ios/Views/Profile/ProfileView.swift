@@ -211,8 +211,12 @@ struct ProfileView: View {
         db.collection("settings").document("maintanence").setData(["status": false], merge: true) { error in
             if let error = error {
                 print("Failed to update status: \(error.localizedDescription)")
+                alertMessage = "Failed to update status: \(error.localizedDescription)"
+                showAlert = true
             } else {
-                print("Maintenance mode disabled by superuser")
+                print("Maintenance mode disabled by admin")
+                alertMessage = "Maintenance mode disabled by admin"
+                showAlert = true
             }
         }
     }
@@ -222,6 +226,8 @@ struct ProfileView: View {
         db.collection("settings").document("maintanence").setData(["status": true], merge: true) { error in
             if let error = error {
                 print("Failed to update status: \(error.localizedDescription)")
+                alertMessage = "Failed to update status: \(error.localizedDescription)"
+                showAlert = true
             } else {
                 print("Maintanence Mode Enabled")
                 alertMessage = "Maintanence Mode Enabled"
