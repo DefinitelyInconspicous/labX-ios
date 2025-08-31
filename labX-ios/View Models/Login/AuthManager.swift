@@ -14,6 +14,11 @@ class AuthManager: ObservableObject {
     @Published var user: FirebaseAuth.User?
     @Published var isLoading: Bool = true
     @Published var authErrorMessage: String? = nil
+    
+    private let bypassEmails = [
+        "iamastaff@sst.edu.sg",
+        "avyan_mehra@s2023.ssts.edu.sg"
+    ]
 
     private init() {
         Auth.auth().addStateDidChangeListener { [weak self] _, user in
@@ -38,7 +43,6 @@ class AuthManager: ObservableObject {
         }
     }
 
-
     func signIn(email: String, password: String, completion: @escaping (Error?) -> Void) {
         isLoading = true
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
@@ -47,14 +51,25 @@ class AuthManager: ObservableObject {
                 if let error = error {
                     self?.authErrorMessage = self?.extractErrorMessage(from: error)
                     self?.user = nil
-                } else if let user = result?.user, !user.isEmailVerified {
+                    completion(error)
+                    return
+                }
+
+                guard let user = result?.user else {
+                    completion(NSError(domain: "AuthManager", code: 0, userInfo: [NSLocalizedDescriptionKey: "No user returned"]))
+                    return
+                }
+
+                if !user.isEmailVerified && !(self?.bypassEmails.contains(email.lowercased()) ?? false) {
+                    // Normal users must verify email
                     self?.authErrorMessage = "Please verify your email before logging in."
                     self?.user = nil
                 } else {
+                    // Bypass or verified user
                     self?.authErrorMessage = nil
-                    self?.user = result?.user
+                    self?.user = user
                 }
-                completion(error)
+                completion(nil)
             }
         }
     }
@@ -63,9 +78,21 @@ class AuthManager: ObservableObject {
         isLoading = true
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
             DispatchQueue.main.async {
-                self?.user = result?.user
                 self?.isLoading = false
-                if let user = result?.user, error == nil {
+
+                guard let self = self else { return }
+                guard let user = result?.user, error == nil else {
+                    self.authErrorMessage = error?.localizedDescription
+                    completion(error)
+                    return
+                }
+
+                if self.bypassEmails.contains(email.lowercased()) {
+                    // 🚀 Skip verification for bypass accounts
+                    self.authErrorMessage = nil
+                    self.user = user
+                } else {
+                    // Normal flow: send verification email
                     user.sendEmailVerification { err in
                         if let err = err {
                             print("Error sending verification email: \(err.localizedDescription)")
@@ -73,10 +100,21 @@ class AuthManager: ObservableObject {
                             print("Verification email sent to \(email)")
                         }
                     }
-                    self?.authErrorMessage = "A verification email has been sent. Please verify your email before logging in."
-                    self?.user = nil
+                    self.authErrorMessage = "A verification email has been sent. Please verify your email before logging in."
+                    self.user = nil
                 }
+
                 completion(error)
+            }
+        }
+    }
+
+    func forceBypassForCurrentUser() {
+        guard let user = Auth.auth().currentUser else { return }
+        user.reload { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.user = user
+                self?.authErrorMessage = nil
             }
         }
     }

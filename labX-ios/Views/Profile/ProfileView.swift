@@ -77,6 +77,15 @@ struct ProfileView: View {
                             .background(Color.blue)
                             .cornerRadius(10)
                     }
+                    Button(role: .destructive) {
+                        lockApp()
+                    } label: {
+                        Text("Lock App for Everyone")
+                            .padding()
+                            .foregroundColor(.white)
+                            .background(Color.blue)
+                            .cornerRadius(10)
+                    }
                 }
                 }
                 Section {
@@ -207,6 +216,20 @@ struct ProfileView: View {
             }
         }
     }
+    
+    func lockApp() {
+        let db = Firestore.firestore()
+        db.collection("settings").document("maintanence").setData(["status": true], merge: true) { error in
+            if let error = error {
+                print("Failed to update status: \(error.localizedDescription)")
+            } else {
+                print("Maintanence Mode Enabled")
+                alertMessage = "Maintanence Mode Enabled"
+                showAlert = true
+            }
+        }
+    }
+    
     
     func loadUserData() {
         guard let uid = Auth.auth().currentUser?.uid else { return }

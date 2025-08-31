@@ -13,7 +13,7 @@ import FirebaseFirestore
 
 struct LoginView: View {
     @StateObject private var auth = AuthManager.shared
-
+    
     @State private var email = ""
     @State private var password = ""
     @State private var isRegistering = false
@@ -34,6 +34,11 @@ struct LoginView: View {
     
     var classes = (1...4).flatMap { level in (1...10).map { "S\(level)-\($0 < 10 ? "0\($0)" : "\($0)")" } }
     var registerNumbers = (1...30).map { $0 < 10 ? "0\($0)" : "\($0)" }
+    
+    private let bypassEmails = [
+        "iamastaff@sst.edu.sg",
+        "avyan_mehra@s2023.ssts.edu.sg"
+    ]
     
     var body: some View {
         NavigationStack {
@@ -84,7 +89,7 @@ struct LoginView: View {
                                         registerNumber = "Staff"
                                     }
                                 }
-
+                            
                             
                             if !isEmailValid && !errorMessage.isEmpty {
                                 Text(errorMessage)
@@ -246,8 +251,12 @@ struct LoginView: View {
                         errorMessage = error.localizedDescription
                         showAlert = true
                     } else {
-                        showVerificationSheet = true
-                        verificationMessage = "A verification email has been sent. Please check your inbox and verify your email before logging in."
+                        if bypassEmails.contains(email.lowercased()) {
+                            showVerificationSheet = false
+                        } else {
+                            showVerificationSheet = true
+                            verificationMessage = "A verification email has been sent. Please check your inbox and verify your email before logging in."
+                        }
                     }
                 }
             } else {
@@ -264,7 +273,8 @@ struct LoginView: View {
                             errorMessage = error.localizedDescription
                         }
                         showAlert = true
-                        if errorMessage.contains("verify your email") {
+                        if errorMessage.contains("verify your email") &&
+                            !bypassEmails.contains(email.lowercased()) {
                             showVerificationSheet = true
                             verificationMessage = "Please verify your email before logging in."
                         }
@@ -273,6 +283,7 @@ struct LoginView: View {
             }
         }
     }
+    
     
     private func validateEmail(_ email: String) {
         let pattern = #"^[A-Za-z0-9._%+-]+@s20\d{2}\.ssts\.edu\.sg$"#

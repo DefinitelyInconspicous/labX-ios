@@ -56,7 +56,7 @@ class ConsultationViewModel: ObservableObject {
                         }
                         let teacher = staff(name: teacherName, email: teacherEmail)
                         return consultation(
-                            id: doc.documentID, // Use Firebase's document ID
+                            id: doc.documentID,
                             teacher: teacher,
                             date: date,
                             comment: comment,
@@ -111,20 +111,26 @@ struct HomeView: View {
                     .background(statusColor(for: consultation.status).opacity(0.1))
                     .cornerRadius(8)
             }
-            
-            Text("Date: \(consultation.date.formatted(date: .abbreviated, time: .shortened))")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            Text("Location: \(consultation.location)")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            if !consultation.comment.isEmpty {
-                Text("Comment: \(consultation.comment)")
-                    .font(.caption)
+            HStack {
+                Image(systemName: "calendar")
+                Text("\(consultation.date.formatted(date: .abbreviated, time: .shortened))")
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
-                    .lineLimit(2)
+            }
+            HStack {
+                Image(systemName: "location")
+                Text("\(consultation.location)")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            HStack {
+                if !consultation.comment.isEmpty {
+                    Image(systemName: "message")
+                    Text("\(consultation.comment)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
             }
         }
         .padding(.vertical, 4)

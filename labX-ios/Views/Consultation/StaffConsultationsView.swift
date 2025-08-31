@@ -119,19 +119,26 @@ struct StaffConsultationsView: View {
                     .cornerRadius(8)
             }
             
-            Text("Date: \(consultation.date.formatted(date: .abbreviated, time: .shortened))")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            Text("Location: \(consultation.location)")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            if !consultation.comment.isEmpty {
-                Text("Comment: \(consultation.comment)")
-                    .font(.caption)
+            HStack {
+                Image(systemName: "calendar")
+                Text("\(consultation.date.formatted(date: .abbreviated, time: .shortened))")
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
-                    .lineLimit(2)
+            }
+            HStack {
+                Image(systemName: "location")
+                Text("\(consultation.location)")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            HStack {
+                if !consultation.comment.isEmpty {
+                    Image(systemName: "message")
+                    Text("\(consultation.comment)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
             }
         }
         .padding(.vertical, 4)
