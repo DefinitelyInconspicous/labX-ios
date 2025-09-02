@@ -101,6 +101,8 @@ struct HomeView: View {
             HStack {
                 Text(consultation.teacher.name)
                     .font(.headline)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                 Spacer()
                 Text(statusText(for: consultation.status))
                     .font(.caption)
@@ -110,6 +112,8 @@ struct HomeView: View {
                     .padding(.vertical, 4)
                     .background(statusColor(for: consultation.status).opacity(0.1))
                     .cornerRadius(8)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
             HStack {
                 Image(systemName: "calendar")
@@ -152,6 +156,8 @@ struct HomeView: View {
                 } else if viewModel.upcomingConsultations.isEmpty {
                     Label("No upcoming consultations", systemImage: "calendar.badge.exclamationmark")
                         .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 } else {
                     ForEach(viewModel.upcomingConsultations) { consultation in
                         NavigationLink(destination: DetailView(consultation: consultation, consultations: $viewModel.consultations)) {
@@ -180,11 +186,15 @@ struct HomeView: View {
                             .imageScale(.large)
                         Text("Past Consultations")
                             .font(.headline)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                     }
                 }
             }
         }
         .navigationTitle("Home")
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
         .onAppear {
             if let email = Auth.auth().currentUser?.email {
                 viewModel.fetchConsultations(for: email)

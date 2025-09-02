@@ -8,73 +8,32 @@
 import SwiftUI
 
 struct SplashScreenView: View {
-    @State private var logoScale: CGFloat = 0.5
     @State private var logoOpacity: Double = 0.0
     @State private var textOpacity: Double = 0.0
     @State private var versionOpacity: Double = 0.0
-    @State private var isAnimating = false
-    @State private var pulseScale: CGFloat = 1.0
     
     var body: some View {
         ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.blue.opacity(0.8),
-                    Color.gray.opacity(0.6),
-                    Color.blue.opacity(0.4)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-            ForEach(0..<6, id: \.self) { index in
-                Circle()
-                    .fill(Color.white.opacity(0.1))
-                    .frame(width: CGFloat.random(in: 4...12))
-                    .position(
-                        x: CGFloat.random(in: 50...350),
-                        y: CGFloat.random(in: 100...800)
-                    )
-                    .animation(
-                        Animation.easeInOut(duration: Double.random(in: 2...4))
-                            .repeatForever(autoreverses: true)
-                            .delay(Double(index) * 0.3),
-                        value: isAnimating
-                    )
-            }
+            Color.black
+                .ignoresSafeArea()
             
             VStack(spacing: 30) {
-                ZStack {
-                    Circle()
-                        .fill(Color.white.opacity(0.1))
-                        .frame(width: 140, height: 140)
-                        .blur(radius: 30)
-                        .scaleEffect(pulseScale)
-                    
-                    Circle()
-                        .fill(Color.white.opacity(0.2))
-                        .frame(width: 120, height: 120)
-                        .blur(radius: 20)
-                    Image("iconcopy")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 200, height: 200)
-                        .scaleEffect(logoScale)
-                        .opacity(logoOpacity)
-                        .shadow(color: .white.opacity(0.3), radius: 10, x: 0, y: 0)
-                }
-                VStack(spacing: 8) {
-                    Text("labX")
-                        .font(.system(size: 42, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                        .opacity(textOpacity)
-                        .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
-                }
+                Image("iconcopy")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 180, height: 180)
+                    .cornerRadius(20)
+                    .opacity(logoOpacity)
+                
+                Text("labX")
+                    .font(.system(size: 60, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .opacity(textOpacity)
                 
                 Spacer()
                 
                 VStack(spacing: 4) {
-                    Text("Release 1.1.1")
+                    Text("Release 1.1.2")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                         .opacity(versionOpacity)
@@ -89,33 +48,22 @@ struct SplashScreenView: View {
             .padding(.top, 100)
         }
         .onAppear {
-            let impactFeedback = UIImpactFeedbackGenerator(style: .heavy)
+            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
             impactFeedback.impactOccurred()
             
-            startAnimation()
-        }
-    }
-    
-    private func startAnimation() {
-        withAnimation(.easeOut(duration: 1.0).delay(0.2)) {
-            logoScale = 1.0
-            logoOpacity = 1.0
-        }
-        withAnimation(.easeOut(duration: 0.8).delay(0.8)) {
-            textOpacity = 1.0
-        }
-        withAnimation(.easeOut(duration: 0.6).delay(1.2)) {
-            versionOpacity = 1.0
-        }
-        withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true).delay(1.5)) {
-            pulseScale = 1.1
-        }
-        withAnimation(.easeInOut(duration: 1.0).delay(1.0)) {
-            isAnimating = true
+            withAnimation(.easeOut(duration: 1.0)) {
+                logoOpacity = 1.0
+            }
+            withAnimation(.easeOut(duration: 1.0).delay(0.5)) {
+                textOpacity = 1.0
+            }
+            withAnimation(.easeOut(duration: 1.0).delay(1.0)) {
+                versionOpacity = 1.0
+            }
         }
     }
 }
 
 #Preview {
     SplashScreenView()
-} 
+}

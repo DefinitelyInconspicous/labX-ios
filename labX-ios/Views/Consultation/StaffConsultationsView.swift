@@ -32,6 +32,8 @@ struct StaffConsultationsView: View {
                         .font(.title3)
                         .fontWeight(.semibold)
                         .foregroundColor(.gray)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                     Spacer()
                 }
             } else {
@@ -42,6 +44,8 @@ struct StaffConsultationsView: View {
                         if upcoming.isEmpty {
                             Text("No upcoming consultations")
                                 .foregroundColor(.secondary)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
                         } else {
                             ForEach(upcoming) { consult in
                                 NavigationLink(destination: DetailView(consultation: consult, consultations: $consultations)) {
@@ -56,6 +60,8 @@ struct StaffConsultationsView: View {
                             if past.isEmpty {
                                 Text("No past consultations")
                                     .foregroundColor(.secondary)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
                             } else {
                                 ForEach(past) { consult in
                                     NavigationLink(destination: DetailView(consultation: consult, consultations: $consultations)) {
@@ -70,6 +76,8 @@ struct StaffConsultationsView: View {
                                     .imageScale(.large)
                                 Text("Past Consultations")
                                     .font(.headline)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
                             }
                         }
                     }
@@ -108,6 +116,8 @@ struct StaffConsultationsView: View {
             HStack {
                 Text(consultation.student.description)
                     .font(.headline)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                 Spacer()
                 Text(statusText(for: consultation.status))
                     .font(.caption)
@@ -117,6 +127,8 @@ struct StaffConsultationsView: View {
                     .padding(.vertical, 4)
                     .background(statusColor(for: consultation.status).opacity(0.1))
                     .cornerRadius(8)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
             
             HStack {
@@ -178,6 +190,3 @@ struct StaffConsultationsView: View {
     }
 
 }
-
-
-

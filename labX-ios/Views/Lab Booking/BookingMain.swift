@@ -186,6 +186,8 @@ struct BookingMain: View {
                     Picker("Select Location", selection: $selectedLocation) {
                         ForEach(locations, id: \.self) { location in
                             Text(location).tag(location)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
                         }
                     }
                     .onChange(of: selectedLocation) { _ in
@@ -198,6 +200,8 @@ struct BookingMain: View {
                         Text("Selected: \(formatTimeRange())")
                             .foregroundColor(.blue)
                             .padding(.vertical, 4)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                     }
                     
                     LazyVGrid(columns: [
@@ -216,6 +220,8 @@ struct BookingMain: View {
                                     .background(isTimeSlotSelected(slot) ? Color.blue : (isBooked ? Color.gray.opacity(0.5) : Color.gray.opacity(0.2)))
                                     .foregroundColor(isTimeSlotSelected(slot) ? .white : (isBooked ? .gray : .primary))
                                     .cornerRadius(8)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
                             }
                             .buttonStyle(PlainButtonStyle())
                             .disabled(isBooked)
@@ -236,6 +242,8 @@ struct BookingMain: View {
                         .background(Color.blue)
                         .foregroundColor(.white)
                         .cornerRadius(10)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
                 .disabled(selectedLocation.isEmpty || selectedTimeSlots.isEmpty)
             }

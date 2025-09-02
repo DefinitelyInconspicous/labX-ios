@@ -37,16 +37,22 @@ struct ProfileView: View {
                 Section(header: Text("Personal Info")) {
                     LabeledContent {
                         Text(user.firstName)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                     } label: {
                         Text("First Name")
                     }
                     LabeledContent {
                         Text(user.lastName)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                     } label: {
                         Text("Last Name")
                     }
                     LabeledContent {
                         Text(user.email)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                     } label: {
                         Text("Email")
                     }
@@ -56,11 +62,15 @@ struct ProfileView: View {
                     Section(header: Text("School Info")) {
                         LabeledContent {
                             Text(user.className)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
                         } label: {
                             Text("Class")
                         }
                         LabeledContent {
                             Text(user.registerNumber)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
                         } label: {
                             Text("Register Number")
                         }
@@ -76,6 +86,8 @@ struct ProfileView: View {
                             .foregroundColor(.white)
                             .background(Color.blue)
                             .cornerRadius(10)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                     }
                     Button(role: .destructive) {
                         lockApp()
@@ -85,6 +97,8 @@ struct ProfileView: View {
                             .foregroundColor(.white)
                             .background(Color.blue)
                             .cornerRadius(10)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                     }
                 }
                 }
@@ -105,6 +119,8 @@ struct ProfileView: View {
                         logout()
                     } label: {
                         Text("Log Out")
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                     }
                 }
                 
@@ -113,6 +129,8 @@ struct ProfileView: View {
                         showDeleteConfirm = true
                     } label: {
                         Text("Delete Account")
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                     }
                 }
             }

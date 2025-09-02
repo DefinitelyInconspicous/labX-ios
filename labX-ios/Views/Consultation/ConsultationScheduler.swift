@@ -85,6 +85,8 @@ struct ConsultationScheduler: View {
                         Text("Select...").tag(nil as staff?)
                         ForEach(teachers, id: \.self) { teacher in
                             Text(teacher.name).tag(teacher as staff?)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
                         }
                     }
                     .onChange(of: selectedTeacher) { _ in fetchCalendarEvents() }
@@ -99,6 +101,8 @@ struct ConsultationScheduler: View {
                     if !selectedTimeSlots.isEmpty {
                         Text("Selected: \(formatTimeRange())")
                             .foregroundColor(.blue)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                     }
                     
                     VStack(alignment: .leading, spacing: 10) {
@@ -123,6 +127,8 @@ struct ConsultationScheduler: View {
                                                     (isBooked ? .gray : .primary)
                                             )
                                             .cornerRadius(8)
+                                            .lineLimit(1)
+                                            .minimumScaleFactor(0.7)
                                     }
                                     .buttonStyle(PlainButtonStyle())
                                     .disabled(isBooked)
@@ -139,6 +145,8 @@ struct ConsultationScheduler: View {
                     Picker("Select Location", selection: $selectedLocation) {
                         ForEach(locations, id: \.self) { location in
                             Text(location).tag(location)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
                         }
                     }
                 }
@@ -149,7 +157,8 @@ struct ConsultationScheduler: View {
                 
                 Section {
                     Button("Confirm Consultation", action: submitConsultation)
-                        .disabled(!canSubmit)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
             }
             .navigationTitle("Schedule Consultation")
@@ -328,7 +337,7 @@ struct ConsultationScheduler: View {
         isCreating = true
         print("SubmitConsultation called")
         let consult = consultation(
-            id: "", 
+            id: "",
             teacher: teacher,
             date: start,
             comment: comments,
