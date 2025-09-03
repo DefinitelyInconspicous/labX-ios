@@ -225,9 +225,26 @@ struct LoginView: View {
                     dismissButton: .default(Text("OK"))
                 )
             }
-            .sheet(isPresented: $showVerificationSheet) {
-                VerificationView(verificationMessage: $verificationMessage, showVerificationSheet: $showVerificationSheet)
-            }
+            .sheet(
+                isPresented: $showVerificationSheet,
+                onDismiss: {
+                    AuthManager.shared.checkEmailVerified { verified in
+                        DispatchQueue.main.async {
+                            isEmailVerified = verified
+                            verificationMessage = verified
+                            ? "Email verified! You can now log in."
+                            : "Please verify your email before logging in."
+                        }
+                    }
+                },
+                content: {
+                    VerificationView(
+                        verificationMessage: $verificationMessage,
+                        showVerificationSheet: $showVerificationSheet
+                    )
+                }
+            )
+            
         }
     }
     
