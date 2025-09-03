@@ -99,6 +99,12 @@ struct ContentView: View {
             .tabItem {
                 Label("Lab Booking", systemImage: "building.2")
             }
+            NavigationStack {
+                ForumMainView()
+            }
+            .tabItem {
+                Label("Forum", systemImage: "text.bubble")
+            }
         }
         .onAppear {
             if userManager.user == nil {
