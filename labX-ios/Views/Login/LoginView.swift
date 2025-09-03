@@ -13,7 +13,6 @@ import FirebaseFirestore
 
 struct LoginView: View {
     @StateObject private var auth = AuthManager.shared
-    
     @State private var email = ""
     @State private var password = ""
     @State private var isRegistering = false
@@ -31,6 +30,7 @@ struct LoginView: View {
     @State private var resetPasswordSheetShowing = false
     @State private var showVerificationSheet = false
     @State private var verificationMessage = ""
+    @State private var isEmailVerified = false
     
     var classes = (1...4).flatMap { level in (1...10).map { "S\(level)-\($0 < 10 ? "0\($0)" : "\($0)")" } }
     var registerNumbers = (1...30).map { $0 < 10 ? "0\($0)" : "\($0)" }
@@ -215,6 +215,9 @@ struct LoginView: View {
                     }
                 }
             }
+            .onAppear {
+                checkEmailVerificationOnLaunch()
+            }
             .alert(isPresented: $showAlert) {
                 Alert(
                     title: Text("Login Failed"),
@@ -278,6 +281,16 @@ struct LoginView: View {
                             showVerificationSheet = true
                             verificationMessage = "Please verify your email before logging in."
                         }
+                    } else {
+                        AuthManager.shared.checkEmailVerified { verified in
+                            DispatchQueue.main.async {
+                                isEmailVerified = verified
+                                if !verified {
+                                    showVerificationSheet = true
+                                    verificationMessage = "Please verify your email before logging in."
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -311,5 +324,18 @@ struct LoginView: View {
             isPasswordValid = true
         }
     }
+    
+    private func checkEmailVerificationOnLaunch() {
+        if let currentUser = Auth.auth().currentUser {
+            AuthManager.shared.checkEmailVerified { verified in
+                DispatchQueue.main.async {
+                    isEmailVerified = verified
+                    if !verified {
+                        showVerificationSheet = true
+                        verificationMessage = "Please verify your email before logging in."
+                    }
+                }
+            }
+        }
+    }
 }
-

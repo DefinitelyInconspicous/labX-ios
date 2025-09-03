@@ -16,6 +16,9 @@ struct RootView: View {
     @State private var showSplash = true
     @State private var hasSyncedEvents = false
     @State private var isUnderMaintenance = false
+    @State private var isEmailVerified = false 
+    @State private var showVerificationSheet = false
+    @State private var verificationMessage = ""
     
     var body: some View {
         ZStack {
@@ -63,14 +66,24 @@ struct RootView: View {
                 
             } else {
                 Group {
-                    if auth.user != nil {
-                        ContentView()
-                            .onAppear {
-                                if !hasSyncedEvents {
-                                    hasSyncedEvents = true
-                                    syncTeacherCalendarEvents()
+                    if let user = auth.user {
+                        if isEmailVerified {
+                            ContentView()
+                                .onAppear {
+                                    if !hasSyncedEvents {
+                                        hasSyncedEvents = true
+                                        syncTeacherCalendarEvents()
+                                    }
                                 }
-                            }
+                        } else {
+                            LoginView()
+                                .onAppear {
+                                    checkEmailVerificationOnLaunch()
+                                }
+                                .sheet(isPresented: $showVerificationSheet) {
+                                    VerificationView(verificationMessage: $verificationMessage, showVerificationSheet: $showVerificationSheet)
+                                }
+                        }
                     } else {
                         LoginView()
                     }
@@ -86,6 +99,7 @@ struct RootView: View {
                 }
             }
             listenForMaintenance()
+            checkEmailVerificationOnLaunch()
         }
     }
     
@@ -177,6 +191,22 @@ struct RootView: View {
         let events = eventStore.events(matching: predicate)
         
         return events.sorted { $0.startDate < $1.startDate }
+    }
+    
+    private func checkEmailVerificationOnLaunch() {
+        if let currentUser = auth.user {
+            AuthManager.shared.checkEmailVerified { verified in
+                DispatchQueue.main.async {
+                    isEmailVerified = verified
+                    if !verified {
+                        showVerificationSheet = true
+                        verificationMessage = "Please verify your email before logging in."
+                    }
+                }
+            }
+        } else {
+            isEmailVerified = false
+        }
     }
 }
 
