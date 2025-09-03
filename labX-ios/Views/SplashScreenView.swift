@@ -48,7 +48,7 @@ struct SplashScreenView: View {
             .padding(.top, 100)
         }
         .onAppear {
-            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+            let impactFeedback = UIImpactFeedbackGenerator(style: .heavy)
             impactFeedback.impactOccurred()
             
             withAnimation(.easeOut(duration: 1.0)) {

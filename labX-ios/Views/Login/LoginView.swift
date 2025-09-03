@@ -199,7 +199,7 @@ struct LoginView: View {
                                 .foregroundStyle(.blue)
                         }
                         .sheet(isPresented: $resetPasswordSheetShowing) {
-                            ForgotPassword()
+                            ForgotPassword(email: $email)
                         }
                     }
                     .padding(.horizontal)

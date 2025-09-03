@@ -11,7 +11,7 @@ import SwiftUI
 import FirebaseAuth
 
 struct ForgotPassword: View {
-    @State private var email = ""
+    @Binding var email: String
     @State private var message = ""
     @State private var showAlert = false
 
@@ -67,5 +67,5 @@ struct ForgotPassword: View {
 }
 
 #Preview {
-    ForgotPassword()
+    ForgotPassword(email: .constant(""))
 }

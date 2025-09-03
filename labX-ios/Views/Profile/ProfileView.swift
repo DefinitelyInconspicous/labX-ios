@@ -111,7 +111,7 @@ struct ProfileView: View {
                             .foregroundStyle(.blue)
                     }
                     .sheet(isPresented: $resetPasswordSheetShowing) {
-                        ForgotPassword()
+                        ForgotPassword(email: $user.email)
                     }
                     
                     
