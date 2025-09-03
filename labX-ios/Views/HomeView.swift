@@ -81,6 +81,7 @@ struct HomeView: View {
         switch status.lowercased() {
         case "approved": return "Confirmed"
         case "denied": return "Declined"
+        case "declined": return "Declined"
         case "reschedule": return "Reschedule"
         default: return "Pending"
         }
@@ -91,6 +92,7 @@ struct HomeView: View {
         switch status.lowercased() {
         case "approved": return .green
         case "denied": return .red
+        case "declined": return .red
         case "reschedule": return .yellow
         default: return .orange
         }

@@ -7,11 +7,13 @@
 
 import SwiftUI
 import Forever
+import FirebaseFirestore
 
 struct ContentView: View {
     @StateObject private var consultationManager = ConsultationManager()
     @State private var createConsult: Bool = false
     @StateObject private var userManager = UserManager()
+    @State private var bookingmaintanence: Bool = false
     
     var body: some View {
         TabView {
@@ -65,6 +67,17 @@ struct ContentView: View {
                 Group {
                     if let user = userManager.user, user.className == "Staff" {
                         BookingMain()
+                    } else if bookingmaintanence == true {
+                        VStack(spacing: 12) {
+                            Image(systemName: "wrench.and.screwdriver.fill")
+                                .font(.system(size: 60))
+                                .foregroundColor(.orange)
+                            Text("Lab Booking Under Maintenance")
+                                .font(.title)
+                                .fontWeight(.semibold)
+                            Text("We apologise for the inconvenience.\n Please check back later.")
+                                .foregroundColor(.gray)
+                        }
                     } else {
                         VStack(spacing: 12) {
                             Spacer()
@@ -97,6 +110,19 @@ struct ContentView: View {
                     consultationManager.fetchConsultations(forUser: user.email)
                 }
             }
+            let db = Firestore.firestore()
+            db.collection("settings").document("lab_booking_maintanence")
+                .addSnapshotListener { snapshot, error in
+                    guard let doc = snapshot, error == nil else {
+                        print("Error fetching lab booking maintenance status: \(error?.localizedDescription ?? "Unknown error")")
+                        return
+                    }
+                    if let status = doc["status"] as? Bool {
+                        bookingmaintanence = status
+                        print(bookingmaintanence ? "lab booking is under maintenance." : "lab booking is operational.")
+                    }
+                }
+            
         }
     }
 }

@@ -160,6 +160,7 @@ struct StaffConsultationsView: View {
         switch status.lowercased() {
         case "approved": return "Confirmed"
         case "denied": return "Declined"
+        case "declined": return "Declined"
         case "reschedule": return "Reschedule"
         default: return "Pending"
         }
@@ -169,6 +170,8 @@ struct StaffConsultationsView: View {
         case "Approved":
             return .green
         case "Declined":
+            return .red
+        case "Denied":
             return .red
         default:
             return .yellow
