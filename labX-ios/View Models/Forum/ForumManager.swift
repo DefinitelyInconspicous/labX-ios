@@ -11,13 +11,14 @@ import FirebaseAuth
 
 struct ForumPost: Identifiable, Codable {
     var id: String
+    var title: String
     var topic: String
     var content: String
     var level: String
     var author: String
     var authorEmail: String
     var vote: Int
-    var imageBase64: String? 
+    var imageBase64: String?
 }
 
 struct ForumComment: Identifiable, Codable {
@@ -33,12 +34,36 @@ class ForumManager: ObservableObject {
     @Published var comments: [ForumComment] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
-    
     private let db = Firestore.firestore()
-    @Published var userVotes: [String: Int] = [:]
-    
+    @Published var userVotes: [String: Int] = [:] // postID: vote
+    @Published var commentUserVotes: [String: Int] = [:] // commentID: vote (local only)
     private var currentUserID: String? {
         Auth.auth().currentUser?.uid
+    }
+    // Local vote storage for comments
+    private let commentVoteKey = "localCommentVotes"
+    
+    // Load local votes from UserDefaults
+    func loadLocalCommentVotes() {
+        if let data = UserDefaults.standard.data(forKey: commentVoteKey),
+           let dict = try? JSONDecoder().decode([String: Int].self, from: data) {
+            commentUserVotes = dict
+        }
+    }
+    // Save local votes to UserDefaults
+    func saveLocalCommentVotes() {
+        if let data = try? JSONEncoder().encode(commentUserVotes) {
+            UserDefaults.standard.set(data, forKey: commentVoteKey)
+        }
+    }
+    // Get user's vote for a comment
+    func getUserVoteForComment(_ commentID: String) -> Int {
+        commentUserVotes[commentID] ?? 0
+    }
+    // Set user's vote for a comment
+    func setUserVoteForComment(_ commentID: String, vote: Int) {
+        commentUserVotes[commentID] = vote
+        saveLocalCommentVotes()
     }
     
     // MARK: - Posts
@@ -63,6 +88,7 @@ class ForumManager: ObservableObject {
                         let data = doc.data()
                         return ForumPost(
                             id: doc.documentID,
+                            title: data["title"] as? String ?? "",
                             topic: data["topic"] as? String ?? "",
                             content: data["content"] as? String ?? "",
                             level: data["level"] as? String ?? "",
@@ -85,20 +111,15 @@ class ForumManager: ObservableObject {
         guard let uid = currentUserID else { return }
         
         let previousVote = userVotes[postID] ?? 0
-        
-        // Determine actual change for Firestore
         let increment = delta - previousVote
-        
-        // Update local user vote
         userVotes[postID] = (previousVote == delta) ? 0 : delta
-        
-        // Update Firestore
         let ref = db.collection("forum").document(postID)
         ref.updateData(["vote": FieldValue.increment(Int64(increment))])
     }
     
-    func createPost(topic: String, content: String, level: String, author: String, authorEmail: String, imageBase64: String?, completion: @escaping (Bool) -> Void) {
+    func createPost(title: String, topic: String, content: String, level: String, author: String, authorEmail: String, imageBase64: String?, completion: @escaping (Bool) -> Void) {
         var data: [String: Any] = [
+            "title": title,
             "topic": topic,
             "content": content,
             "level": level,
@@ -147,8 +168,17 @@ class ForumManager: ObservableObject {
                             vote: data["vote"] as? Int ?? 0
                         )
                     } ?? []
+                    self?.loadLocalCommentVotes()
                 }
             }
+    }
+    
+    func voteComment(commentID: String, delta: Int) {
+        let previousVote = getUserVoteForComment(commentID)
+        let increment = delta - previousVote
+        setUserVoteForComment(commentID, vote: (previousVote == delta) ? 0 : delta)
+        let ref = db.collection("forumComments").document(commentID)
+        ref.updateData(["vote": FieldValue.increment(Int64(increment))])
     }
     
     func createComment(postID: String, author: String, comment: String, completion: @escaping (Bool) -> Void) {
@@ -163,10 +193,5 @@ class ForumManager: ObservableObject {
                 completion(error == nil)
             }
         }
-    }
-    
-    func voteComment(commentID: String, delta: Int) {
-        let ref = db.collection("forumComments").document(commentID)
-        ref.updateData(["vote": FieldValue.increment(Int64(delta))])
     }
 }

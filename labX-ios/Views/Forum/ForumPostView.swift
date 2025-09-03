@@ -53,6 +53,11 @@ struct ForumPostView: View {
                         
                         // Post Content
                         VStack(alignment: .leading, spacing: 8) {
+                            Text(post.title.isEmpty ? "Untitled" : post.title)
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundColor(.primary)
+                                .fixedSize(horizontal: false, vertical: true)
                             Text(post.topic)
                                 .font(.title2)
                                 .fontWeight(.bold)
@@ -173,7 +178,7 @@ struct ForumPostView: View {
                         forumManager.deletePost(postID: post.id) { success in
                             if success {
                                 alertMessage = "Post deleted successfully."
-                                // Remove post from local list and navigate back
+                                forumManager.fetchPosts()
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                     if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                                        let rootVC = windowScene.windows.first?.rootViewController {
@@ -227,6 +232,7 @@ struct ForumPostView: View {
     ForumPostView(
         post: ForumPost(
             id: "1",
+            title: "Quantum Entanglement",
             topic: "Physics",
             content: "What is quantum entanglement?",
             level: "S3",

@@ -22,16 +22,19 @@ struct ForumCreateView: View {
     @State private var imageBase64: String? = nil
     @State private var showImagePicker = false
     @State private var selectedPickerItem: PhotosPickerItem? = nil
+    @State private var title = ""
     let topics = ["Physics", "Chemistry", "Biology"]
     let levels = ["S1", "S2", "S3", "S4"]
     
     var body: some View {
         NavigationStack {
             Form {
+                TextField("Title", text: $title)
+                    .autocapitalization(.sentences)
+                    .disableAutocorrection(false)
                 Picker("Topic", selection: $topic) {
                     ForEach(topics, id: \.self) { Text($0) }
                 }
-                    
                 TextField("Content", text: $content, axis: .vertical)
                     .lineLimit(3...6)
                 Picker("Level", selection: $level) {
@@ -64,17 +67,18 @@ struct ForumCreateView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Post") {
-                        guard !content.trimmingCharacters(in: .whitespaces).isEmpty else {
+                        guard !title.trimmingCharacters(in: .whitespaces).isEmpty, !content.trimmingCharacters(in: .whitespaces).isEmpty else {
                             alertMessage = "Please fill in all fields."
                             showAlert = true
                             return
                         }
                         forumManager.createPost(
+                            title: title,
                             topic: topic,
                             content: content,
                             level: level,
                             author: user.firstName + " " + user.lastName,
-                            authorEmail: user.email, // Pass email
+                            authorEmail: user.email,
                             imageBase64: imageBase64
                         ) { success in
                             if success {
