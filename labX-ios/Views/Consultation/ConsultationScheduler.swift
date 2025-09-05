@@ -9,16 +9,8 @@
 import SwiftUI
 import EventKit
 import FirebaseFirestore
-import PhotosUI
 
 struct ConsultationScheduler: View {
-    enum UploadType: String, CaseIterable, Identifiable {
-        case image = "Image"
-        case file = "File"
-        var id: String { rawValue }
-    }
-
-    @State private var uploadType: UploadType = .image
     @State private var selectedTeacher: staff?
     @State private var selectedDate: Date = Date()
     @State private var selectedTimeSlots: Set<Date> = []
@@ -33,24 +25,8 @@ struct ConsultationScheduler: View {
     @StateObject private var emailService = EmailService()
     @State private var isCreating = false
     @State private var showEmailSetupGuide = false
-    @State private var quotaExceeded = false
-    @State private var quotaJustification = ""
-    @State private var blackoutActive = false
-    @State private var selectedTopic: String = ""
-    @State private var selectedAssignment: String = ""
-    @State private var prepMaterialUrls: [String] = []
-    @State private var showReflectionPrompt = false
-    @State private var reflectionResponse = ""
-    @State private var selectedPickerItem: PhotosPickerItem? = nil
-    @State private var selectedImage: UIImage? = nil
-    @State private var selectedFileUrl: URL? = nil
-    @State private var selectedFileName: String? = nil
-    @State private var selectedFileType: String? = nil
-    @State private var showDocumentPicker: Bool = false
-    @State private var filePickerResult: Result<Data, Error>? = nil
     @Environment(\.dismiss) private var dismiss
-    let topics = ["Physics", "Chemistry", "Biology", "Other"]
-    let assignments = ["Homework", "Coursework/PT", "Revision", "Other"]
+
     
     let locations = [
         "Outside Staffroom", "Classroom", "Outside Labs (Level 1)",
@@ -74,152 +50,34 @@ struct ConsultationScheduler: View {
     
     var body: some View {
         NavigationStack {
+         
+
             Form {
                 Section {
-                    if let quota = consultationManager.quotaStatus {
-                        HStack {
-                            Text("Quota: \(quota.used)/\(quota.limit)")
+                    HStack {
+                        Image(systemName: emailService.canSendEmail() ? "envelope.fill" : "envelope.slash")
+                            .foregroundColor(emailService.canSendEmail() ? .green : .orange)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(emailService.canSendEmail() ? "Email notifications available" : "Email notifications unavailable")
                                 .font(.caption)
-                                .foregroundColor(quota.used < quota.limit ? .green : .red)
-                            Spacer()
-                            if quota.used >= quota.limit {
-                                Text("Approval required")
+                                .foregroundColor(.secondary)
+                            if !emailService.canSendEmail() {
+                                Text("Teacher will not be notified by email")
                                     .font(.caption2)
-                                    .foregroundColor(.red)
+                                    .foregroundColor(.orange)
                             }
                         }
-                    } else {
-                        Text("Loading quota...")
+                        Spacer()
+                        
+                        if !emailService.canSendEmail() {
+                            Button("Setup Guide") {
+                                showEmailSetupGuide = true
+                            }
                             .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                }
-                Section {
-                    Picker("Upload Type", selection: $uploadType) {
-                        Text("Image").tag(UploadType.image)
-                        Text("File").tag(UploadType.file)
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.bottom, 4)
-                    
-                    if uploadType == .image {
-                        PhotosPicker(selection: $selectedPickerItem, matching: .images, photoLibrary: .shared()) {
-                            Text("Upload Image")
-                        }
-                        .onChange(of: selectedPickerItem) { newItem in
-                            guard let item = newItem else { return }
-                            item.loadTransferable(type: Data.self) { result in
-                                switch result {
-                                case .success(let data):
-                                    if let data = data, let image = UIImage(data: data) {
-                                        let resized = resizedImage(image, maxDimension: 800)
-                                        self.selectedImage = resized
-                                        if let compressedData = resized.jpegData(compressionQuality: 0.4) {
-                                            if compressedData.count < 1024 * 1024 {
-                                                let base64 = compressedData.base64EncodedString()
-                                                self.prepMaterialUrls.append("image|" + base64)
-                                            } else {
-                                                self.alertMessage = "Image too large. Please select a smaller image (<1MB)."
-                                                self.showAlert = true
-                                            }
-                                        }
-                                    }
-                                case .failure:
-                                    break
-                                }
-                            }
-                        }
-                    } else if uploadType == .file {
-                        Button("Upload File") {
-                            showDocumentPicker = true
-                        }
-                        .fileImporter(isPresented: $showDocumentPicker, allowedContentTypes: [.pdf, .plainText, .rtf], allowsMultipleSelection: false) { result in
-                            switch result {
-                            case .success(let urls):
-                                guard let url = urls.first else { return }
-                                selectedFileUrl = url
-                                selectedFileName = url.lastPathComponent
-                                selectedFileType = url.pathExtension
-                                do {
-                                    let fileData = try Data(contentsOf: url)
-                                    if fileData.count < 1024 * 1024 {
-                                        let base64 = fileData.base64EncodedString()
-                                        let meta = "file|" + (selectedFileName ?? "") + "|" + (selectedFileType ?? "") + "|" + base64
-                                        self.prepMaterialUrls.append(meta)
-                                    } else {
-                                        self.alertMessage = "File too large. Please select a file <1MB."
-                                        self.showAlert = true
-                                    }
-                                } catch {
-                                    self.alertMessage = "Failed to read file."
-                                    self.showAlert = true
-                                }
-                            case .failure:
-                                self.alertMessage = "Failed to select file."
-                                self.showAlert = true
-                            }
+                            .foregroundColor(.blue)
                         }
                     }
-                    if prepMaterialUrls.isEmpty {
-                        Text("Prep material required before submitting.")
-                            .foregroundColor(.orange)
-                    } else {
-                        ForEach(prepMaterialUrls, id: \.self) { item in
-                            if item.hasPrefix("image|") {
-                                let base64 = String(item.dropFirst(6))
-                                if let data = Data(base64Encoded: base64), let uiImage = UIImage(data: data) {
-                                    VStack {
-                                        Image(uiImage: uiImage)
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(height: 120)
-                                            .cornerRadius(10)
-                                        Button("Remove") {
-                                            if let idx = prepMaterialUrls.firstIndex(of: item) {
-                                                prepMaterialUrls.remove(at: idx)
-                                            }
-                                        }
-                                        .foregroundColor(.red)
-                                    }
-                                }
-                            } else if item.hasPrefix("file|") {
-                                let parts = item.split(separator: "|", maxSplits: 3)
-                                if parts.count == 4 {
-                                    let filename = String(parts[1])
-                                    let filetype = String(parts[2])
-                                    VStack {
-                                        HStack {
-                                            Image(systemName: "doc.fill")
-                                                .foregroundColor(.blue)
-                                            Text("\(filename) (\(filetype))")
-                                                .font(.subheadline)
-                                                .foregroundColor(.primary)
-                                        }
-
-                                        Button("Remove") {
-                                            if let idx = prepMaterialUrls.firstIndex(of: item) {
-                                                prepMaterialUrls.remove(at: idx)
-                                            }
-                                        }
-                                        .foregroundColor(.red)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                Section("Topic") {
-                    Picker("Select Topic", selection: $selectedTopic) {
-                        ForEach(topics, id: \.self) { topic in
-                            Text(topic).tag(topic as String)
-                        }
-                    }
-                    
-                    Picker("Link Assignment", selection: $selectedAssignment) {
-                        ForEach(assignments, id: \.self) { assignment in
-                            Text(assignment).tag(assignment as String)
-                        }
-                    }
+                    .padding(.vertical, 4)
                 }
                 
                 Section("Teacher") {
@@ -237,7 +95,9 @@ struct ConsultationScheduler: View {
                 Section("Date") {
                     DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
                         .onChange(of: selectedDate) { _ in fetchCalendarEvents() }
+                }
                 
+                Section("Time Slots") {
                     if !selectedTimeSlots.isEmpty {
                         Text("Selected: \(formatTimeRange())")
                             .foregroundColor(.blue)
@@ -284,7 +144,7 @@ struct ConsultationScheduler: View {
                 Section("Location") {
                     Picker("Select Location", selection: $selectedLocation) {
                         ForEach(locations, id: \.self) { location in
-                            Text(location).tag(location as String)
+                            Text(location).tag(location)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.7)
                         }
@@ -294,60 +154,41 @@ struct ConsultationScheduler: View {
                 Section("Comments") {
                     TextField("I would like to discuss...", text: $comments)
                 }
-                if consultationManager.quotaStatus?.used ?? 0 >= consultationManager.quotaStatus?.limit ?? 3 {
-                    Section("Justification for Approval") {
-                        TextField("Why do you need this extra consult?", text: $quotaJustification)
-                    }
-                }
+                
                 Section {
                     Button("Confirm Consultation", action: submitConsultation)
-                        .disabled(!canSubmitConsult())
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
             }
             .navigationTitle("Schedule Consultation")
+            .scrollDismissesKeyboard(.interactively)
             .onAppear {
+                requestCalendarAccess()
+                fetchCalendarEvents()
                 userManager.fetchUser()
                 fetchTeachers()
-                if let email = userManager.user?.email {
-                    consultationManager.fetchQuota(forStudent: email) { quota in
-                        consultationManager.quotaStatus = quota
-                        quotaExceeded = (quota?.used ?? 0) >= (quota?.limit ?? 3)
-                    }
-                }
-                consultationManager.isBlackoutActive(date: selectedDate) { active in
-                    blackoutActive = active
-                }
             }
+
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Consultation"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
-            .sheet(isPresented: $showReflectionPrompt) {
-                VStack {
-                    Text("Reflection Prompt")
-                        .font(.headline)
-                    TextField("What did you learn from this consult?", text: $reflectionResponse)
-                        .padding()
-                    Button("Submit Reflection") {
-                        // TODO: Save reflectionResponse to consult record
-                        showReflectionPrompt = false
-                        dismiss()
-                    }
-                }
-                .padding()
+        }
+        .sheet(isPresented: $emailService.isShowingMailView) {
+            if let mailComposer = emailService.mailComposer {
+                MailView(isShowing: $emailService.isShowingMailView, mailComposer: mailComposer)
             }
         }
+        .sheet(isPresented: $showEmailSetupGuide) {
+            EmailSetupGuide()
+        }
+
     }
+    
     private var canSubmit: Bool {
         selectedTeacher != nil && !selectedTimeSlots.isEmpty && !comments.isEmpty && !selectedLocation.isEmpty
     }
-    private func canSubmitConsult() -> Bool {
-        guard let quota = consultationManager.quotaStatus else { return false }
-        if blackoutActive { return false }
-        if prepMaterialUrls.isEmpty { return false }
-        if selectedTeacher == nil || selectedTopic.isEmpty || selectedLocation.isEmpty || selectedTimeSlots.isEmpty || comments.isEmpty { return false }
-        if quota.used >= quota.limit && quotaJustification.isEmpty { return false }
-        return true
-    }
+    
     private func fetchCalendarEvents() {
         print("fetchcalendarevents called")
         bookedTimeSlots = []
@@ -502,33 +343,9 @@ struct ConsultationScheduler: View {
             comment: comments,
             student: user.email,
             status: nil,
-            location: selectedLocation,
-            topic: selectedTopic,
-            assignmentId: selectedAssignment,
-            prepMaterialUrls: prepMaterialUrls,
-            approvalStatus: quotaExceeded ? "pending" : "",
-            justification: quotaExceeded ? quotaJustification : "",
-            outcomeTags: nil,
-            summary: nil,
-            reflectionPrompt: "What did you learn from this consult?",
-            reflectionResponse: nil,
-            auditTrail: [AuditLog(actorID: user.email, action: "created", targetID: "", timestamp: Date(), role: user.className)],
-            schoolId: nil
+            location: selectedLocation
         )
-        if quotaExceeded {
-            consultationManager.submitApprovalRequest(for: consult, justification: quotaJustification) { success in
-                alertMessage = success ? "Approval request submitted." : "Failed to submit approval request."
-                showAlert = true
-            }
-        } else {
-            consultationManager.addConsultation(consult) { success in
-                alertMessage = success ? "Consultation created successfully!" : "Failed to create consultation."
-                showAlert = true
-                if success {
-                    showReflectionPrompt = true
-                }
-            }
-        }
+        consultationManager.addConsultation(consult)
 
         if emailService.canSendEmail() {
             let emailSent = emailService.sendConsultationEmail(
@@ -597,20 +414,4 @@ func chunked<T>(_ array: [T], size: Int) -> [[T]] {
     stride(from: 0, to: array.count, by: size).map {
         Array(array[$0..<min($0 + size, array.count)])
     }
-}
-
-private func resizedImage(_ image: UIImage, maxDimension: CGFloat = 800) -> UIImage {
-    let size = image.size
-    let aspectRatio = size.width / size.height
-    var newSize: CGSize
-    if aspectRatio > 1 {
-        newSize = CGSize(width: maxDimension, height: maxDimension / aspectRatio)
-    } else {
-        newSize = CGSize(width: maxDimension * aspectRatio, height: maxDimension)
-    }
-    UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
-    image.draw(in: CGRect(origin: .zero, size: newSize))
-    let resized = UIGraphicsGetImageFromCurrentImageContext()
-    UIGraphicsEndImageContext()
-    return resized ?? image
 }

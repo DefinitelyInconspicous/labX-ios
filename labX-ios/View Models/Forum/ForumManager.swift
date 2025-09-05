@@ -19,11 +19,6 @@ struct ForumPost: Identifiable, Codable {
     var authorEmail: String
     var vote: Int
     var imageBase64: String?
-    // New fields for advanced forum features
-    var endorsements: [String]?
-    var verifiedAnswerID: String?
-    var escalationLink: String?
-    var schoolID: String?
 }
 
 struct ForumComment: Identifiable, Codable {
@@ -100,11 +95,7 @@ class ForumManager: ObservableObject {
                             author: data["author"] as? String ?? "",
                             authorEmail: data["authorEmail"] as? String ?? "",
                             vote: data["vote"] as? Int ?? 0,
-                            imageBase64: data["imageBase64"] as? String,
-                            endorsements: data["endorsements"] as? [String],
-                            verifiedAnswerID: data["verifiedAnswerID"] as? String,
-                            escalationLink: data["escalationLink"] as? String,
-                            schoolID: data["schoolID"] as? String
+                            imageBase64: data["imageBase64"] as? String
                         )
                     } ?? []
                     completion?()
@@ -202,88 +193,5 @@ class ForumManager: ObservableObject {
                 completion(error == nil)
             }
         }
-    }
-    
-    // --- Endorse Answer ---
-    func endorseAnswer(postID: String, teacherID: String, completion: @escaping (Bool) -> Void) {
-        let ref = db.collection("forum").document(postID)
-        ref.updateData(["endorsements": FieldValue.arrayUnion([teacherID])]) { error in
-            self.logAudit(action: "endorse_answer", actorID: teacherID, targetID: postID, role: "teacher")
-            completion(error == nil)
-        }
-    }
-    // --- Verify Answer ---
-    func verifyAnswer(postID: String, answerID: String, teacherID: String, completion: @escaping (Bool) -> Void) {
-        let ref = db.collection("forum").document(postID)
-        ref.updateData(["verifiedAnswerID": answerID]) { error in
-            self.logAudit(action: "verify_answer", actorID: teacherID, targetID: postID, role: "teacher")
-            completion(error == nil)
-        }
-    }
-    // --- Escalate to Consult ---
-    func escalateToConsult(postID: String, studentID: String, topic: String, assignmentID: String, completion: @escaping (Bool) -> Void) {
-        let escalation: [String: Any] = [
-            "postID": postID,
-            "studentID": studentID,
-            "topic": topic,
-            "assignmentID": assignmentID,
-            "timestamp": Timestamp()
-        ]
-        db.collection("escalations").addDocument(data: escalation) { error in
-            self.logAudit(action: "escalate_to_consult", actorID: studentID, targetID: postID, role: "student")
-            completion(error == nil)
-        }
-    }
-    // --- Duplicate Detection ---
-    func detectDuplicatePosts(content: String, completion: @escaping ([ForumPost]) -> Void) {
-        let lowerContent = content.lowercased()
-        let duplicates = posts.filter { $0.content.lowercased().contains(lowerContent) || lowerContent.contains($0.content.lowercased()) }
-        completion(duplicates)
-    }
-    // --- School-Scoped Posts ---
-    func fetchSchoolScopedPosts(schoolID: String, completion: (() -> Void)? = nil) {
-        isLoading = true
-        db.collection("forum").whereField("schoolID", isEqualTo: schoolID)
-            .getDocuments { [weak self] snapshot, error in
-                DispatchQueue.main.async {
-                    self?.isLoading = false
-                    if let error = error {
-                        self?.errorMessage = error.localizedDescription
-                        self?.posts = []
-                        completion?()
-                        return
-                    }
-                    self?.posts = snapshot?.documents.compactMap { doc in
-                        let data = doc.data()
-                        return ForumPost(
-                            id: doc.documentID,
-                            title: data["title"] as? String ?? "",
-                            topic: data["topic"] as? String ?? "",
-                            content: data["content"] as? String ?? "",
-                            level: data["level"] as? String ?? "",
-                            author: data["author"] as? String ?? "",
-                            authorEmail: data["authorEmail"] as? String ?? "",
-                            vote: data["vote"] as? Int ?? 0,
-                            imageBase64: data["imageBase64"] as? String,
-                            endorsements: data["endorsements"] as? [String],
-                            verifiedAnswerID: data["verifiedAnswerID"] as? String,
-                            escalationLink: data["escalationLink"] as? String,
-                            schoolID: data["schoolID"] as? String
-                        )
-                    } ?? []
-                    completion?()
-                }
-            }
-    }
-    // --- Audit Logging ---
-    func logAudit(action: String, actorID: String, targetID: String, role: String) {
-        let audit: [String: Any] = [
-            "actorID": actorID,
-            "action": action,
-            "targetID": targetID,
-            "timestamp": Timestamp(),
-            "role": role
-        ]
-        db.collection("auditLogs").addDocument(data: audit)
     }
 }

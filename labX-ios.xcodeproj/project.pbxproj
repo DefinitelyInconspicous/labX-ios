@@ -19,8 +19,6 @@
 		CFC455432E05052C006611C9 /* GTMSessionFetcherCore in Frameworks */ = {isa = PBXBuildFile; productRef = CFC455422E05052C006611C9 /* GTMSessionFetcherCore */; };
 		CFC455452E05052C006611C9 /* GTMSessionFetcherFull in Frameworks */ = {isa = PBXBuildFile; productRef = CFC455442E05052C006611C9 /* GTMSessionFetcherFull */; };
 		CFC455472E05052C006611C9 /* GTMSessionFetcherLogView in Frameworks */ = {isa = PBXBuildFile; productRef = CFC455462E05052C006611C9 /* GTMSessionFetcherLogView */; };
-		CFDB88A92E69BB8E002CC039 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = CFDB88A82E69BB8E002CC039 /* GoogleSignIn */; };
-		CFDB88AB2E69BB8E002CC039 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = CFDB88AA2E69BB8E002CC039 /* GoogleSignInSwift */; };
 		CFF9D1F12DACB51700A06688 /* Forever in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D1F02DACB51700A06688 /* Forever */; };
 		CFF9D1F62DACC92800A06688 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D1F52DACC92800A06688 /* FirebaseAuth */; };
 		CFF9D1F82DACC92800A06688 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = CFF9D1F72DACC92800A06688 /* FirebaseCore */; };
@@ -62,7 +60,6 @@
 				CFBA08442E04EAD500A4CB89 /* SwiftyBase64 in Frameworks */,
 				CF1949402DF9650A009A503C /* FirebaseAnalytics in Frameworks */,
 				CFBA08402E04EAD500A4CB89 /* OAuth1 in Frameworks */,
-				CFDB88A92E69BB8E002CC039 /* GoogleSignIn in Frameworks */,
 				CFF9D1F12DACB51700A06688 /* Forever in Frameworks */,
 				CFF9D2132DAE1E7500A06688 /* Discovery in Frameworks */,
 				CFF9D2072DACD21D00A06688 /* FirebaseFirestore in Frameworks */,
@@ -74,7 +71,6 @@
 				CFBA08422E04EAD500A4CB89 /* OAuth2 in Frameworks */,
 				CFBA08492E05018E00A4CB89 /* GTMAppAuth in Frameworks */,
 				CFBA08392E044B8400A4CB89 /* SwiftJWT in Frameworks */,
-				CFDB88AB2E69BB8E002CC039 /* GoogleSignInSwift in Frameworks */,
 				CFF9D1F62DACC92800A06688 /* FirebaseAuth in Frameworks */,
 				CFC455452E05052C006611C9 /* GTMSessionFetcherFull in Frameworks */,
 				CFC455412E05052C006611C9 /* GTMSessionFetcher in Frameworks */,
@@ -147,8 +143,6 @@
 				CFC455422E05052C006611C9 /* GTMSessionFetcherCore */,
 				CFC455442E05052C006611C9 /* GTMSessionFetcherFull */,
 				CFC455462E05052C006611C9 /* GTMSessionFetcherLogView */,
-				CFDB88A82E69BB8E002CC039 /* GoogleSignIn */,
-				CFDB88AA2E69BB8E002CC039 /* GoogleSignInSwift */,
 			);
 			productName = "labX-ios";
 			productReference = CF288DD82D87C7210012B4B1 /* labX-ios.app */;
@@ -186,7 +180,6 @@
 				CFBA083E2E04EAD500A4CB89 /* XCRemoteSwiftPackageReference "google-auth-library-swift" */,
 				CFBA08472E05018E00A4CB89 /* XCRemoteSwiftPackageReference "GTMAppAuth" */,
 				CFC4553F2E05052C006611C9 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */,
-				CFDB88A72E69BB8E002CC039 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CF288DD92D87C7210012B4B1 /* Products */;
@@ -466,14 +459,6 @@
 				kind = branch;
 			};
 		};
-		CFDB88A72E69BB8E002CC039 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 9.0.0;
-			};
-		};
 		CFF9D1EF2DACB51700A06688 /* XCRemoteSwiftPackageReference "Forever" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/jiachenyee/Forever";
@@ -560,16 +545,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CFC4553F2E05052C006611C9 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
 			productName = GTMSessionFetcherLogView;
-		};
-		CFDB88A82E69BB8E002CC039 /* GoogleSignIn */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = CFDB88A72E69BB8E002CC039 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
-			productName = GoogleSignIn;
-		};
-		CFDB88AA2E69BB8E002CC039 /* GoogleSignInSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = CFDB88A72E69BB8E002CC039 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
-			productName = GoogleSignInSwift;
 		};
 		CFF9D1F02DACB51700A06688 /* Forever */ = {
 			isa = XCSwiftPackageProductDependency;

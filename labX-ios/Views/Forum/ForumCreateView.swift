@@ -33,7 +33,7 @@ struct ForumCreateView: View {
                     .autocapitalization(.sentences)
                     .disableAutocorrection(false)
                 Picker("Topic", selection: $topic) {
-                    ForEach(topics, id: \ .self) { Text($0) }
+                    ForEach(topics, id: \.self) { Text($0) }
                 }
                 TextField("Content", text: $content, axis: .vertical)
                     .lineLimit(3...6)
@@ -74,7 +74,7 @@ struct ForumCreateView: View {
                         }
                         forumManager.createPost(
                             title: title,
-                            topic: topic.lowercased(), // Save topic as lowercase
+                            topic: topic,
                             content: content,
                             level: level,
                             author: user.firstName + " " + user.lastName,

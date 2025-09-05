@@ -7,8 +7,6 @@
 
 import Foundation
 import FirebaseAuth
-import GoogleSignIn
-import FirebaseCore
 
 class AuthManager: ObservableObject {
     static let shared = AuthManager()
@@ -22,10 +20,8 @@ class AuthManager: ObservableObject {
         "avyan_mehra@s2023.ssts.edu.sg"
     ]
 
-    private var authStateListenerHandle: AuthStateDidChangeListenerHandle?
-
     private init() {
-        authStateListenerHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
+        Auth.auth().addStateDidChangeListener { [weak self] _, user in
             DispatchQueue.main.async {
                 self?.user = user
                 self?.isLoading = false
@@ -64,19 +60,16 @@ class AuthManager: ObservableObject {
                     return
                 }
 
-                let isBypass = self?.bypassEmails.contains(email.lowercased()) ?? false
-                if !user.isEmailVerified && !isBypass {
+                if !user.isEmailVerified && !(self?.bypassEmails.contains(email.lowercased()) ?? false) {
                     // Normal users must verify email
                     self?.authErrorMessage = "Please verify your email before logging in."
                     self?.user = nil
-                    completion(NSError(domain: "AuthManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Email not verified"]))
-                    return
                 } else {
                     // Bypass or verified user
                     self?.authErrorMessage = nil
                     self?.user = user
-                    completion(nil)
                 }
+                completion(nil)
             }
         }
     }
@@ -112,60 +105,6 @@ class AuthManager: ObservableObject {
                 }
 
                 completion(error)
-            }
-        }
-    }
-
-    func signInWithGoogle(presentingViewController: UIViewController, completion: @escaping (Error?) -> Void) {
-        isLoading = true
-        guard let clientID = FirebaseApp.app()?.options.clientID else {
-            self.authErrorMessage = "Missing Google client ID"
-            self.isLoading = false
-            completion(NSError(domain: "AuthManager", code: 0, userInfo: [NSLocalizedDescriptionKey: "Missing Google client ID"]))
-            return
-        }
-        let config = GIDConfiguration(clientID: clientID)
-        GIDSignIn.sharedInstance.signIn(withPresenting: presentingViewController, hint: nil, additionalScopes: nil) { [weak self] signInResult, error in
-            if let error = error {
-                DispatchQueue.main.async {
-                    self?.authErrorMessage = error.localizedDescription
-                    self?.isLoading = false
-                    completion(error)
-                }
-                return
-            }
-            guard let signInResult = signInResult else {
-                DispatchQueue.main.async {
-                    self?.authErrorMessage = "Google authentication failed."
-                    self?.isLoading = false
-                    completion(NSError(domain: "AuthManager", code: 0, userInfo: [NSLocalizedDescriptionKey: "Google authentication failed."]))
-                }
-                return
-            }
-            let idToken = signInResult.user.idToken!.tokenString
-            let accessToken = signInResult.user.accessToken.tokenString
-            guard !idToken.isEmpty, !accessToken.isEmpty else {
-                DispatchQueue.main.async {
-                    self?.authErrorMessage = "Google authentication failed."
-                    self?.isLoading = false
-                    completion(NSError(domain: "AuthManager", code: 0, userInfo: [NSLocalizedDescriptionKey: "Google authentication failed. Tokens missing."]))
-                }
-                return
-            }
-            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
-            Auth.auth().signIn(with: credential) { result, error in
-                DispatchQueue.main.async {
-                    self?.isLoading = false
-                    if let error = error {
-                        self?.authErrorMessage = error.localizedDescription
-                        self?.user = nil
-                        completion(error)
-                        return
-                    }
-                    self?.authErrorMessage = nil
-                    self?.user = result?.user
-                    completion(nil)
-                }
             }
         }
     }

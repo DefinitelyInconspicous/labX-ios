@@ -84,50 +84,6 @@ struct ForumPostView: View {
                                     .foregroundColor(.secondary)
                             }
                         }
-                        // Teacher-only controls
-                        if let user = user, user.className == "Staff" {
-                            HStack(spacing: 12) {
-                                Button {
-                                    forumManager.endorseAnswer(postID: post.id, teacherID: user.id) { success in
-                                        alertMessage = success ? "Answer endorsed!" : "Failed to endorse answer."
-                                        showAlert = true
-                                    }
-                                } label: {
-                                    Label("Endorse Answer", systemImage: "star.circle.fill")
-                                        .padding(8)
-                                        .background(Color.yellow.opacity(0.2))
-                                        .cornerRadius(8)
-                                }
-                                Button {
-                                    if let firstComment = forumManager.comments.first {
-                                        forumManager.verifyAnswer(postID: post.id, answerID: firstComment.id, teacherID: user.id) { success in
-                                            alertMessage = success ? "Answer verified!" : "Failed to verify answer."
-                                            showAlert = true
-                                        }
-                                    } else {
-                                        alertMessage = "No comments to verify."
-                                        showAlert = true
-                                    }
-                                } label: {
-                                    Label("Verify Answer", systemImage: "checkmark.seal.fill")
-                                        .padding(8)
-                                        .background(Color.green.opacity(0.2))
-                                        .cornerRadius(8)
-                                }
-                                Button {
-                                    forumManager.escalateToConsult(postID: post.id, studentID: post.authorEmail, topic: post.topic, assignmentID: "", completion: { success in
-                                        alertMessage = success ? "Post escalated to consult!" : "Failed to escalate."
-                                        showAlert = true
-                                    })
-                                } label: {
-                                    Label("Escalate to Consult", systemImage: "arrowshape.turn.up.right.circle.fill")
-                                        .padding(8)
-                                        .background(Color.blue.opacity(0.2))
-                                        .cornerRadius(8)
-                                }
-                            }
-                            .padding(.vertical, 8)
-                        }
                     }
                     .padding()
                     .background(

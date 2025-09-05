@@ -2,17 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>GIDClientID</key>
-	<string>1:371165767216-ios-4c6e3c290951d23c4caff5.apps.googleusercontent.com</string>
-	<key>CLIENT_ID</key>
-	<string>1:371165767216-ios-4c6e3c290951d23c4caff5.apps.googleusercontent.com</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>com.googleusercontent.apps.1:371165767216-ios-4c6e3c290951d23c4caff5</string>
-		</dict>
-	</array>
 	<key>NSCalendarsUsageDescription - 2</key>
 	<string>labX requires calendar access to block your consultations in your calendar, as well as update the timings of your pre-booked events(No other information, just the timings) to ensure you are not double-booking events.</string>
 </dict>

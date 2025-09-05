@@ -8,37 +8,13 @@
 import Foundation
 
 struct consultation: Identifiable, Decodable, Encodable {
-    var id: String
+    var id: String 
     var teacher: staff
     var date: Date
     var comment: String
     var student: String
     var status: String?
     var location: String
-    // New fields for advanced consult features
-    var topic: String?
-    var topicID: String?
-    var assignmentId: String?
-    var assignmentID: String?
-    var prepMaterialUrls: [String]?
-    var approvalStatus: String? // pending, approved, denied
-    var justification: String?
-    var outcomeTags: [String]?
-    var summary: String?
-    var reflectionPrompt: String?
-    var reflectionResponse: String?
-    var reflectionResponses: [String]?
-    var microCheckResponses: [String]?
-    var auditTrail: [AuditLog]?
-    var schoolId: String?
-}
-
-struct AuditLog: Codable {
-    var actorID: String
-    var action: String
-    var targetID: String
-    var timestamp: Date
-    var role: String
 }
 
 struct User: Identifiable, Codable {

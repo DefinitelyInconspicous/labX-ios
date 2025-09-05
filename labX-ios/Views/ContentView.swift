@@ -63,55 +63,42 @@ struct ContentView: View {
                 Label("Home", systemImage: "house")
             }
             
-
-            if let user = userManager.user,
-               user.className == "Staff",
-               user.registerNumber == "Staff" {
-                NavigationStack {
-                    Group {
-                        if let user = userManager.user, user.className == "Staff" {
-                            BookingMain()
-                        } else if bookingmaintanence == true {
-                            VStack(spacing: 12) {
-                                Image(systemName: "wrench.and.screwdriver.fill")
-                                    .font(.system(size: 60))
-                                    .foregroundColor(.orange)
-                                Text("Lab Booking Under Maintenance")
-                                    .font(.title)
-                                    .fontWeight(.semibold)
-                                Text("We apologise for the inconvenience.\n Please check back later.")
-                                    .foregroundColor(.gray)
-                            }
-                        } else {
-                            VStack(spacing: 12) {
-                                Spacer()
-                                Image(systemName: "lock.shield")
-                                    .font(.system(size: 40))
-                                    .foregroundColor(.gray)
-                                Text("Access Restricted")
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.gray)
-                                Text("Only staff members can access lab booking")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                Spacer()
-                            }
+            NavigationStack {
+                Group {
+                    if let user = userManager.user, user.className == "Staff" {
+                        BookingMain()
+                    } else if bookingmaintanence == true {
+                        VStack(spacing: 12) {
+                            Image(systemName: "wrench.and.screwdriver.fill")
+                                .font(.system(size: 60))
+                                .foregroundColor(.orange)
+                            Text("Lab Booking Under Maintenance")
+                                .font(.title)
+                                .fontWeight(.semibold)
+                            Text("We apologise for the inconvenience.\n Please check back later.")
+                                .foregroundColor(.gray)
+                        }
+                    } else {
+                        VStack(spacing: 12) {
+                            Spacer()
+                            Image(systemName: "lock.shield")
+                                .font(.system(size: 40))
+                                .foregroundColor(.gray)
+                            Text("Access Restricted")
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.gray)
+                            Text("Only staff members can access lab booking")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            Spacer()
                         }
                     }
                 }
-                .tabItem {
-                    Label("Lab Booking", systemImage: "building.2")
-                }
-                
-                NavigationStack {
-                    StaffDashboardView()
-                }
-                .tabItem {
-                    Label("Dashboard", systemImage: "chart.bar.doc.horizontal")
-                }
             }
-
+            .tabItem {
+                Label("Lab Booking", systemImage: "building.2")
+            }
             NavigationStack {
                 ForumMainView()
             }

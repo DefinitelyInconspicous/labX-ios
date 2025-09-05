@@ -201,23 +201,6 @@ struct LoginView: View {
                         .sheet(isPresented: $resetPasswordSheetShowing) {
                             ForgotPassword(email: $email)
                         }
-//                        // Google Sign-In Button
-//                        Button {
-//                            signInWithGoogle()
-//                        } label: {
-//                            HStack {
-//                                Image(systemName: "globe")
-//                                    .foregroundColor(.white)
-//                                Text("Sign in with Google")
-//                                    .bold()
-//                                    .foregroundColor(.white)
-//                            }
-//                            .frame(maxWidth: .infinity)
-//                            .padding()
-//                            .background(Color.red)
-//                            .cornerRadius(10)
-//                        }
-//                        .padding(.top, 8)
                     }
                     .padding(.horizontal)
                 }
@@ -266,65 +249,38 @@ struct LoginView: View {
     }
     
     private func handleAuthentication() {
-        print("Handling auth")
-        // Validate email and password
         validateEmail(email)
         validatePassword(password)
         
-        guard isEmailValid && isPasswordValid else {
-            showAlert = true // Show error alert if validation fails
-            return
-        }
-        
-        let emailLowercased = email.lowercased()
-        
-        // If email is in bypass list, skip verification entirely
-        let isBypassEmail = bypassEmails.contains(emailLowercased)
-        
-        if isRegistering {
-            // Registration flow
-            print("isregistering")
-            guard !firstName.isEmpty && !lastName.isEmpty else {
-                errorMessage = "Please enter your full name"
-                showAlert = true
-                return
-            }
-            
-            guard password == confirmPassword else {
-                errorMessage = "Passwords do not match"
-                showAlert = true
-                return
-            }
-            
-            AuthManager.shared.signUp(email: email, password: password) { error in
-                print("Signed up callback")
-                DispatchQueue.main.async {
+        if isEmailValid && isPasswordValid {
+            if isRegistering {
+                guard !firstName.isEmpty && !lastName.isEmpty else {
+                    errorMessage = "Please enter your full name"
+                    showAlert = true
+                    return
+                }
+                
+                guard password == confirmPassword else {
+                    errorMessage = "Passwords do not match"
+                    showAlert = true
+                    return
+                }
+                
+                AuthManager.shared.signUp(email: email, password: password) { error in
                     if let error = error {
                         errorMessage = error.localizedDescription
-                        print("Error during signup: \(error.localizedDescription)")
                         showAlert = true
                     } else {
-                        print("checking email")
-                        if isBypassEmail {
-                            // Skip verification for bypass emails
-                            print("bypass email detected")
-                            isEmailVerified = true
+                        if bypassEmails.contains(email.lowercased()) {
                             showVerificationSheet = false
-                               return
                         } else {
-                            // Normal verification
-                            print("normal email detected")
                             showVerificationSheet = true
                             verificationMessage = "A verification email has been sent. Please check your inbox and verify your email before logging in."
                         }
                     }
                 }
-            }
-            
-        } else {
-            // Login flow
-            AuthManager.shared.signIn(email: email, password: password) { error in
-                DispatchQueue.main.async {
+            } else {
+                AuthManager.shared.signIn(email: email, password: password) { error in
                     if let error = error as NSError? {
                         switch error.code {
                         case AuthErrorCode.wrongPassword.rawValue:
@@ -337,13 +293,11 @@ struct LoginView: View {
                             errorMessage = error.localizedDescription
                         }
                         showAlert = true
-                        return
-                    }
-                    
-                    // If login succeeds
-                    if isBypassEmail {
-                        isEmailVerified = true
-                        showVerificationSheet = false
+                        if errorMessage.contains("verify your email") &&
+                            !bypassEmails.contains(email.lowercased()) {
+                            showVerificationSheet = true
+                            verificationMessage = "Please verify your email before logging in."
+                        }
                     } else {
                         AuthManager.shared.checkEmailVerified { verified in
                             DispatchQueue.main.async {
@@ -359,7 +313,6 @@ struct LoginView: View {
             }
         }
     }
-
     
     
     private func validateEmail(_ email: String) {
@@ -399,22 +352,6 @@ struct LoginView: View {
                         verificationMessage = "Please verify your email before logging in."
                     }
                 }
-            }
-        }
-    }
-    
-    private func signInWithGoogle() {
-        guard let rootVC = UIApplication.shared.connectedScenes
-            .compactMap({ ($0 as? UIWindowScene)?.keyWindow?.rootViewController })
-            .first else {
-            errorMessage = "Unable to get root view controller."
-            showAlert = true
-            return
-        }
-        AuthManager.shared.signInWithGoogle(presentingViewController: rootVC) { error in
-            if let error = error {
-                errorMessage = error.localizedDescription
-                showAlert = true
             }
         }
     }
