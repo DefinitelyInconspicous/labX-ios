@@ -177,6 +177,7 @@ struct RescheduleView: View {
                 reason: rescheduleReason,
                 rescheduledBy: consultation.teacher.email
             )
+
             
             if success {
                 // Check if email is available before attempting to send

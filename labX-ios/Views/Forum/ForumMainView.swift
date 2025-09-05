@@ -15,7 +15,8 @@ struct ForumMainView: View {
     @State private var sortType: SortType = .mostUpvoted
     @State private var showTipSheet = false
     
-    let topics = ["Physics", "Chemistry", "Biology"]
+    let topics = ["physics", "chemistry", "biology"]
+    let topicDisplayNames = ["Physics", "Chemistry", "Biology"]
     
     enum SortType: String, CaseIterable, Identifiable {
         case mostUpvoted = "Most Upvoted"
@@ -58,15 +59,15 @@ struct ForumMainView: View {
                 // Topic Picker
                 Picker("Topic", selection: $selectedTopic) {
                     Text("All").tag("")
-                    ForEach(topics, id: \.self) { topic in
-                        Text(topic).tag(topic)
+                    ForEach(topics.indices, id: \ .self) { idx in
+                        Text(topicDisplayNames[idx]).tag(topics[idx])
                     }
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
                 .padding(.top, 8)
                 .onChange(of: selectedTopic) { newTopic in
-                    forumManager.fetchPosts(topic: newTopic)
+                    forumManager.fetchPosts(topic: newTopic.trimmingCharacters(in: .whitespacesAndNewlines).lowercased())
                 }
                 
                 // Sorting Picker
@@ -100,13 +101,12 @@ struct ForumMainView: View {
                             )
                         ) {
                             VStack(alignment: .leading, spacing: 8) {
-                                                            
                                 Text(post.topic)
                                     .font(.caption)
                                     .foregroundColor(.blue)
                                     .fontWeight(.semibold)
                                 
-                                Text(post.content)
+                                Text(post.title.isEmpty ? "Untitled" : post.title)
                                     .font(.body)
                                     .foregroundColor(.primary)
                                     .lineLimit(2)
