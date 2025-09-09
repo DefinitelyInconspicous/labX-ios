@@ -22,7 +22,7 @@ struct SplashScreenView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 180, height: 180)
-                    .cornerRadius(20)
+                    .cornerRadius(45)
                     .opacity(logoOpacity)
                 
                 Text("labX")
@@ -50,7 +50,6 @@ struct SplashScreenView: View {
         .onAppear {
             let impactFeedback = UIImpactFeedbackGenerator(style: .heavy)
             impactFeedback.impactOccurred()
-            
             withAnimation(.easeOut(duration: 1.0)) {
                 logoOpacity = 1.0
             }

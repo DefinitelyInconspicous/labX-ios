@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
 
 struct ForumPostView: View {
     let post: ForumPost
@@ -14,6 +15,9 @@ struct ForumPostView: View {
     @State private var newComment = ""
     @State private var showAlert = false
     @State private var alertMessage = ""
+    @State private var showReportView = false
+    @State var reportMessage = ""
+    @State var submitReport = false
     
     // Track the current user's vote for this post
     @State private var userVote: Int = 0
@@ -83,6 +87,12 @@ struct ForumPostView: View {
                                     .font(.caption2)
                                     .foregroundColor(.secondary)
                             }
+                        }
+                        Button {
+                            reportComment(commentID: post.id)
+                        } label: {
+                            Image(systemName: "flag")
+                                .foregroundColor(.red)
                         }
                     }
                     .padding()
@@ -164,11 +174,37 @@ struct ForumPostView: View {
         }
         .navigationTitle("Post Details")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showReportView) {
+            ForumReportView(reason: $reportMessage, postID: .constant(post.id), submitReport: $submitReport)
+        }
         .onAppear {
             forumManager.fetchComments(for: post.id)
             currentVoteCount = post.vote
             userVote = forumManager.getUserVote(for: post.id)
         }
+        .onChange(of: submitReport) { newValue in
+            if newValue {
+                let db = Firestore.firestore()
+                db.collection("reportedComments").addDocument(data: [
+                    "commentID": post.id,
+                    "postID": post.id,
+                    "reason": reportMessage,
+                    "reportedAt": Timestamp(date: Date()),
+                    "reporter": user?.email ?? "Unknown"
+                ]) { error in
+                    if let error = error {
+                        alertMessage = "Failed to report: \(error.localizedDescription)"
+                    } else {
+                        alertMessage = "Comment reported successfully."
+                    }
+                    showAlert = true
+                    showReportView = false
+                    submitReport = false
+                    reportMessage = ""
+                }
+            }
+        }
+
         .alert(isPresented: $showAlert) {
             if alertMessage.contains("delete this post") {
                 return Alert(
@@ -204,7 +240,7 @@ struct ForumPostView: View {
         if userVote == delta {
             currentVoteCount -= delta
             userVote = 0
-            forumManager.votePost(postID: post.id, delta: 0) // implement "remove vote" on backend
+            forumManager.votePost(postID: post.id, delta: 0)
         } else {
             currentVoteCount += delta - userVote
             userVote = delta
@@ -225,7 +261,31 @@ struct ForumPostView: View {
             }
         }
     }
+private func reportComment(commentID: String) {
+        let db = Firestore.firestore()
+        
+        db.collection("reportedComments")
+            .whereField("commentID", isEqualTo: commentID)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error checking reported comments: \(error.localizedDescription)")
+                    return
+                }
+                
+                if let documents = snapshot?.documents, !documents.isEmpty {
+                    alertMessage = "This comment has already been reported."
+                    showAlert = true
+                } else {
+                    // Open the sheet
+                    showReportView = true
+                }
+            }
+    }
+
+
+    
 }
+
 
 
 #Preview {
