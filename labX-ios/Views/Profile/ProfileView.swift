@@ -20,17 +20,22 @@ struct ProfileView: View {
     @State private var resetPasswordSheetShowing = false
     @State private var showDeleteConfirm = false
     @State private var isUnderMaintenance = false
+    @State private var showDevSheet = false
     @StateObject private var auth = AuthManager.shared
     
     var body: some View {
         NavigationStack {
             HStack {
-                Image(systemName: "person.crop.circle.fill")
-                    .resizable()
-                    .frame(width: 100, height: 100)
-                    .foregroundColor(.blue)
-                    .padding()
-                Spacer()
+                Button {
+                    showCredits = true
+                } label: {
+                    Image(systemName: "person.crop.circle.fill")
+                        .resizable()
+                        .frame(width: 100, height: 100)
+                        .foregroundColor(.blue)
+                        .padding()
+                    Spacer()
+                }
             }
             
             Form {
@@ -76,32 +81,7 @@ struct ProfileView: View {
                         }
                     }
                 }
-                if auth.user?.email == "avyan_mehra@s2023.ssts.edu.sg" {
-                Section("Dev Options") {
-                    Button {
-                        unlockApp()
-                    } label: {
-                        Text("Unlock App for Everyone")
-                            .padding()
-                            .foregroundColor(.white)
-                            .background(Color.blue)
-                            .cornerRadius(10)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                    }
-                    Button(role: .destructive) {
-                        lockApp()
-                    } label: {
-                        Text("Lock App for Everyone")
-                            .padding()
-                            .foregroundColor(.white)
-                            .background(Color.blue)
-                            .cornerRadius(10)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                    }
-                }
-                }
+
                 Section {
                     
                     Button {
@@ -134,7 +114,7 @@ struct ProfileView: View {
                     }
                 }
             }
-        
+            
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -145,17 +125,17 @@ struct ProfileView: View {
                         Image(systemName: "pencil")
                     }
                 }
-                
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        showCredits = true
-                    } label: {
-                        Image(systemName: "person.2.fill")
+                if auth.user?.email == "avyan_mehra@s2023.ssts.edu.sg" {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            showDevSheet = true
+                        } label: {
+                            Image(systemName: "apple.terminal.circle.fill")
+                        }
                     }
-                    
                 }
             }
-            }
+        }
         .sheet(isPresented: $showEditSheet) {
             EditProfileView(user: user) { updatedUser, message in
                 self.user = updatedUser
@@ -167,22 +147,26 @@ struct ProfileView: View {
             Credits()
         }
         
+        .sheet(isPresented: $showDevSheet) {
+            DevOptions()
+        }
+        
         .alert(isPresented: $showAlert) {
             Alert(title: Text("Status"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }
         .alert("Delete Account?",
                isPresented: $showDeleteConfirm,
                actions: {
-                   Button("Cancel", role: .cancel) { }
-                   Button("Delete", role: .destructive) {
-                       Task {
-                           await DeleteAccount(docID: user.id)
-                       }
-                   }
-               },
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                Task {
+                    await DeleteAccount(docID: user.id)
+                }
+            }
+        },
                message: {
-                   Text("This action cannot be undone. Are you sure you want to delete your account?")
-               })
+            Text("This action cannot be undone. Are you sure you want to delete your account?")
+        })
         .onAppear {
             loadUserData()
         }
@@ -224,35 +208,7 @@ struct ProfileView: View {
         }
     }
     
-    func unlockApp() {
-        let db = Firestore.firestore()
-        db.collection("settings").document("maintanence").setData(["status": false], merge: true) { error in
-            if let error = error {
-                print("Failed to update status: \(error.localizedDescription)")
-                alertMessage = "Failed to update status: \(error.localizedDescription)"
-                showAlert = true
-            } else {
-                print("Maintenance mode disabled by admin")
-                alertMessage = "Maintenance mode disabled by admin"
-                showAlert = true
-            }
-        }
-    }
-    
-    func lockApp() {
-        let db = Firestore.firestore()
-        db.collection("settings").document("maintanence").setData(["status": true], merge: true) { error in
-            if let error = error {
-                print("Failed to update status: \(error.localizedDescription)")
-                alertMessage = "Failed to update status: \(error.localizedDescription)"
-                showAlert = true
-            } else {
-                print("Maintanence Mode Enabled")
-                alertMessage = "Maintanence Mode Enabled"
-                showAlert = true
-            }
-        }
-    }
+
     
     
     func loadUserData() {
