@@ -103,7 +103,20 @@ struct ContentView: View {
                    }
                }
             NavigationStack {
-                ForumMainView()
+                if forumMaintanence == false {
+                    ForumMainView()
+                } else {
+                    VStack(spacing: 12) {
+                        Image(systemName: "wrench.and.screwdriver.fill")
+                            .font(.system(size: 60))
+                            .foregroundColor(.orange)
+                        Text("Forum is Under Maintenance")
+                            .font(.title)
+                            .fontWeight(.semibold)
+                        Text("We apologise for the inconvenience.\nPlease check back later.")
+                            .foregroundColor(.gray)
+                    }
+                }
             }
             .tabItem {
                 Label("Forum", systemImage: "text.bubble")
