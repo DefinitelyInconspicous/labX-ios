@@ -27,10 +27,8 @@ struct ForumPostView: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(spacing: 20) {
-                    
                     // Post Card
                     HStack(alignment: .top, spacing: 16) {
-                        
                         // Votes Column
                         VStack(spacing: 8) {
                             Button {
@@ -54,7 +52,6 @@ struct ForumPostView: View {
                                     .foregroundColor(userVote == -1 ? .red : .gray)
                             }
                         }
-                        
                         // Post Content
                         VStack(alignment: .leading, spacing: 8) {
                             Text(post.title.isEmpty ? "Untitled" : post.title)
@@ -228,6 +225,8 @@ struct ForumPostView: View {
                     },
                     secondaryButton: .cancel()
                 )
+            } else if alertMessage.contains("reported successfully") || alertMessage.contains("This comment has already been reported.") {
+                return Alert(title: Text("Report"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             } else {
                 return Alert(title: Text("Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }

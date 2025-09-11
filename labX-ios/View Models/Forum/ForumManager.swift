@@ -42,7 +42,6 @@ class ForumManager: ObservableObject {
     }
     // Local vote storage for comments
     private let commentVoteKey = "localCommentVotes"
-    
     // Load local votes from UserDefaults
     func loadLocalCommentVotes() {
         if let data = UserDefaults.standard.data(forKey: commentVoteKey),
@@ -70,38 +69,56 @@ class ForumManager: ObservableObject {
     
     func fetchPosts(topic: String? = nil, completion: (() -> Void)? = nil) {
         isLoading = true
-        var query: Query = db.collection("forum")
-        if let topic = topic, !topic.isEmpty {
-            query = query.whereField("topic", isEqualTo: topic)
-        }
-        query.order(by: "vote", descending: true)
-            .getDocuments { [weak self] snapshot, error in
-                DispatchQueue.main.async {
-                    self?.isLoading = false
-                    if let error = error {
-                        self?.errorMessage = error.localizedDescription
-                        self?.posts = []
-                        completion?()
-                        return
-                    }
-                    self?.posts = snapshot?.documents.compactMap { doc in
-                        let data = doc.data()
-                        return ForumPost(
-                            id: doc.documentID,
-                            title: data["title"] as? String ?? "",
-                            topic: data["topic"] as? String ?? "",
-                            content: data["content"] as? String ?? "",
-                            level: data["level"] as? String ?? "",
-                            author: data["author"] as? String ?? "",
-                            authorEmail: data["authorEmail"] as? String ?? "",
-                            vote: data["vote"] as? Int ?? 0,
-                            imageBase64: data["imageBase64"] as? String
-                        )
-                    } ?? []
-                    completion?()
-                }
+        
+        // Step 1: Fetch reported post IDs
+        db.collection("reportedComments").getDocuments { [weak self] reportedSnapshot, _ in
+            let reportedIDs: Set<String> = Set(
+                reportedSnapshot?.documents.compactMap { $0.data()["postID"] as? String } ?? []
+            )
+            
+            // Step 2: Build query for forum posts
+            var query: Query = self?.db.collection("forum") ?? Firestore.firestore().collection("forum")
+            if let topic = topic, !topic.isEmpty {
+                query = query.whereField("topic", isEqualTo: topic)
             }
+            
+            // Step 3: Fetch posts
+            query.order(by: "vote", descending: true)
+                .getDocuments { snapshot, error in
+                    DispatchQueue.main.async {
+                        self?.isLoading = false
+                        if let error = error {
+                            self?.errorMessage = error.localizedDescription
+                            self?.posts = []
+                            completion?()
+                            return
+                        }
+                        
+                        self?.posts = snapshot?.documents.compactMap { doc in
+                            // Skip if this post was reported
+                            if reportedIDs.contains(doc.documentID) {
+                                return nil
+                            }
+                            let data = doc.data()
+                            return ForumPost(
+                                id: doc.documentID,
+                                title: data["title"] as? String ?? "",
+                                topic: data["topic"] as? String ?? "",
+                                content: data["content"] as? String ?? "",
+                                level: data["level"] as? String ?? "",
+                                author: data["author"] as? String ?? "",
+                                authorEmail: data["authorEmail"] as? String ?? "",
+                                vote: data["vote"] as? Int ?? 0,
+                                imageBase64: data["imageBase64"] as? String
+                            )
+                        } ?? []
+                        
+                        completion?()
+                    }
+                }
+        }
     }
+
     
     func getUserVote(for postID: String) -> Int {
         userVotes[postID] ?? 0
