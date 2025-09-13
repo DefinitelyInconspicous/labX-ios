@@ -350,6 +350,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "labX-ios/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = labX;
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "labX requires calendar access for consultations";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -386,6 +387,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "labX-ios/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = labX;
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "labX requires calendar access for consultations";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
