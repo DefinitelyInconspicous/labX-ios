@@ -87,9 +87,6 @@ struct ForumPostView: View {
                                         ForumCommentView(comment: comment,
                                                          forumManager: forumManager,
                                                          user: user)
-                                        .padding(8)
-                                        .background(.gray.opacity(0.1),
-                                                    in: RoundedRectangle(cornerRadius: 10))
                                     }
                                 }
                             }
@@ -123,7 +120,6 @@ struct ForumPostView: View {
             .navigationTitle("Post")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                if let user = user, user.email != post.authorEmail {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button {
                             reportComment(commentID: post.id)
@@ -132,7 +128,6 @@ struct ForumPostView: View {
                                 .foregroundStyle(.red)
                         }
                     }
-                }
                 if let user = user, user.email == post.authorEmail {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         
@@ -142,6 +137,7 @@ struct ForumPostView: View {
                         } label: {
                             Label("Delete Post", systemImage: "trash")
                                 .frame(maxWidth: .infinity)
+                                .foregroundStyle(.red)
                         }
                     }
                 }
@@ -161,8 +157,6 @@ struct ForumPostView: View {
             }
         }
     }
-    
-    // MARK: - Extracted Components
     private func makeAlert() -> Alert {
         if alertMessage.contains("delete this post") {
             return Alert(

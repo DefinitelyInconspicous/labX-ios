@@ -49,6 +49,7 @@ struct ForumReportView: View {
                 .buttonStyle(.borderedProminent)
                 .tint(.red)
                 .padding(.horizontal)
+                Spacer()
             }
             .padding(.top, 20)
             .navigationTitle("Report Post")

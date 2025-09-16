@@ -21,10 +21,6 @@ struct ForumMainView: View {
         case mostUpvoted = "Most Upvoted"
         case leastUpvoted = "Least Upvoted"
         case mostRecent = "Most Recent"
-        case titleAZ = "Title A-Z"
-        case titleZA = "Title Z-A"
-        case authorAZ = "Author A-Z"
-        case authorZA = "Author Z-A"
         var id: String { rawValue }
     }
     
@@ -40,14 +36,6 @@ struct ForumMainView: View {
             posts.sort { $0.vote < $1.vote }
         case .mostRecent:
             posts.sort { $0.id > $1.id }
-        case .titleAZ:
-            posts.sort { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
-        case .titleZA:
-            posts.sort { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedDescending }
-        case .authorAZ:
-            posts.sort { $0.author.localizedCaseInsensitiveCompare($1.author) == .orderedAscending }
-        case .authorZA:
-            posts.sort { $0.author.localizedCaseInsensitiveCompare($1.author) == .orderedDescending }
         }
         return posts
     }
@@ -106,7 +94,7 @@ struct ForumMainView: View {
                                     .foregroundColor(.blue)
                                     .fontWeight(.semibold)
                                 
-                                Text(post.content)
+                                Text(post.title)
                                     .font(.body)
                                     .foregroundColor(.primary)
                                     .lineLimit(2)

@@ -68,29 +68,29 @@ struct DetailView: View {
                     }
                     
                     // Consultation Info
-                    List {
-                        Section(header: Text("Consultation Details")) {
-                            HStack {
-                                Image(systemName: "person.circle.fill")
-                                    .foregroundColor(.blue)
-                                Text(consultation.teacher.name)
-                                    .font(.headline)
-                            }
-                            
-                            HStack {
-                                Image(systemName: "calendar")
-                                Text(consultation.date.formatted(date: .long, time: .shortened))
-                            }
-                            
-                            if !consultation.comment.isEmpty {
-                                HStack(alignment: .top) {
-                                    Image(systemName: "text.bubble")
-                                    Text(consultation.comment)
+                        List {
+                            Section(header: Text("Consultation Details")) {
+                                HStack {
+                                    Image(systemName: "person.circle.fill")
+                                        .foregroundColor(.blue)
+                                    Text(consultation.teacher.name)
+                                        .font(.headline)
+                                }
+                                
+                                HStack {
+                                    Image(systemName: "calendar")
+                                    Text(consultation.date.formatted(date: .long, time: .shortened))
+                                }
+                                
+                                if !consultation.comment.isEmpty {
+                                    HStack(alignment: .top) {
+                                        Image(systemName: "text.bubble")
+                                        Text(consultation.comment)
+                                    }
                                 }
                             }
-                        }
                     }
-                    .frame(height: 300)
+                    
                     // Calendar
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Your Calendar")
@@ -188,11 +188,12 @@ struct DetailView: View {
                     }
                 }
                 .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
+                    ToolbarItem(placement: .navigationBarTrailing) {
                         Button(role: .destructive) {
                             cancelConsultation()
                         } label: {
                             Image(systemName: "trash")
+                                .foregroundStyle(.red)
                         }
                     }
                 }

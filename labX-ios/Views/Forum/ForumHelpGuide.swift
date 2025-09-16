@@ -35,7 +35,7 @@ struct ForumHelpGuide: View {
                             .padding(.horizontal)
                         VStack(spacing: 12) {
                             ForumStepCard(number: 1, title: "Filter by Topic", description: "Use the topic picker at the top to filter posts by subject.", icon: "line.3.horizontal.decrease.circle")
-                            ForumStepCard(number: 2, title: "Sort Posts", description: "Sort posts using the sort menu for upvotes, recency, title, or author.", icon: "arrow.up.arrow.down.circle")
+                            ForumStepCard(number: 2, title: "Sort Posts", description: "Sort posts using the sort menu for upvotes or recency", icon: "arrow.up.arrow.down.circle")
                             ForumStepCard(number: 3, title: "Create a Post", description: "Tap the plus button to create a new post and share your question or idea.", icon: "plus.circle")
                             ForumStepCard(number: 4, title: "Vote & Comment", description: "Vote and comment on posts to join the discussion and help others.", icon: "hand.thumbsup.circle")
                         }
