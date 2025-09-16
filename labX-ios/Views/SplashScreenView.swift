@@ -33,7 +33,7 @@ struct SplashScreenView: View {
                 Spacer()
                 
                 VStack(spacing: 4) {
-                    Text("Release 1.1.2")
+                    Text("Release 1.2.0")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                         .opacity(versionOpacity)
@@ -53,10 +53,10 @@ struct SplashScreenView: View {
             withAnimation(.easeOut(duration: 1.0)) {
                 logoOpacity = 1.0
             }
-            withAnimation(.easeOut(duration: 1.0).delay(0.5)) {
+            withAnimation(.easeOut(duration: 1.0)) {
                 textOpacity = 1.0
             }
-            withAnimation(.easeOut(duration: 1.0).delay(1.0)) {
+            withAnimation(.easeOut(duration: 1.0)) {
                 versionOpacity = 1.0
             }
         }

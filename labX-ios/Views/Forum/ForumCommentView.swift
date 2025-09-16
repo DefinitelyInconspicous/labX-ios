@@ -56,24 +56,6 @@ struct ForumCommentView: View {
                 Text("\(currentVoteCount)")
                     .font(.caption2)
                     .foregroundColor(.gray)
-                Button(action: {
-                    guard let _ = user, !isVoting else { return }
-                    isVoting = true
-                    if localUserVote == -1 {
-                        currentVoteCount += 1
-                        forumManager.voteComment(commentID: comment.id, delta: 0)
-                        localUserVote = 0
-                    } else {
-                        currentVoteCount -= 1 + localUserVote
-                        forumManager.voteComment(commentID: comment.id, delta: -1)
-                        localUserVote = -1
-                    }
-                    isVoting = false
-                }) {
-                    Image(systemName: "arrow.down")
-                        .foregroundColor(user == nil ? .gray : (localUserVote == -1 ? .red : .gray))
-                }
-                .disabled(user == nil || isVoting)
             }
             .padding(.horizontal, 4)
         }
