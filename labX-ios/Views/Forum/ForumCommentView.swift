@@ -6,11 +6,42 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
+
+extension UserManager {
+    func fetchUser(byEmail email: String, completion: @escaping (User?) -> Void) {
+        let db = Firestore.firestore()
+        db.collection("users").whereField("email", isEqualTo: email).getDocuments { snapshot, error in
+            if let error = error {
+                print("Error fetching user by email: \(error)")
+                completion(nil)
+                return
+            }
+            if let doc = snapshot?.documents.first {
+                let data = doc.data()
+                let user = User(
+                    id: doc.documentID,
+                    firstName: data["firstName"] as? String ?? "",
+                    lastName: data["lastName"] as? String ?? "",
+                    email: data["email"] as? String ?? "",
+                    className: data["className"] as? String ?? "",
+                    registerNumber: data["registerNumber"] as? String ?? "",
+                    profilePicture: data["profilePicture"] as? String
+                )
+                completion(user)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+}
 
 struct ForumCommentView: View {
     let comment: ForumComment
     @ObservedObject var forumManager: ForumManager
-    let user: User?
+    @ObservedObject var userManager: UserManager
+    @State private var authorUser: User? = nil
+
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var isVoting = false
@@ -19,7 +50,31 @@ struct ForumCommentView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            // Left: Author + Comment content
+            // Left: Author profile pic
+            if let base64 = authorUser?.profilePicture,
+               !base64.isEmpty,
+               let data = Data(base64Encoded: base64),
+               let uiImage = UIImage(data: data) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 36, height: 36)
+                    .clipShape(Circle())
+                    .onAppear {
+                        print("profile pic found")
+                    }
+            } else {
+                Image(systemName: "person.circle.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 36, height: 36)
+                    .foregroundColor(.gray)
+                    .onAppear {
+                        print("no profile pic found")
+                    }
+            }
+
+            // Middle: Author + Comment
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text(comment.author)
@@ -32,11 +87,13 @@ struct ForumCommentView: View {
                     .foregroundColor(.primary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+
             Spacer()
-            // Right: Voting section
+
+            // Right: Voting
             VStack(spacing: 4) {
                 Button(action: {
-                    guard let _ = user, !isVoting else { return }
+                    guard userManager.user != nil, !isVoting else { return }
                     isVoting = true
                     if localUserVote == 1 {
                         currentVoteCount -= 1
@@ -50,9 +107,10 @@ struct ForumCommentView: View {
                     isVoting = false
                 }) {
                     Image(systemName: "arrow.up")
-                        .foregroundColor(user == nil ? .gray : (localUserVote == 1 ? .green : .gray))
+                        .foregroundColor(userManager.user == nil ? .gray : (localUserVote == 1 ? .green : .gray))
                 }
-                .disabled(user == nil || isVoting)
+                .disabled(userManager.user == nil || isVoting)
+
                 Text("\(currentVoteCount)")
                     .font(.caption2)
                     .foregroundColor(.gray)
@@ -63,39 +121,20 @@ struct ForumCommentView: View {
         .background(.gray.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
-        .alert(isPresented: $showAlert) {
-            Alert(title: Text("Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
-        }
         .onAppear {
+            // Fetch author profile
+            userManager.fetchUser(byEmail: comment.authorEmail) { fetched in
+                self.authorUser = fetched
+            }
+
             localUserVote = forumManager.getUserVoteForComment(comment.id)
             currentVoteCount = comment.vote
         }
-        .onChange(of: forumManager.commentUserVotes[comment.id]) { newVote in
+        .onChange(of: forumManager.commentUserVotes[comment.id]) { _, newVote in
             localUserVote = newVote ?? 0
         }
-        .onChange(of: comment.vote) { newVote in
+        .onChange(of: comment.vote) { _, newVote in
             currentVoteCount = newVote
         }
     }
-}
-
-#Preview {
-    ForumCommentView(
-        comment: ForumComment(
-            id: "1",
-            postID: "1",
-            author: "StudentB",
-            comment: "Great explanation!",
-            vote: 3
-        ),
-        forumManager: ForumManager(),
-        user: User(
-            id: "1",
-            firstName: "John",
-            lastName: "Doe",
-            email: "john_doe@s2023.ssts.edu.sg",
-            className: "S1-01",
-            registerNumber: "1"
-        )
-    )
 }

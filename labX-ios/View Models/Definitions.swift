@@ -24,6 +24,7 @@ struct User: Identifiable, Codable {
     var email: String
     var className: String
     var registerNumber: String
+    var profilePicture: String? // base64 encoded image
 }
 
 struct staff: Identifiable, Equatable, Hashable, Encodable, Decodable {

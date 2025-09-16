@@ -29,11 +29,22 @@ struct ProfileView: View {
                 Button {
                     showCredits = true
                 } label: {
-                    Image(systemName: "person.crop.circle.fill")
-                        .resizable()
-                        .frame(width: 100, height: 100)
-                        .foregroundColor(.blue)
-                        .padding()
+                    if let base64 = user.profilePicture, !base64.isEmpty,
+                       let data = Data(base64Encoded: base64),
+                       let uiImage = UIImage(data: data) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.gray, lineWidth: 2))
+                            .padding()
+                    } else {
+                        Image(systemName: "person.crop.circle.fill")
+                            .resizable()
+                            .frame(width: 100, height: 100)
+                            .foregroundColor(.blue)
+                            .padding()
+                    }
                     Spacer()
                 }
             }
@@ -216,12 +227,13 @@ struct ProfileView: View {
         let db = Firestore.firestore()
         db.collection("users").document(uid).getDocument { snapshot, error in
             if let data = snapshot?.data() {
+                let profilePicture = data["profilePicture"] as? String
                 if let firstName = data["firstName"] as? String,
                    let lastName = data["lastName"] as? String,
                    let email = data["email"] as? String,
                    let className = data["className"] as? String,
                    let registerNumber = data["registerNumber"] as? String {
-                    user = User(id: uid, firstName: firstName, lastName: lastName, email: email, className: className, registerNumber: registerNumber)
+                    user = User(id: uid, firstName: firstName, lastName: lastName, email: email, className: className, registerNumber: registerNumber, profilePicture: profilePicture)
                 }
             }
         }

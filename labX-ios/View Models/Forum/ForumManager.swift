@@ -25,6 +25,7 @@ struct ForumComment: Identifiable, Codable {
     var id: String
     var postID: String
     var author: String
+    var authorEmail: String
     var comment: String
     var vote: Int
 }
@@ -181,6 +182,7 @@ class ForumManager: ObservableObject {
                             id: doc.documentID,
                             postID: data["PostID"] as? String ?? "",
                             author: data["Author"] as? String ?? "",
+                            authorEmail: data["AuthorEmail"] as? String ?? "",
                             comment: data["comment"] as? String ?? "",
                             vote: data["vote"] as? Int ?? 0
                         )
@@ -198,10 +200,11 @@ class ForumManager: ObservableObject {
         ref.updateData(["vote": FieldValue.increment(Int64(increment))])
     }
     
-    func createComment(postID: String, author: String, comment: String, completion: @escaping (Bool) -> Void) {
+    func createComment(postID: String, author: String, authorEmail: String, comment: String, completion: @escaping (Bool) -> Void) {
         let data: [String: Any] = [
             "PostID": postID,
             "Author": author,
+            "AuthorEmail": authorEmail,
             "comment": comment,
             "vote": 0
         ]

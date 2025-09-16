@@ -30,7 +30,8 @@ class UserManager: ObservableObject {
                     lastName: data?["lastName"] as? String ?? "",
                     email: email,
                     className: data?["className"] as? String ?? "",
-                    registerNumber: data?["registerNumber"] as? String ?? ""
+                    registerNumber: data?["registerNumber"] as? String ?? "",
+                    profilePicture: data?["profilePicture"] as? String
                 )
             } else {
                 // New user, create their document
@@ -40,7 +41,8 @@ class UserManager: ObservableObject {
                     "lastName": "",
                     "email": email,
                     "className": isStaff ? "Staff" : "",
-                    "registerNumber": isStaff ? "Staff" : ""
+                    "registerNumber": isStaff ? "Staff" : "",
+                    "profilePicture": ""
                 ]
                 
                 db.collection("users").document(currentUser.uid).setData(userData) { error in
@@ -53,7 +55,8 @@ class UserManager: ObservableObject {
                             lastName: "",
                             email: email,
                             className: isStaff ? "Staff" : "",
-                            registerNumber: isStaff ? "Staff" : ""
+                            registerNumber: isStaff ? "Staff" : "",
+                            profilePicture: ""
                         )
                     }
                 }
@@ -63,5 +66,3 @@ class UserManager: ObservableObject {
 
 
 }
-
-

@@ -12,6 +12,7 @@ struct ForumPostView: View {
     let post: ForumPost
     let user: User?
     @StateObject private var forumManager = ForumManager()
+    @StateObject private var userManager = UserManager()
     @State private var newComment = ""
     @State private var showAlert = false
     @State private var alertMessage = ""
@@ -86,7 +87,7 @@ struct ForumPostView: View {
                                     ForEach(forumManager.comments) { comment in
                                         ForumCommentView(comment: comment,
                                                          forumManager: forumManager,
-                                                         user: user)
+                                                         userManager: userManager)
                                     }
                                 }
                             }
@@ -130,7 +131,6 @@ struct ForumPostView: View {
                     }
                 if let user = user, user.email == post.authorEmail {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        
                         Button(role: .destructive) {
                             showAlert = true
                             alertMessage = "Are you sure you want to delete this post? This action cannot be undone."
@@ -224,7 +224,7 @@ struct ForumPostView: View {
     private func postComment() {
         guard let user = user else { return }
         let authorName = "\(user.firstName) \(user.lastName)"
-        forumManager.createComment(postID: post.id, author: authorName, comment: newComment) { success in
+        forumManager.createComment(postID: post.id, author: authorName, authorEmail: user.email, comment: newComment) { success in
             if success {
                 newComment = ""
                 forumManager.fetchComments(for: post.id)
@@ -253,9 +253,6 @@ struct ForumPostView: View {
                 }
             }
     }
-    
-    
-    
 }
 
 
