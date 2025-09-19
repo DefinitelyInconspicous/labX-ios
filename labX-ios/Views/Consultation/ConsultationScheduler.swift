@@ -5,7 +5,6 @@
 //  Created by Avyan Mehra on 2/7/25.
 //
 
-
 import SwiftUI
 import EventKit
 import FirebaseFirestore
@@ -27,7 +26,6 @@ struct ConsultationScheduler: View {
     @State private var showEmailSetupGuide = false
     @Environment(\.dismiss) private var dismiss
 
-    
     let locations = [
         "Outside Staffroom", "Classroom", "Outside Labs (Level 1)",
         "Outside Labs (Level 2)", "Online"
@@ -50,8 +48,6 @@ struct ConsultationScheduler: View {
     
     var body: some View {
         NavigationStack {
-         
-
             Form {
                 Section {
                     HStack {
@@ -106,40 +102,66 @@ struct ConsultationScheduler: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 10) {
-                        ForEach(chunked(timeSlots, size: 3), id: \.self) { row in
-                            HStack(spacing: 10) {
-                                ForEach(row, id: \.self) { slot in
-                                    let isBooked = isSlotBooked(slot)
-                                    Button(action: {
-                                        if !isBooked {
-                                            handleTimeSlotSelection(slot)
+                        if #available(iOS 26.0, *) {
+                            GlassEffectContainer {
+                                ForEach(chunked(timeSlots, size: 3), id: \.self) { row in
+                                    HStack(spacing: 10) {
+                                        ForEach(row, id: \.self) { slot in
+                                            let isBooked = isSlotBooked(slot)
+                                            let isSelected = isTimeSlotSelected(slot)
+                                            
+                                            Button(action: {
+                                                if !isBooked {
+                                                    handleTimeSlotSelection(slot)
+                                                }
+                                            }) {
+                                                Text(timeString(from: slot))
+                                                    .frame(maxWidth: .infinity)
+                                                    .padding(.vertical, 8)
+                                                    .modifier(TimeSlotAppearance(isSelected: isSelected, isBooked: isBooked))
+                                                    .cornerRadius(10)
+                                                    .foregroundColor(isSelected ? .white : (isBooked ? .gray : .primary))
+                                                    .lineLimit(1)
+                                                    .minimumScaleFactor(0.7)
+                                            }
+                                            .buttonStyle(PlainButtonStyle())
+                                            .modifier(GlassEffectIfAvailableRounded(cornerRadius: 10))
+                                            .disabled(isBooked)
                                         }
-                                    }) {
-                                        Text(timeString(from: slot))
-                                            .frame(maxWidth: .infinity)
-                                            .padding(.vertical, 8)
-                                            .background(
-                                                isTimeSlotSelected(slot) ? Color.blue :
-                                                    (isBooked ? Color.gray.opacity(0.5) : Color.gray.opacity(0.2))
-                                            )
-                                            .foregroundColor(
-                                                isTimeSlotSelected(slot) ? .white :
-                                                    (isBooked ? .gray : .primary)
-                                            )
-                                            .cornerRadius(8)
-                                            .lineLimit(1)
-                                            .minimumScaleFactor(0.7)
                                     }
-                                    .buttonStyle(PlainButtonStyle())
-                                    .disabled(isBooked)
+                                }
+                            }
+                        } else {
+                            ForEach(chunked(timeSlots, size: 3), id: \.self) { row in
+                                HStack(spacing: 10) {
+                                    ForEach(row, id: \.self) { slot in
+                                        let isBooked = isSlotBooked(slot)
+                                        let isSelected = isTimeSlotSelected(slot)
+                                        
+                                        Button(action: {
+                                            if !isBooked {
+                                                handleTimeSlotSelection(slot)
+                                            }
+                                        }) {
+                                            Text(timeString(from: slot))
+                                                .frame(maxWidth: .infinity)
+                                                .padding(.vertical, 8)
+                                                .modifier(TimeSlotAppearance(isSelected: isSelected, isBooked: isBooked))
+                                                .cornerRadius(10)
+                                                .foregroundColor(isSelected ? .white : (isBooked ? .gray : .primary))
+                                                .lineLimit(1)
+                                                .minimumScaleFactor(0.7)
+                                        }
+                                        .buttonStyle(PlainButtonStyle())
+                                        .modifier(GlassEffectIfAvailableRounded(cornerRadius: 10))
+                                        .disabled(isBooked)
+                                    }
                                 }
                             }
                         }
                     }
                     .padding(.vertical, 8)
                 }
-                
-                
                 
                 Section("Location") {
                     Picker("Select Location", selection: $selectedLocation) {
@@ -169,7 +191,6 @@ struct ConsultationScheduler: View {
                 userManager.fetchUser()
                 fetchTeachers()
             }
-
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Consultation"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
@@ -182,7 +203,6 @@ struct ConsultationScheduler: View {
         .sheet(isPresented: $showEmailSetupGuide) {
             EmailSetupGuide()
         }
-
     }
     
     private var canSubmit: Bool {
@@ -232,12 +252,10 @@ struct ConsultationScheduler: View {
                     for doc in snapshot?.documents ?? [] {
                         print(">> \(doc.data())")
                     }
-
                 }
             }
     }
 
-    
     private func roundDownToNearest20(_ date: Date) -> Date {
         let calendar = Calendar.current
         let components = calendar.dateComponents([.hour, .minute], from: date)
@@ -249,9 +267,6 @@ struct ConsultationScheduler: View {
         return calendar.date(from: newComponents)!
     }
 
-
-
-    
     private func fetchTeachers() {
         print("Fetching teachers")
         let db = Firestore.firestore()
@@ -275,7 +290,6 @@ struct ConsultationScheduler: View {
         let sortedSlots = selectedTimeSlots.sorted()
 
         if selectedTimeSlots.contains(slot) {
-
             let toRemove = sortedSlots.filter { $0 >= slot }
             selectedTimeSlots.subtract(toRemove)
             return
@@ -301,8 +315,6 @@ struct ConsultationScheduler: View {
         }
     }
 
-
-    
     private func isSlotBooked(_ slot: Date) -> Bool {
         bookedTimeSlots.contains { Calendar.current.isDate($0, equalTo: slot, toGranularity: .minute) }
     }
@@ -326,7 +338,7 @@ struct ConsultationScheduler: View {
         guard let teacher = selectedTeacher,
               let user = userManager.user,
               let start = selectedTimeSlots.min(),
-              let end = selectedTimeSlots.max(),
+              let _ = selectedTimeSlots.max(),
               !comments.isEmpty,
               !selectedLocation.isEmpty else {
             alertMessage = "Please fill in all details."
@@ -407,11 +419,46 @@ struct ConsultationScheduler: View {
         requestCalendarAccess()
         requestEvent(newEvent)
     }
-
 }
 
 func chunked<T>(_ array: [T], size: Int) -> [[T]] {
     stride(from: 0, to: array.count, by: size).map {
         Array(array[$0..<min($0 + size, array.count)])
     }
+}
+
+private struct GlassEffectIfAvailableRounded: ViewModifier {
+    var cornerRadius: CGFloat
+    func body(content: Content) -> some View {
+        if #available(iOS 26, *) {
+            content.glassEffect(.regular.interactive())
+        } else {
+            content
+        }
+    }
+}
+
+private struct TimeSlotAppearance: ViewModifier {
+    var isSelected: Bool
+    var isBooked: Bool
+    
+    func body(content: Content) -> some View {
+        let selectedColor: Color = .blue
+        let bookedColor: Color = Color.gray.opacity(0.5)
+        let normalColor: Color = Color.gray.opacity(0.2)
+        
+        if #available(iOS 26, *) {
+            let tintColor: Color = isSelected ? selectedColor : (isBooked ? bookedColor : normalColor)
+            content
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .glassEffect(.regular.interactive().tint(tintColor))
+        } else {
+            content
+                .background(isSelected ? selectedColor : (isBooked ? bookedColor : normalColor))
+        }
+    }
+}
+
+#Preview {
+    LoginView()
 }

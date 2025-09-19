@@ -31,7 +31,7 @@ struct LoginView: View {
     @State private var showVerificationSheet = false
     @State private var verificationMessage = ""
     @State private var isEmailVerified = false
-    
+    @Namespace private var namespace
     var classes = (1...4).flatMap { level in (1...10).map { "S\(level)-\($0 < 10 ? "0\($0)" : "\($0)")" } }
     var registerNumbers = (1...30).map { $0 < 10 ? "0\($0)" : "\($0)" }
     
@@ -47,159 +47,105 @@ struct LoginView: View {
                     TypingText(fullText: "Welcome to labX")
                         .padding(.top, 40)
                     
-                    VStack(spacing: 16) {
-                        if isRegistering {
-                            HStack(spacing: 12) {
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text("First Name")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                    TextField("First Name", text: $firstName)
-                                        .textContentType(.givenName)
-                                        .padding()
-                                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                                }
-                                
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text("Last Name")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                    TextField("Last Name", text: $lastName)
-                                        .textContentType(.familyName)
-                                        .padding()
-                                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                                }
+                    Group {
+                        if #available(iOS 26, *) {
+                            GlassEffectContainer {
+                                formFields
                             }
-                        }
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Email")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                            TextField("Email", text: $email)
-                                .textContentType(.emailAddress)
-                                .keyboardType(.emailAddress)
-                                .autocapitalization(.none)
-                                .padding()
-                                .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                                .onChange(of: email) { newEmail in
-                                    validateEmail(newEmail)
-                                    isStaffSignup = newEmail.lowercased().hasSuffix("@sst.edu.sg")
-                                    if isStaffSignup {
-                                        selectedClass = "Staff"
-                                        registerNumber = "Staff"
-                                    }
-                                }
-                            
-                            
-                            if !isEmailValid && !errorMessage.isEmpty {
-                                Text(errorMessage)
-                                    .foregroundColor(.red)
-                                    .font(.caption)
-                            }
-                        }
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Password")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                            SecureField("Password", text: $password)
-                                .textContentType(.password)
-                                .padding()
-                                .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                                .onChange(of: password) { _ in
-                                    validatePassword(password)
-                                }
-                            
-                            if !isPasswordValid && !errorMessage.isEmpty {
-                                Text("Password cannot be empty")
-                                    .foregroundColor(.red)
-                                    .font(.caption)
-                            }
-                        }
-                        
-                        if isRegistering {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Confirm Password")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                                SecureField("Confirm Password", text: $confirmPassword)
-                                    .textContentType(.password)
-                                    .padding()
-                                    .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                            }
-                            
-                            if !isStaffSignup {
-                                HStack {
-                                    Spacer()
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        Text("Class")
-                                            .font(.caption)
-                                            .foregroundColor(.gray)
-                                        Picker("Class", selection: $selectedClass) {
-                                            ForEach(classes, id: \.self) { Text($0) }
-                                        }
-                                        .pickerStyle(.menu)
-                                        .padding()
-                                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                                    }
-                                    
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        Text("Register Number")
-                                            .font(.caption)
-                                            .foregroundColor(.gray)
-                                        Picker("Register Number", selection: $registerNumber) {
-                                            ForEach(registerNumbers, id: \.self) { Text($0) }
-                                        }
-                                        .pickerStyle(.menu)
-                                        .padding()
-                                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                                    }
-                                    Spacer()
-                                }
-                            }
+                        } else {
+                            formFields
                         }
                     }
                     .padding(.horizontal)
                     
                     VStack(spacing: 16) {
                         
-                        Button {
-                            handleAuthentication()
-                        } label: {
-                            Text(isRegistering ? "Sign Up" : "Log In")
-                                .bold()
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                        }
-                        
-                        Button {
-                            isRegistering.toggle()
-                            errorMessage = ""
-                            isEmailValid = true
-                            isPasswordValid = true
-                            isStaffSignup = false
-                            if !isRegistering {
-                                firstName = ""
-                                lastName = ""
-                                confirmPassword = ""
+                        if #available(iOS 26, *) {
+                            Button {
+                                handleAuthentication()
+                            } label: {
+                                Text(isRegistering ? "Sign Up" : "Log In")
+                                    .bold()
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
                             }
-                        } label: {
-                            Text(isRegistering ? "Have an account? Log in" : "No account? Sign up")
-                                .foregroundColor(.blue)
-                                .font(.footnote)
+                            .buttonStyle(.glassProminent)
+                            .tint(.blue)
+                            .glassEffectID("primaryButton", in: namespace)
+                        } else {
+                            Button {
+                                handleAuthentication()
+                            } label: {
+                                Text(isRegistering ? "Sign Up" : "Log In")
+                                    .bold()
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
+                                    .modifier(GlassEffectIfAvailableRounded(cornerRadius: 10))
+                            }
                         }
                         
-                        Button {
-                            resetPasswordSheetShowing = true
-                        } label: {
-                            Text("Forgot Password?")
-                                .font(.footnote)
-                                .foregroundStyle(.blue)
+                        if #available(iOS 26, *) {
+                            Button {
+                                isRegistering.toggle()
+                                errorMessage = ""
+                                isEmailValid = true
+                                isPasswordValid = true
+                                isStaffSignup = false
+                                if !isRegistering {
+                                    firstName = ""
+                                    lastName = ""
+                                    confirmPassword = ""
+                                }
+                            } label: {
+                                Text(isRegistering ? "Have an account? Log in" : "No account? Sign up")
+                            }
+                            .buttonStyle(.glass)
+                            .tint(.blue)
+                            .font(.footnote)
+                        } else {
+                            Button {
+                                isRegistering.toggle()
+                                errorMessage = ""
+                                isEmailValid = true
+                                isPasswordValid = true
+                                isStaffSignup = false
+                                if !isRegistering {
+                                    firstName = ""
+                                    lastName = ""
+                                    confirmPassword = ""
+                                }
+                            } label: {
+                                Text(isRegistering ? "Have an account? Log in" : "No account? Sign up")
+                                    .foregroundColor(.blue)
+                                    .font(.footnote)
+                            }
                         }
-                        .sheet(isPresented: $resetPasswordSheetShowing) {
-                            ForgotPassword(email: $email)
+                        
+                        if #available(iOS 26, *) {
+                            Button {
+                                resetPasswordSheetShowing = true
+                            } label: {
+                                Text("Forgot Password?")
+                            }
+                            .buttonStyle(.glass)
+                            .tint(.blue)
+                            .font(.footnote)
+                            .sheet(isPresented: $resetPasswordSheetShowing) {
+                                ForgotPassword(email: $email)
+                            }
+                        } else {
+                            Button {
+                                resetPasswordSheetShowing = true
+                            } label: {
+                                Text("Forgot Password?")
+                                    .font(.footnote)
+                                    .foregroundStyle(.blue)
+                            }
+                            .sheet(isPresented: $resetPasswordSheetShowing) {
+                                ForgotPassword(email: $email)
+                            }
                         }
                     }
                     .padding(.horizontal)
@@ -207,6 +153,14 @@ struct LoginView: View {
             }
             .onChange(of: auth.authErrorMessage) { newMessage in
                 if let newMessage = newMessage {
+                    // If this is a bypass email, ignore verification-related messages
+                    if bypassEmails.contains(email.lowercased()) {
+                        // Clear any verification UI for bypass users
+                        showVerificationSheet = false
+                        errorMessage = ""
+                        showAlert = false
+                        return
+                    }
                     errorMessage = newMessage
                     showAlert = true
                     if newMessage.contains("verify your email") {
@@ -228,6 +182,8 @@ struct LoginView: View {
             .sheet(
                 isPresented: $showVerificationSheet,
                 onDismiss: {
+                    // Skip verification re-check for bypass users
+                    if bypassEmails.contains(email.lowercased()) { return }
                     AuthManager.shared.checkEmailVerified { verified in
                         DispatchQueue.main.async {
                             isEmailVerified = verified
@@ -245,6 +201,186 @@ struct LoginView: View {
                 }
             )
             
+        }
+    }
+    @ViewBuilder
+    private var formFields: some View {
+        VStack(spacing: 16) {
+            if isRegistering {
+                HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("First Name")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        if #available(iOS 26, *) {
+                            TextField("First Name", text: $firstName)
+                                .textContentType(.givenName)
+                                .padding()
+                                .glassEffect(.regular, in: .rect(cornerRadius: 10))
+                        } else {
+                            TextField("First Name", text: $firstName)
+                                .textContentType(.givenName)
+                                .padding()
+                                .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                        }
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Last Name")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        if #available(iOS 26, *) {
+                            TextField("Last Name", text: $lastName)
+                                .textContentType(.familyName)
+                                .padding()
+                                .glassEffect(.regular, in: .rect(cornerRadius: 10))
+                        } else {
+                            TextField("Last Name", text: $lastName)
+                                .textContentType(.familyName)
+                                .padding()
+                                .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                        }
+                    }
+                }
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Email")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                if #available(iOS 26, *) {
+                    TextField("Email", text: $email)
+                        .textContentType(.emailAddress)
+                        .keyboardType(.emailAddress)
+                        .autocapitalization(.none)
+                        .padding()
+                        .glassEffect(.regular, in: .rect(cornerRadius: 10))
+                        .onChange(of: email) { newEmail in
+                            validateEmail(newEmail)
+                            isStaffSignup = newEmail.lowercased().hasSuffix("@sst.edu.sg")
+                            if isStaffSignup {
+                                selectedClass = "Staff"
+                                registerNumber = "Staff"
+                            }
+                        }
+                } else {
+                    TextField("Email", text: $email)
+                        .textContentType(.emailAddress)
+                        .keyboardType(.emailAddress)
+                        .autocapitalization(.none)
+                        .padding()
+                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                        .onChange(of: email) { newEmail in
+                            validateEmail(newEmail)
+                            isStaffSignup = newEmail.lowercased().hasSuffix("@sst.edu.sg")
+                            if isStaffSignup {
+                                selectedClass = "Staff"
+                                registerNumber = "Staff"
+                            }
+                        }
+                }
+                
+                
+                if !isEmailValid && !errorMessage.isEmpty {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                        .font(.caption)
+                }
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Password")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                if #available(iOS 26, *) {
+                    SecureField("Password", text: $password)
+                        .textContentType(.password)
+                        .padding()
+                        .glassEffect(.regular, in: .rect(cornerRadius: 10))
+                        .onChange(of: password) { _ in
+                            validatePassword(password)
+                        }
+                } else {
+                    SecureField("Password", text: $password)
+                        .textContentType(.password)
+                        .padding()
+                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                        .onChange(of: password) { _ in
+                            validatePassword(password)
+                        }
+                }
+                
+                if !isPasswordValid && !errorMessage.isEmpty {
+                    Text("Password cannot be empty")
+                        .foregroundColor(.red)
+                        .font(.caption)
+                }
+            }
+            
+            if isRegistering {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Confirm Password")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                    if #available(iOS 26, *) {
+                        SecureField("Confirm Password", text: $confirmPassword)
+                            .textContentType(.password)
+                            .padding()
+                            .glassEffect(.regular, in: .rect(cornerRadius: 10))
+                    } else {
+                        SecureField("Confirm Password", text: $confirmPassword)
+                            .textContentType(.password)
+                            .padding()
+                            .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                    }
+                }
+                
+                if !isStaffSignup {
+                    HStack {
+                        Spacer()
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Class")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            if #available(iOS 26, *) {
+                                Picker("Class", selection: $selectedClass) {
+                                    ForEach(classes, id: \.self) { Text($0) }
+                                }
+                                .pickerStyle(.menu)
+                                .padding()
+                                .glassEffect(.regular, in: .rect(cornerRadius: 10))
+                            } else {
+                                Picker("Class", selection: $selectedClass) {
+                                    ForEach(classes, id: \.self) { Text($0) }
+                                }
+                                .pickerStyle(.menu)
+                                .padding()
+                                .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                            }
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Register Number")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            if #available(iOS 26, *) {
+                                Picker("Register Number", selection: $registerNumber) {
+                                    ForEach(registerNumbers, id: \.self) { Text($0) }
+                                }
+                                .pickerStyle(.menu)
+                                .padding()
+                                .glassEffect(.regular, in: .rect(cornerRadius: 10))
+                            } else {
+                                Picker("Register Number", selection: $registerNumber) {
+                                    ForEach(registerNumbers, id: \.self) { Text($0) }
+                                }
+                                .pickerStyle(.menu)
+                                .padding()
+                                .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                            }
+                        }
+                        Spacer()
+                    }
+                }
+            }
         }
     }
     
@@ -272,7 +408,11 @@ struct LoginView: View {
                         showAlert = true
                     } else {
                         if bypassEmails.contains(email.lowercased()) {
+                            // Instantly "logged in" via AuthManager; ensure no verification UI
                             showVerificationSheet = false
+                            verificationMessage = ""
+                            errorMessage = ""
+                            showAlert = false
                         } else {
                             showVerificationSheet = true
                             verificationMessage = "A verification email has been sent. Please check your inbox and verify your email before logging in."
@@ -299,16 +439,25 @@ struct LoginView: View {
                             verificationMessage = "Please verify your email before logging in."
                         }
                     } else {
-                        AuthManager.shared.checkEmailVerified { verified in
-                            DispatchQueue.main.async {
-                                isEmailVerified = verified
-                                if !verified {
-                                    showVerificationSheet = true
-                                    verificationMessage = "Please verify your email before logging in."
+                        // Successful sign-in
+                        if bypassEmails.contains(email.lowercased()) {
+                            // Skip any verification checks and UI
+                            showVerificationSheet = false
+                            verificationMessage = ""
+                            isEmailVerified = true
+                        } else {
+                            AuthManager.shared.checkEmailVerified { verified in
+                                DispatchQueue.main.async {
+                                    isEmailVerified = verified
+                                    if !verified {
+                                        showVerificationSheet = true
+                                        verificationMessage = "Please verify your email before logging in."
+                                    }
                                 }
                             }
                         }
                     }
+
                 }
             }
         }
@@ -343,11 +492,17 @@ struct LoginView: View {
     }
     
     private func checkEmailVerificationOnLaunch() {
-        if let currentUser = Auth.auth().currentUser {
+        if let _ = Auth.auth().currentUser {
+            // Skip verification prompt for bypass users
+            if bypassEmails.contains(email.lowercased()) {
+                showVerificationSheet = false
+                isEmailVerified = true
+                return
+            }
             AuthManager.shared.checkEmailVerified { verified in
                 DispatchQueue.main.async {
                     isEmailVerified = verified
-                    if !verified {
+                    if !verified && !bypassEmails.contains(email.lowercased()) {
                         showVerificationSheet = true
                         verificationMessage = "Please verify your email before logging in."
                     }
@@ -356,3 +511,19 @@ struct LoginView: View {
         }
     }
 }
+
+private struct GlassEffectIfAvailableRounded: ViewModifier {
+    var cornerRadius: CGFloat
+    func body(content: Content) -> some View {
+        if #available(iOS 26, *) {
+            content.glassEffect(.regular.tint(.blue).interactive())
+        } else {
+            content.background(Color.blue).clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+        }
+    }
+}
+
+#Preview {
+    LoginView()
+}
+

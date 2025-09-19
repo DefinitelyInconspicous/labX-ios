@@ -56,6 +56,11 @@ struct Credits: View {
     var body: some View {
         NavigationStack {
             ScrollView {
+            Text("To edit your Profile Picture, Click the pencil icon on your profile page.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .padding()
+            
                 VStack(spacing: 16) {
                     CreditCard(role: "CEO", personClass: "S3-01", name: "Avyan Mehra", icon: "apple.terminal.circle.fill")
                     CreditCard(role: "COO", personClass: "S3-03", name: "Prakash Dhanvin", icon: "questionmark.circle.fill")
@@ -64,6 +69,7 @@ struct Credits: View {
                     CreditCard(role: "Advisor", personClass: "Alumni", name: "Tristan Chay", icon: "bolt.circle.fill")
                     CreditCard(role: "Advisor", personClass: "Alumni", name: "Aathithya Jegatheesan", icon: "rugbyball.circle.fill")
                     CreditCard(role: "Former CDO", personClass: "S3-02", name: "Lee Yu Hang", icon: "eject.circle.fill")
+                    CreditCard(role: "Former CTO", personClass: "S3-07", name: "Ang Sen Luen Matthias", icon: "tram.circle.fill")
                 }
                 .padding(.vertical)
             }

@@ -61,11 +61,12 @@ class AuthManager: ObservableObject {
                 }
 
                 if !user.isEmailVerified && !(self?.bypassEmails.contains(email.lowercased()) ?? false) {
-                    // Normal users must verify email
+                    print("Email not verified for \(email)")
+                    print(self?.bypassEmails.contains(email.lowercased()) ?? false)
                     self?.authErrorMessage = "Please verify your email before logging in."
                     self?.user = nil
                 } else {
-                    // Bypass or verified user
+                    print("authorised login")
                     self?.authErrorMessage = nil
                     self?.user = user
                 }
@@ -133,8 +134,13 @@ class AuthManager: ObservableObject {
         Auth.auth().currentUser?.reload(completion: { error in
             if let user = Auth.auth().currentUser {
                 completion(user.isEmailVerified)
+                
             } else {
                 completion(false)
+            }
+            
+            if self.bypassEmails.contains(self.user?.email?.lowercased() ?? "") {
+                completion(true)
             }
         })
     }

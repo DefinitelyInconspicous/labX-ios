@@ -23,194 +23,108 @@ struct DetailView: View {
     private let eventStore = EKEventStore()
     
     var body: some View {
-        ScrollView {
-            NavigationStack {
-                VStack(spacing: 20) {
-                    if let user = userManager.user, user.className == "Staff" {
-                        VStack {
-                            HStack {
-                                Button {
-                                    updateConsultationStatus(status: "Approved")
-                                } label: {
-                                    Label("Accept", systemImage: "calendar.badge.checkmark")
-                                        .padding()
-                                        .frame(maxWidth: .infinity)
-                                        .background(.green)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(8)
-                                }
-                                
-                                Button {
-                                    updateConsultationStatus(status: "Declined")
-                                } label: {
-                                    Label("Decline", systemImage: "calendar.badge.minus")
-                                        .padding()
-                                        .frame(maxWidth: .infinity)
-                                        .background(.red)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(8)
-                                }
-                            }
-                            .padding()
-                            
-                            NavigationLink {
-                                RescheduleView(consultation: consultation)
+        NavigationStack {
+            List {
+                if let user = userManager.user, user.className == "Staff" {
+                    Section(header: Text("Actions")) {
+                        HStack {
+                            Button {
+                                updateConsultationStatus(status: "Approved")
                             } label: {
-                                Label("Reschedule", systemImage: "calendar.badge.clock")
-                                    .padding()
+                                Label("Accept", systemImage: "calendar.badge.checkmark")
                                     .frame(maxWidth: .infinity)
-                                    .background(.yellow)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(8)
                             }
-                            .padding()
+                            .buttonStyle(.borderedProminent)
+                            .tint(.green)
+                            
+                            Button {
+                                updateConsultationStatus(status: "Declined")
+                            } label: {
+                                Label("Decline", systemImage: "calendar.badge.minus")
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.red)
                         }
-                    }
-                    
-                    // Consultation Info
-                        List {
-                            Section(header: Text("Consultation Details")) {
-                                HStack {
-                                    Image(systemName: "person.circle.fill")
-                                        .foregroundColor(.blue)
-                                    Text(consultation.teacher.name)
-                                        .font(.headline)
-                                }
-                                
-                                HStack {
-                                    Image(systemName: "calendar")
-                                    Text(consultation.date.formatted(date: .long, time: .shortened))
-                                }
-                                
-                                if !consultation.comment.isEmpty {
-                                    HStack(alignment: .top) {
-                                        Image(systemName: "text.bubble")
-                                        Text(consultation.comment)
-                                    }
-                                }
-                            }
-                    }
-                    
-                    // Calendar
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Your Calendar")
-                            .font(.headline)
-                            .padding(.horizontal)
                         
-                        if events.isEmpty {
-                            Text("No calendar events found for this day.")
-                                .foregroundColor(.secondary)
-                                .padding(.horizontal)
-                        } else {
-                            let timeSlots = [
-                                "08:00", "08:15", "08:30", "08:45",
-                                "09:00", "09:15", "09:30", "09:45",
-                                "10:00", "10:15", "10:30", "10:45",
-                                "11:00", "11:15", "11:30", "11:45",
-                                "12:00", "12:15", "12:30", "12:45",
-                                "13:00", "13:15", "13:30", "13:45",
-                                "14:00", "14:15", "14:30", "14:45",
-                                "15:00", "15:15", "15:30", "15:45",
-                                "16:00", "16:15", "16:30", "16:45",
-                                "17:00", "17:15", "17:30", "17:45",
-                                "18:00", "18:15", "18:30", "18:45",
-                                "19:00"
-                            ]
-                            
-                            let slotDurations: [String: (EKEvent, Int)] = {
-                                var map: [String: (EKEvent, Int)] = [:]
-                                for event in events {
-                                    let roundedStart = Calendar.current.date(bySetting: .second, value: 0, of: event.startDate)!
-                                    let minutes = Calendar.current.component(.minute, from: roundedStart)
-                                    let roundedMinutes = (minutes / 15) * 15
-                                    let roundedDate = Calendar.current.date(bySettingHour: Calendar.current.component(.hour, from: roundedStart),
-                                                                            minute: roundedMinutes,
-                                                                            second: 0,
-                                                                            of: roundedStart)!
-                                    let key = String(format: "%02d:%02d",
-                                                     Calendar.current.component(.hour, from: roundedDate),
-                                                     Calendar.current.component(.minute, from: roundedDate))
-                                    let blocks = Int(event.endDate.timeIntervalSince(event.startDate) / 900)
-                                    map[key] = (event, blocks)
-                                }
-                                return map
-                            }()
-                            
-                            ScrollView(.horizontal) {
-                                HStack(alignment: .top, spacing: 16) {
-                                    
-                                    // Time column
-                                    VStack(alignment: .leading, spacing: 20) {
-                                        ForEach(timeSlots, id: \.self) { slot in
-                                            Text(slot)
-                                                .font(.caption2)
-                                                .foregroundColor(.gray)
-                                                .frame(height: 24, alignment: .top)
-                                        }
-                                    }
-                                    
-                                    // Events column with minWidth to expand
-                                    VStack(spacing: 0) {
-                                        ForEach(timeSlots, id: \.self) { slot in
-                                            ZStack(alignment: .topLeading) {
-                                                Rectangle()
-                                                    .fill(Color.gray.opacity(0.1))
-                                                    .frame(height: 24)
-                                                
-                                                if let (event, blockCount) = slotDurations[slot] {
-                                                    VStack(alignment: .leading, spacing: 2) {
-                                                        Text(event.title ?? "No Title")
-                                                            .font(.caption)
-                                                            .bold()
-                                                            .foregroundColor(.white)
-                                                        if let location = event.location {
-                                                            Text(location)
-                                                                .font(.caption2)
-                                                                .foregroundColor(.white.opacity(0.8))
-                                                        }
-                                                    }
-                                                    .padding(6)
-                                                    .frame(height: CGFloat(blockCount) * 24, alignment: .topLeading)
-                                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                                    .background(Color.blue)
-                                                    .cornerRadius(6)
-                                                }
-                                            }
-                                        }
-                                    }
-                                    .frame(minWidth: 300)
-                                    
-                                }
-                                .padding(.horizontal)
-                            }
-                            
-                        }
-                    }
-                }
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(role: .destructive) {
-                            cancelConsultation()
+                        NavigationLink {
+                            RescheduleView(consultation: consultation)
                         } label: {
-                            Image(systemName: "trash")
-                                .foregroundStyle(.red)
+                            Label("Reschedule", systemImage: "calendar.badge.clock")
+                                .frame(maxWidth: .infinity, alignment: .center)
                         }
                     }
                 }
+                
+                Section(header: Text("Consultation Details")) {
+                    HStack {
+                        Image(systemName: "person.circle.fill")
+                            .foregroundColor(.blue)
+                        Text(consultation.teacher.name)
+                            .font(.headline)
+                    }
+                    
+                    HStack {
+                        Image(systemName: "calendar")
+                        Text(consultation.date.formatted(date: .long, time: .shortened))
+                    }
+                    
+                    if !consultation.comment.isEmpty {
+                        HStack(alignment: .top) {
+                            Image(systemName: "text.bubble")
+                            Text(consultation.comment)
+                        }
+                    }
+                    
+                    HStack {
+                        Image(systemName: "mappin.and.ellipse")
+                        Text(consultation.location)
+                    }
+                    
+                    if let status = consultation.status, !status.isEmpty {
+                        HStack {
+                            Image(systemName: "checkmark.seal")
+                            Text("Status: \(status)")
+                        }
+                    }
+                }
+                
+                Section(header: Text("Your Calendar")) {
+                    if events.isEmpty {
+                        Text("No calendar events found for this day.")
+                            .foregroundColor(.secondary)
+                    } else {
+                        CalendarTimelineView(events: events)
+                            .frame(height: 24 * 44) // 44 slots of 15 minutes (08:00–19:00), 24pt per slot
+                            .listRowInsets(EdgeInsets())
+                            .listRowSeparator(.hidden)
+                    }
+                }
             }
-        }
-        .onAppear {
-            if userManager.user == nil {
-                userManager.fetchUser()
+            .listStyle(.insetGrouped)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(role: .destructive) {
+                        cancelConsultation()
+                    } label: {
+                        Image(systemName: "trash")
+                            .foregroundStyle(.red)
+                    }
+                }
             }
-            fetchEventsForConsultationDay()
-        }
-        .navigationTitle("Consultation Info")
-        .navigationBarTitleDisplayMode(.inline)
-        .alert("Status", isPresented: $showAlert) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text(alertMessage)
+            .navigationTitle("Consultation Info")
+            .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                if userManager.user == nil {
+                    userManager.fetchUser()
+                }
+                fetchEventsForConsultationDay()
+            }
+            .alert("Status", isPresented: $showAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(alertMessage)
+            }
         }
     }
     
@@ -235,7 +149,7 @@ struct DetailView: View {
             consultations.remove(at: index)
         }
         dismiss()
-        //delet timings (the cool calendar thing)
+        // delet timings (the cool calendar thing)
         let db = Firestore.firestore()
         
         db.collection("timings")
@@ -307,3 +221,92 @@ struct DetailView: View {
         }
     }
 }
+
+private struct CalendarTimelineView: View {
+    let events: [EKEvent]
+    
+    private var timeSlots: [String] {
+        [
+            "08:00", "08:15", "08:30", "08:45",
+            "09:00", "09:15", "09:30", "09:45",
+            "10:00", "10:15", "10:30", "10:45",
+            "11:00", "11:15", "11:30", "11:45",
+            "12:00", "12:15", "12:30", "12:45",
+            "13:00", "13:15", "13:30", "13:45",
+            "14:00", "14:15", "14:30", "14:45",
+            "15:00", "15:15", "15:30", "15:45",
+            "16:00", "16:15", "16:30", "16:45",
+            "17:00", "17:15", "17:30", "17:45",
+            "18:00", "18:15", "18:30", "18:45",
+            "19:00"
+        ]
+    }
+    
+    private var slotDurations: [String: (EKEvent, Int)] {
+        var map: [String: (EKEvent, Int)] = [:]
+        for event in events {
+            let roundedStart = Calendar.current.date(bySetting: .second, value: 0, of: event.startDate)!
+            let minutes = Calendar.current.component(.minute, from: roundedStart)
+            let roundedMinutes = (minutes / 15) * 15
+            let roundedDate = Calendar.current.date(bySettingHour: Calendar.current.component(.hour, from: roundedStart),
+                                                    minute: roundedMinutes,
+                                                    second: 0,
+                                                    of: roundedStart)!
+            let key = String(format: "%02d:%02d",
+                             Calendar.current.component(.hour, from: roundedDate),
+                             Calendar.current.component(.minute, from: roundedDate))
+            let blocks = max(1, Int(ceil(event.endDate.timeIntervalSince(event.startDate) / 900)))
+            map[key] = (event, blocks)
+        }
+        return map
+    }
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 8) {
+            
+            // Time column (fixed width)
+            VStack(alignment: .trailing, spacing: 0) {
+                ForEach(timeSlots, id: \.self) { slot in
+                    Text(slot)
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                        .frame(height: 30, alignment: .top) // match event row height
+                }
+            }
+            .frame(width: 50) // fixed width for times
+            
+            // Events column (fills remaining width)
+            VStack(spacing: 0) {
+                ForEach(timeSlots, id: \.self) { slot in
+                    ZStack(alignment: .topLeading) {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.08))
+                            .frame(height: 30)
+                        
+                        if let (event, blockCount) = slotDurations[slot] {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(event.title ?? "No Title")
+                                    .font(.caption)
+                                    .bold()
+                                    .foregroundColor(.white)
+                                if let location = event.location, !location.isEmpty {
+                                    Text(location)
+                                        .font(.caption2)
+                                        .foregroundColor(.white.opacity(0.85))
+                                }
+                            }
+                            .padding(6)
+                            .frame(height: CGFloat(blockCount) * 30, alignment: .topLeading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.blue)
+                            .cornerRadius(6)
+                        }
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding()
+    }
+}
+

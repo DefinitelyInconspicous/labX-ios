@@ -24,6 +24,7 @@ struct SplashScreenView: View {
                     .frame(width: 180, height: 180)
                     .cornerRadius(45)
                     .opacity(logoOpacity)
+                    .modifier(GlassEffectIfAvailable())
                 
                 Text("labX")
                     .font(.system(size: 60, weight: .bold, design: .rounded))
@@ -59,6 +60,16 @@ struct SplashScreenView: View {
             withAnimation(.easeOut(duration: 1.0)) {
                 versionOpacity = 1.0
             }
+        }
+    }
+}
+
+private struct GlassEffectIfAvailable: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26, *) {
+            content.glassEffect(.regular, in: .rect(cornerRadius: 45))
+        } else {
+            
         }
     }
 }

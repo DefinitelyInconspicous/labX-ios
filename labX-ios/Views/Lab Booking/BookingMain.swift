@@ -203,12 +203,14 @@ struct BookingMain: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                     }
-                    
+                
                     LazyVGrid(columns: [
                         GridItem(.adaptive(minimum: 60))
                     ], spacing: 10) {
                         ForEach(timeSlots, id: \.self) { slot in
                             let isBooked = isSlotBooked(slot)
+                            let isSelected = isTimeSlotSelected(slot)
+                            
                             Button(action: {
                                 if !isBooked {
                                     handleTimeSlotSelection(slot)
@@ -217,13 +219,14 @@ struct BookingMain: View {
                                 Text(timeString(from: slot))
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 8)
-                                    .background(isTimeSlotSelected(slot) ? Color.blue : (isBooked ? Color.gray.opacity(0.5) : Color.gray.opacity(0.2)))
-                                    .foregroundColor(isTimeSlotSelected(slot) ? .white : (isBooked ? .gray : .primary))
+                                    .modifier(TimeSlotAppearance(isSelected: isSelected, isBooked: isBooked))
                                     .cornerRadius(8)
+                                    .foregroundColor(isSelected ? .white : (isBooked ? .gray : .primary))
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.7)
                             }
                             .buttonStyle(PlainButtonStyle())
+                            .modifier(GlassEffectIfAvailableRounded(cornerRadius: 8))
                             .disabled(isBooked)
                         }
                     }
@@ -239,7 +242,6 @@ struct BookingMain: View {
                     Text("Book Lab")
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.blue)
                         .foregroundColor(.white)
                         .cornerRadius(10)
                         .lineLimit(1)
@@ -353,6 +355,39 @@ struct BookingMain: View {
                     }
                 }
             }
+        }
+    }
+}
+
+
+private struct GlassEffectIfAvailableRounded: ViewModifier {
+    var cornerRadius: CGFloat
+    func body(content: Content) -> some View {
+        if #available(iOS 26, *) {
+            content.glassEffect(.regular.interactive())
+        } else {
+            content
+        }
+    }
+}
+
+private struct TimeSlotAppearance: ViewModifier {
+    var isSelected: Bool
+    var isBooked: Bool
+    
+    func body(content: Content) -> some View {
+        let selectedColor: Color = .blue
+        let bookedColor: Color = Color.gray.opacity(0.5)
+        let normalColor: Color = Color.gray.opacity(0.2)
+        
+        if #available(iOS 26, *) {
+            let tintColor: Color = isSelected ? selectedColor : (isBooked ? bookedColor : normalColor)
+            content
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .glassEffect(.regular.interactive().tint(tintColor))
+        } else {
+            content
+                .background(isSelected ? selectedColor : (isBooked ? bookedColor : normalColor))
         }
     }
 }
