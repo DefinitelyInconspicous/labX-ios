@@ -34,7 +34,7 @@ struct SplashScreenView: View {
                 Spacer()
                 
                 VStack(spacing: 4) {
-                    Text("Release 1.2.0")
+                    Text("Release 1.2.1")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                         .opacity(versionOpacity)
