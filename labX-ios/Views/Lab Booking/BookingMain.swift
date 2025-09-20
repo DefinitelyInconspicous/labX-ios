@@ -242,8 +242,6 @@ struct BookingMain: View {
                     Text("Book Lab")
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                 }

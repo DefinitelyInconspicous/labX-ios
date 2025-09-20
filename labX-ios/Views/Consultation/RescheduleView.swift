@@ -107,10 +107,7 @@ struct RescheduleView: View {
                             Text(isRescheduling ? "Rescheduling..." : "Reschedule Consultation")
                         }
                         .frame(maxWidth: .infinity)
-                        .foregroundColor(.white)
                         .padding()
-                        .background(Color.orange)
-                        .cornerRadius(10)
                     }
                     .disabled(isRescheduling || newLocation.isEmpty || newDate < Date())
                     

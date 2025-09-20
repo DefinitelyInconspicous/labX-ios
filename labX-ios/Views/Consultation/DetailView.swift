@@ -26,34 +26,58 @@ struct DetailView: View {
         NavigationStack {
             List {
                 if let user = userManager.user, user.className == "Staff" {
-                    Section(header: Text("Actions")) {
-                        HStack {
-                            Button {
-                                updateConsultationStatus(status: "Approved")
-                            } label: {
-                                Label("Accept", systemImage: "calendar.badge.checkmark")
-                                    .frame(maxWidth: .infinity)
+                    if #available(iOS 26, *) {
+                        Section(header: Text("Actions")) {
+                            GlassEffectContainer {
+                                HStack {
+                                    Button {
+                                        updateConsultationStatus(status: "Approved")
+                                    } label: {
+                                        Label("Accept", systemImage: "calendar.badge.checkmark")
+                                            .frame(maxWidth: .infinity)
+                                    }
+                                    .buttonStyle(.glassProminent)
+                                    .tint(.green)
+                                    
+                                    Button {
+                                        updateConsultationStatus(status: "Declined")
+                                    } label: {
+                                        Label("Decline", systemImage: "calendar.badge.minus")
+                                            .frame(maxWidth: .infinity)
+                                    }
+                                    .buttonStyle(.glassProminent)
+                                    .tint(.red)
+                                }
+                                
+                                NavigationLink {
+                                    RescheduleView(consultation: consultation)
+                                } label: {
+                                    Label("Reschedule", systemImage: "calendar.badge.clock")
+                                        .frame(maxWidth: .infinity, alignment: .center)
+                                }
+                                .buttonStyle(.glass)
                             }
-                            .buttonStyle(.borderedProminent)
-                            .tint(.green)
-                            
-                            Button {
-                                updateConsultationStatus(status: "Declined")
-                            } label: {
-                                Label("Decline", systemImage: "calendar.badge.minus")
-                                    .frame(maxWidth: .infinity)
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .tint(.red)
                         }
-                        
-                        NavigationLink {
-                            RescheduleView(consultation: consultation)
-                        } label: {
-                            Label("Reschedule", systemImage: "calendar.badge.clock")
-                                .frame(maxWidth: .infinity, alignment: .center)
-                        }
+                    } else {
+                        Section(header: Text("Actions")) {
+                            HStack {
+                                Button {
+                                    updateConsultationStatus(status: "Approved")
+                                } label: {
+                                    Label("Accept", systemImage: "calendar.badge.checkmark")
+                                    .frame(maxWidth: .infinity) } .buttonStyle(.borderedProminent)
+                                    .tint(.green)
+                                Button {
+                                    updateConsultationStatus(status: "Declined")
+                                } label: {
+                                    Label("Decline", systemImage: "calendar.badge.minus")
+                                    .frame(maxWidth: .infinity) }
+                                .buttonStyle(.borderedProminent)
+                                .tint(.red) }
+                            NavigationLink {
+                                RescheduleView(consultation: consultation) } label: { Label("Reschedule", systemImage: "calendar.badge.clock") .frame(maxWidth: .infinity, alignment: .center) } }
                     }
+                    
                 }
                 
                 Section(header: Text("Consultation Details")) {

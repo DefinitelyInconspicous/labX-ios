@@ -99,47 +99,48 @@ struct HomeView: View {
     }
     
     private func consultationRow(_ consultation: consultation) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(consultation.teacher.name)
-                    .font(.headline)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                Spacer()
-                Text(statusText(for: consultation.status))
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundColor(statusColor(for: consultation.status))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(statusColor(for: consultation.status).opacity(0.1))
-                    .cornerRadius(8)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-            }
-            HStack {
-                Image(systemName: "calendar")
-                Text("\(consultation.date.formatted(date: .abbreviated, time: .shortened))")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            HStack {
-                Image(systemName: "location")
-                Text("\(consultation.location)")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            HStack {
-                if !consultation.comment.isEmpty {
-                    Image(systemName: "message")
-                    Text("\(consultation.comment)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .lineLimit(2)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Text(consultation.teacher.name)
+                            .font(.headline)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                        Spacer()
+                        Text(statusText(for: consultation.status))
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(statusColor(for: consultation.status))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(statusColor(for: consultation.status).opacity(0.1))
+                            .cornerRadius(8)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
+                    HStack {
+                        Image(systemName: "calendar")
+                        Text("\(consultation.date.formatted(date: .abbreviated, time: .shortened))")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    HStack {
+                        Image(systemName: "location")
+                        Text("\(consultation.location)")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    HStack {
+                        if !consultation.comment.isEmpty {
+                            Image(systemName: "message")
+                            Text("\(consultation.comment)")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .lineLimit(2)
+                        }
+                    }
                 }
-            }
-        }
-        .padding(.vertical, 4)
+                .padding(.vertical, 4)
     }
     
     var body: some View {
