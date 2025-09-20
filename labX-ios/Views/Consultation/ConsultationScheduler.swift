@@ -45,7 +45,7 @@ struct ConsultationScheduler: View {
         }
         return slots
     }
-    
+    let today = Calendar.current.startOfDay(for: Date())
     var body: some View {
         NavigationStack {
             Form {
@@ -88,10 +88,20 @@ struct ConsultationScheduler: View {
                     .onChange(of: selectedTeacher) { _ in fetchCalendarEvents() }
                 }
                 
+                
+
                 Section("Date") {
-                    DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
-                        .onChange(of: selectedDate) { _ in fetchCalendarEvents() }
+                    DatePicker(
+                        "Select Date",
+                        selection: $selectedDate,
+                        in: today...,
+                        displayedComponents: .date
+                    )
+                    .onChange(of: selectedDate) { _ in
+                        fetchCalendarEvents()
+                    }
                 }
+
                 
                 Section("Time Slots") {
                     if !selectedTimeSlots.isEmpty {
