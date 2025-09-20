@@ -195,6 +195,11 @@ struct HomeView: View {
                 }
             }
         }
+        .refreshable {
+            if let email = Auth.auth().currentUser?.email {
+                viewModel.fetchConsultations(for: email)
+            }
+        }
         .navigationTitle("Home")
         .lineLimit(1)
         .minimumScaleFactor(0.7)

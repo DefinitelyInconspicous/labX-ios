@@ -85,6 +85,15 @@ struct StaffConsultationsView: View {
                 .listStyle(.insetGrouped)
             }
         }
+        .refreshable{
+            consultationManager.fetchTeacherConsultations(forTeacher: staff.email)
+            if userManager.user == nil {
+                userManager.fetchUser()
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                loadConsultationStatuses()
+            }
+        }
         .navigationTitle("Consultations")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
